@@ -23,6 +23,8 @@
 #include <set>
 #include <unordered_map>
 
+const char* appName = "MonaGraphics";
+
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
 
@@ -106,7 +108,7 @@ private:
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-        window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr);
+        window = glfwCreateWindow(WIDTH, HEIGHT, appName, nullptr, nullptr);
         glfwSetWindowUserPointer(window, this);
         glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
     }
@@ -430,5 +432,15 @@ private:
 
 
 int main() {
+    MonaGraphics app;
 
+    try {
+        app.run();
+    }
+    catch(const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
 }
