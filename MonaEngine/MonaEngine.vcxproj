@@ -137,11 +137,18 @@
   <ItemGroup>
     <ClCompile Include="first_app.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="mve_pipeline.cpp" />
     <ClCompile Include="mve_window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="first_app.hpp" />
+    <ClInclude Include="mve_pipeline.hpp" />
     <ClInclude Include="mve_window.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\compile.bat" />
+    <None Include="shaders\simple_shader.frag" />
+    <None Include="shaders\simple_shader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mve_window.hpp"
+#include "mve_pipeline.hpp"
 
 
 namespace mve {
@@ -15,6 +16,7 @@ namespace mve {
 
 	private:
 		MveWindow mveWindow{ WIDTH, HEIGHT, "Hello Mona!" };
+		MvePipeline mvePipeline{ "shaders/simple_shader.vert.spv", "shaders/simple_shader.frag.spv" };
 
 	};
 }
