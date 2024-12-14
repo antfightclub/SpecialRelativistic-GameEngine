@@ -135,11 +135,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="first_app.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="vk_engine.cpp" />
+    <ClCompile Include="mve_window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="vk_engine.h" />
+    <ClInclude Include="first_app.hpp" />
+    <ClInclude Include="mve_window.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
