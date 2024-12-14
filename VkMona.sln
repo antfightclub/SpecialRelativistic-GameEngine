@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35521.163 d17.12
+VisualStudioVersion = 17.12.35521.163
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VulkanPlayground", "VulkanPlayground\VulkanPlayground.vcxproj", "{5200FADB-60CF-4D0D-BA3E-412E8E87597E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MonaEngine", "MonaEngine\MonaEngine.vcxproj", "{9AA9E268-C854-4448-8C38-39A4D98B1AC0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,8 +23,19 @@ Global
 		{5200FADB-60CF-4D0D-BA3E-412E8E87597E}.Release|x64.Build.0 = Release|x64
 		{5200FADB-60CF-4D0D-BA3E-412E8E87597E}.Release|x86.ActiveCfg = Release|Win32
 		{5200FADB-60CF-4D0D-BA3E-412E8E87597E}.Release|x86.Build.0 = Release|Win32
+		{9AA9E268-C854-4448-8C38-39A4D98B1AC0}.Debug|x64.ActiveCfg = Debug|x64
+		{9AA9E268-C854-4448-8C38-39A4D98B1AC0}.Debug|x64.Build.0 = Debug|x64
+		{9AA9E268-C854-4448-8C38-39A4D98B1AC0}.Debug|x86.ActiveCfg = Debug|Win32
+		{9AA9E268-C854-4448-8C38-39A4D98B1AC0}.Debug|x86.Build.0 = Debug|Win32
+		{9AA9E268-C854-4448-8C38-39A4D98B1AC0}.Release|x64.ActiveCfg = Release|x64
+		{9AA9E268-C854-4448-8C38-39A4D98B1AC0}.Release|x64.Build.0 = Release|x64
+		{9AA9E268-C854-4448-8C38-39A4D98B1AC0}.Release|x86.ActiveCfg = Release|Win32
+		{9AA9E268-C854-4448-8C38-39A4D98B1AC0}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9627CD19-AA0A-4D85-9E8C-0C1CE16F1300}
 	EndGlobalSection
 EndGlobal
