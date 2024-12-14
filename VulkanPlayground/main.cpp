@@ -347,7 +347,8 @@ private:
         swapChainImages.resize(imageCount);
         vkGetSwapchainImagesKHR(device, swapChain, &imageCount, swapChainImages.data());
 
-        swapCh
+        swapChainImageFormat = surfaceFormat.format;
+        swapChainExtent = extent;
     }
 
     void drawFrame() {
