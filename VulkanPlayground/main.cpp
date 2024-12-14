@@ -96,8 +96,11 @@ private:
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     VkDevice device;
 
-    VkQueue graphicsQueue;
-    VkQueue presentQueue;
+    VkQueue queue;
+
+    VkBuffer inputBuffer;
+    VkBuffer outputBuffer;
+    VkBuffer uniformBuffer;
     
 
     
@@ -124,7 +127,10 @@ private:
         createSurface();
         pickPhysicalDevice();
         createLogicalDevice();
- 
+        createPipeline();
+        createDescriptorSet();
+        createCommandPool();
+        createCommandPool();
     }
 
     void mainLoop() {
@@ -289,10 +295,34 @@ private:
             throw std::runtime_error("failed to create logical device!");
         }
 
-        vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
-        vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
+        //vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
+        vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &queue);
     }
     
+    void createBuffers() {
+        VkBufferCreateInfo inputBufferCreateInfo{};
+        VkBufferCreateInfo outputBufferCreateInfo{};
+        VkBufferCreateInfo uniformBufferCreateInfo{};
+    }
+
+    void createPipeline() {
+
+    }
+
+    void createDescriptorSet() {
+
+    }
+    
+    void createCommandPool() {
+
+    }
+
+    void createCommandBuffer() {
+
+    }
+    
+
+         
     void drawFrame() {
 
     }
