@@ -303,6 +303,15 @@ private:
         VkBufferCreateInfo inputBufferCreateInfo{};
         VkBufferCreateInfo outputBufferCreateInfo{};
         VkBufferCreateInfo uniformBufferCreateInfo{};
+
+        inputBufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+
+
+        outputBufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+
+
+        uniformBufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+
     }
 
     void createPipeline() {
