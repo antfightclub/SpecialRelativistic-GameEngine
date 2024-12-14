@@ -139,11 +139,13 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mve_pipeline.cpp" />
     <ClCompile Include="mve_window.cpp" />
+    <ClCompile Include="mve_device.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="first_app.hpp" />
     <ClInclude Include="mve_pipeline.hpp" />
     <ClInclude Include="mve_window.hpp" />
+    <ClInclude Include="mve_device.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\compile.bat" />

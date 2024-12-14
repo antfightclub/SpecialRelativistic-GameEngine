@@ -1,5 +1,7 @@
 #include "mve_window.hpp"
 
+//std
+#include <stdexcept>
 namespace mve {
 	MveWindow::MveWindow(int w, int h, std::string name) : width(w), height(h), windowName(name) {
 		initWindow();
@@ -18,5 +20,10 @@ namespace mve {
 		window = glfwCreateWindow(width, height, windowName.c_str(), nullptr, nullptr);
 	}
 
+	void MveWindow::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface) {
+		if (glfwCreateWindowSurface(instance, window, nullptr, surface) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create window surface!");
+		}
+	}
 
 }
