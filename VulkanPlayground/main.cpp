@@ -103,6 +103,7 @@ private:
     VkBuffer uniformBuffer;
     
 
+
     
     bool frameBufferResized = false;
 
@@ -305,7 +306,7 @@ private:
         VkBufferCreateInfo uniformBufferCreateInfo{};
 
         inputBufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-
+        inputBufferCreateInfo.size = 
 
         outputBufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 
