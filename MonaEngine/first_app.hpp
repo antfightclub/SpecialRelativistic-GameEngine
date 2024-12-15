@@ -4,6 +4,7 @@
 #include "mve_pipeline.hpp"
 #include "mve_device.hpp"
 #include "mve_swap_chain.hpp"
+#include "mve_model.hpp"
 
 //std
 #include <memory>
@@ -26,6 +27,7 @@ namespace mve {
 		void run();
 
 	private:
+		void loadModels();
 		void createPipelineLayout();
 		void createPipeline();
 		void createCommandBuffers();
@@ -37,5 +39,6 @@ namespace mve {
 		std::unique_ptr<MvePipeline> mvePipeline;
 		VkPipelineLayout pipelineLayout;
 		std::vector<VkCommandBuffer> commandBuffers;
+		std::unique_ptr<MveModel> mveModel;
 	};
 }
