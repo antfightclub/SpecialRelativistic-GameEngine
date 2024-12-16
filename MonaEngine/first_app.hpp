@@ -1,10 +1,10 @@
 #pragma once
 
 #include "mve_window.hpp"
-#include "mve_pipeline.hpp"
 #include "mve_game_object.hpp"
 #include "mve_device.hpp"
-#include "mve_swap_chain.hpp"
+#include "mve_renderer.hpp"
+
 
 
 //std
@@ -29,21 +29,10 @@ namespace mve {
 
 	private:
 		void loadGameObjects();
-		void createPipelineLayout();
-		void createPipeline();
-		void createCommandBuffers();
-		void freeCommandBuffers();
-		void drawFrame();
-		void recreateSwapChain();
-		void recordCommandBuffer(int imageIndex);
-		void renderGameObjects(VkCommandBuffer commandBuffer);
-
+	
 		MveWindow mveWindow{ WIDTH, HEIGHT, "Hello Mona!" };
 		MveDevice mveDevice{ mveWindow };
-		std::unique_ptr<MveSwapChain> mveSwapChain;
-		std::unique_ptr<MvePipeline> mvePipeline;
-		VkPipelineLayout pipelineLayout;
-		std::vector<VkCommandBuffer> commandBuffers;
+		MveRenderer mveRenderer{ mveWindow, mveDevice };
 		std::vector<MveGameObject> gameObjects;
 	};
 }
