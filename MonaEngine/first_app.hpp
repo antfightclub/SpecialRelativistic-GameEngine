@@ -2,9 +2,10 @@
 
 #include "mve_window.hpp"
 #include "mve_pipeline.hpp"
+#include "mve_game_object.hpp"
 #include "mve_device.hpp"
 #include "mve_swap_chain.hpp"
-#include "mve_model.hpp"
+
 
 //std
 #include <memory>
@@ -27,7 +28,7 @@ namespace mve {
 		void run();
 
 	private:
-		void loadModels();
+		void loadGameObjects();
 		void createPipelineLayout();
 		void createPipeline();
 		void createCommandBuffers();
@@ -35,6 +36,7 @@ namespace mve {
 		void drawFrame();
 		void recreateSwapChain();
 		void recordCommandBuffer(int imageIndex);
+		void renderGameObjects(VkCommandBuffer commandBuffer);
 
 		MveWindow mveWindow{ WIDTH, HEIGHT, "Hello Mona!" };
 		MveDevice mveDevice{ mveWindow };
@@ -42,6 +44,6 @@ namespace mve {
 		std::unique_ptr<MvePipeline> mvePipeline;
 		VkPipelineLayout pipelineLayout;
 		std::vector<VkCommandBuffer> commandBuffers;
-		std::unique_ptr<MveModel> mveModel;
+		std::vector<MveGameObject> gameObjects;
 	};
 }
