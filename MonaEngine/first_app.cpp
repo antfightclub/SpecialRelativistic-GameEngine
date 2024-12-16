@@ -37,32 +37,66 @@ namespace mve {
 		vkDeviceWaitIdle(mveDevice.device());
 	}
 
-	void FirstApp::loadGameObjects() {
-		std::vector<MveModel::Vertex> vertices{
-			{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-			{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-			{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}} };
-		auto mveModel = std::make_shared<MveModel>(mveDevice, vertices);
+    // temporary helper function, creates a 1x1x1 cube centered at offset
+    std::unique_ptr<MveModel> createCubeModel(MveDevice& device, glm::vec3 offset) {
+        std::vector<MveModel::Vertex> vertices{
+            // left face (white)
+            {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
+            {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
+            {{-.5f, -.5f, .5f}, {.9f, .9f, .9f}},
+            {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
+            {{-.5f, .5f, -.5f}, {.9f, .9f, .9f}},
+            {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
+            // right face (yellow)
+            {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
+            {{.5f, .5f, .5f}, {.8f, .8f, .1f}},
+            {{.5f, -.5f, .5f}, {.8f, .8f, .1f}},
+            {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
+            {{.5f, .5f, -.5f}, {.8f, .8f, .1f}},
+            {{.5f, .5f, .5f}, {.8f, .8f, .1f}},
+            // top face (orange, remember y axis points down)
+            {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
+            {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
+            {{-.5f, -.5f, .5f}, {.9f, .6f, .1f}},
+            {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
+            {{.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
+            {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
+            // bottom face (red)
+            {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
+            {{.5f, .5f, .5f}, {.8f, .1f, .1f}},
+            {{-.5f, .5f, .5f}, {.8f, .1f, .1f}},
+            {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
+            {{.5f, .5f, -.5f}, {.8f, .1f, .1f}},
+            {{.5f, .5f, .5f}, {.8f, .1f, .1f}},
+            // nose face (blue)
+            {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
+            {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
+            {{-.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
+            {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
+            {{.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
+            {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
+            // tail face (green)
+            {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
+            {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
+            {{-.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
+            {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
+            {{.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
+            {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
+        };
+        for (auto& v : vertices) {
+            v.position += offset;
+        }
+        return std::make_unique<MveModel>(device, vertices);
+    }
 
-		// https://www.color-hex.com/color-palette/5361
-		std::vector<glm::vec3> colors{
-			{1.f, .7f, .73f},
-			{1.f, .87f, .73f},
-			{1.f, 1.f, .73f},
-			{.73f, 1.f, .8f},
-			{.73, .88f, 1.f}  //
-		};
-		for (auto& color : colors) {
-			color = glm::pow(color, glm::vec3{ 2.2f });
-		}
-		for (int i = 0; i < 40; i++) {
-			auto triangle = MveGameObject::createGameObject();
-			triangle.model = mveModel;
-			triangle.transform2D.scale = glm::vec2(.5f) + i * 0.025f;
-			triangle.transform2D.rotation = i * glm::pi<float>() * .025f;
-			triangle.color = colors[i % colors.size()];
-			gameObjects.push_back(std::move(triangle));
-		}
+	void FirstApp::loadGameObjects() {
+		std::shared_ptr<MveModel> mveModel = createCubeModel(mveDevice, {.0f, .0f, .0f});
+
+		auto cube = MveGameObject::createGameObject();
+		cube.model = mveModel;
+		cube.transform.translation = { .0f, .0f, .5f };
+		cube.transform.scale = { .5f, .5f, .5f };
+		gameObjects.push_back(std::move(cube));
 	}
 
 } // namespace mve
