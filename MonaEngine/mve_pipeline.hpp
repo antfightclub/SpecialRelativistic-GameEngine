@@ -34,7 +34,7 @@ namespace mve {
 		~MvePipeline();
 
 		MvePipeline(const MvePipeline&) = delete;
-		void operator=(const MvePipeline&) = delete;
+		MvePipeline &operator=(const MvePipeline&) = delete;
 
 		void bind(VkCommandBuffer commandBuffer);
 

@@ -35,7 +35,7 @@ class MveDevice {
 
   // Not copyable or movable
   MveDevice(const MveDevice &) = delete;
-  void operator=(const MveDevice &) = delete;
+  MveDevice &operator=(const MveDevice &) = delete;
   MveDevice(MveDevice &&) = delete;
   MveDevice &operator=(MveDevice &&) = delete;
 
