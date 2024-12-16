@@ -31,11 +31,14 @@ namespace mve {
 		void createPipelineLayout();
 		void createPipeline();
 		void createCommandBuffers();
+		void freeCommandBuffers();
 		void drawFrame();
+		void recreateSwapChain();
+		void recordCommandBuffer(int imageIndex);
 
 		MveWindow mveWindow{ WIDTH, HEIGHT, "Hello Mona!" };
 		MveDevice mveDevice{ mveWindow };
-		MveSwapChain mveSwapChain{ mveDevice, mveWindow.getExtent() };
+		std::unique_ptr<MveSwapChain> mveSwapChain;
 		std::unique_ptr<MvePipeline> mvePipeline;
 		VkPipelineLayout pipelineLayout;
 		std::vector<VkCommandBuffer> commandBuffers;

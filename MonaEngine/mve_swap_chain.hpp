@@ -6,6 +6,7 @@
 #include <vulkan/vulkan.h>
 
 // std lib headers
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -16,6 +17,7 @@ class MveSwapChain {
   static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
   MveSwapChain(MveDevice &deviceRef, VkExtent2D windowExtent);
+  MveSwapChain(MveDevice& deviceRef, VkExtent2D windowExtent, std::shared_ptr<MveSwapChain> previous);
   ~MveSwapChain();
 
   MveSwapChain(const MveSwapChain &) = delete;
@@ -39,6 +41,7 @@ class MveSwapChain {
   VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
 
  private:
+  void init();
   void createSwapChain();
   void createImageViews();
   void createDepthResources();
@@ -69,6 +72,7 @@ class MveSwapChain {
   VkExtent2D windowExtent;
 
   VkSwapchainKHR swapChain;
+  std::shared_ptr<MveSwapChain> oldSwapChain;
 
   std::vector<VkSemaphore> imageAvailableSemaphores;
   std::vector<VkSemaphore> renderFinishedSemaphores;

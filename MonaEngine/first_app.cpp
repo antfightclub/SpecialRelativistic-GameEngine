@@ -9,7 +9,7 @@ namespace mve {
 	FirstApp::FirstApp() {
 		loadModels();
 		createPipelineLayout();
-		createPipeline();
+		recreateSwapChain();
 		createCommandBuffers();
 	}
 
@@ -47,8 +47,12 @@ namespace mve {
 	}
 
 	void FirstApp::createPipeline() {
-		auto pipelineConfig = MvePipeline::defaultPipelineConfigInfo(mveSwapChain.width(), mveSwapChain.height());
-		pipelineConfig.renderPass = mveSwapChain.getRenderPass();
+		assert(mveSwapChain != nullptr && "Cannot create pipeline before swap chain!");
+		assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout!");
+
+		PipelineConfigInfo pipelineConfig{};
+		MvePipeline::defaultPipelineConfigInfo(pipelineConfig);
+		pipelineConfig.renderPass = mveSwapChain->getRenderPass();
 		pipelineConfig.pipelineLayout = pipelineLayout;
 		mvePipeline = std::make_unique<MvePipeline>(
 			mveDevice,
@@ -57,9 +61,35 @@ namespace mve {
 			pipelineConfig);
 	};
 
+	void FirstApp::recreateSwapChain() {
+		auto extent = mveWindow.getExtent();
+		while (extent.width == 0 || extent.height == 0) {
+			extent = mveWindow.getExtent();
+			glfwWaitEvents();
+		}
+
+		vkDeviceWaitIdle(mveDevice.device());
+
+		if (mveSwapChain == nullptr) {
+			mveSwapChain = std::make_unique<MveSwapChain>(mveDevice, extent);
+		}
+		else {
+			mveSwapChain = std::make_unique<MveSwapChain>(mveDevice, extent, std::move(mveSwapChain));
+			if (mveSwapChain->imageCount() != commandBuffers.size()) {
+				freeCommandBuffers();
+				createCommandBuffers();
+			}
+		}
+
+		
+
+		// if render passes compatible do nothing else
+		createPipeline();
+	}
+
 	void FirstApp::createCommandBuffers() {
 		
-		commandBuffers.resize(mveSwapChain.imageCount());
+		commandBuffers.resize(mveSwapChain->imageCount());
 		
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -70,52 +100,81 @@ namespace mve {
 		if (vkAllocateCommandBuffers(mveDevice.device(), &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
 			throw std::runtime_error("failed to allocate command buffers!");
 		}
+	}
 
-		for (int i = 0; i < commandBuffers.size(); i++) {
-			VkCommandBufferBeginInfo beginInfo{};
-			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	void FirstApp::freeCommandBuffers() {
+		vkFreeCommandBuffers(mveDevice.device(), mveDevice.getCommandPool(), static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
+		commandBuffers.clear();
+	}
 
-			if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) {
-				throw std::runtime_error("failed to begin recording command buffer!");
-			}
+	void FirstApp::recordCommandBuffer(int imageIndex) {
+		VkCommandBufferBeginInfo beginInfo{};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
-			VkRenderPassBeginInfo renderPassInfo{};
-			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = mveSwapChain.getRenderPass();
-			renderPassInfo.framebuffer = mveSwapChain.getFrameBuffer(i);
+		if (vkBeginCommandBuffer(commandBuffers[imageIndex], &beginInfo) != VK_SUCCESS) {
+			throw std::runtime_error("failed to begin recording command buffer!");
+		}
 
-			renderPassInfo.renderArea.offset = { 0, 0 };
-			renderPassInfo.renderArea.extent = mveSwapChain.getSwapChainExtent();
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = mveSwapChain->getRenderPass();
+		renderPassInfo.framebuffer = mveSwapChain->getFrameBuffer(imageIndex);
 
-			std::array<VkClearValue, 2> clearValues{};
-			clearValues[0].color = { 0.1f, 0.1f, 0.1f, 1.0f };
-			clearValues[1].depthStencil = { 1.0f, 0 };
-			renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-			renderPassInfo.pClearValues = clearValues.data();
+		renderPassInfo.renderArea.offset = { 0, 0 };
+		renderPassInfo.renderArea.extent = mveSwapChain->getSwapChainExtent();
 
-			vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		std::array<VkClearValue, 2> clearValues{};
+		clearValues[0].color = { 0.1f, 0.1f, 0.1f, 1.0f };
+		clearValues[1].depthStencil = { 1.0f, 0 };
+		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+		renderPassInfo.pClearValues = clearValues.data();
 
-			mvePipeline->bind(commandBuffers[i]);
-			mveModel->bind(commandBuffers[i]);
-			mveModel->draw(commandBuffers[i]);
+		vkCmdBeginRenderPass(commandBuffers[imageIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-			vkCmdEndRenderPass(commandBuffers[i]);
-			if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
-				throw std::runtime_error("failed to record command buffer!");
-			}
+		VkViewport viewport{};
+		viewport.x = 0.0f;
+		viewport.y = 0.0f;
+		viewport.width = static_cast<float>(mveSwapChain->getSwapChainExtent().width);
+		viewport.height = static_cast<float>(mveSwapChain->getSwapChainExtent().height);
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
+		VkRect2D scissor{ {0, 0}, mveSwapChain->getSwapChainExtent() };
+		vkCmdSetViewport(commandBuffers[imageIndex], 0, 1, &viewport);
+		vkCmdSetScissor(commandBuffers[imageIndex], 0, 1, &scissor);
 
+		mvePipeline->bind(commandBuffers[imageIndex]);
+		mveModel->bind(commandBuffers[imageIndex]);
+		mveModel->draw(commandBuffers[imageIndex]);
+
+		vkCmdEndRenderPass(commandBuffers[imageIndex]);
+		if (vkEndCommandBuffer(commandBuffers[imageIndex]) != VK_SUCCESS) {
+			throw std::runtime_error("failed to record command buffer!");
 		}
 	}
 
 	void FirstApp::drawFrame() {
 		uint32_t imageIndex;
-		auto result = mveSwapChain.acquireNextImage(&imageIndex);
+		auto result = mveSwapChain->acquireNextImage(&imageIndex);
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+			recreateSwapChain();
+			return;
+		}
 		
 		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
 			throw std::runtime_error("failed to acquire swap chain image!");
 		}
 
-		result = mveSwapChain.submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
+		recordCommandBuffer(imageIndex);
+
+		result = mveSwapChain->submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || mveWindow.wasWindowResized()) {
+			mveWindow.resetWindowResizedFlag();
+			recreateSwapChain();
+			return;
+		}
+
 		if (result != VK_SUCCESS) {
 			throw std::runtime_error("failed to present swap chain image!");
 		}
