@@ -30,7 +30,7 @@ namespace mve {
 	private:
 		void loadGameObjects();
 	
-		MveWindow mveWindow{ WIDTH, HEIGHT, "Hello Mona!" };
+		MveWindow mveWindow{ WIDTH, HEIGHT, "MonaCube.exe" };
 		MveDevice mveDevice{ mveWindow };
 		MveRenderer mveRenderer{ mveWindow, mveDevice };
 		std::vector<MveGameObject> gameObjects;
