@@ -1,6 +1,6 @@
 #pragma once
 
-
+#include "mve_camera.hpp"
 #include "mve_pipeline.hpp"
 #include "mve_game_object.hpp"
 #include "mve_device.hpp"
@@ -22,7 +22,7 @@ namespace mve {
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 		SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
-		void renderGameObjects(VkCommandBuffer commandBuffer, std::vector<MveGameObject> &gameObjects);
+		void renderGameObjects(VkCommandBuffer commandBuffer, std::vector<MveGameObject> &gameObjects, const MveCamera& camera);
 
 	private:
 

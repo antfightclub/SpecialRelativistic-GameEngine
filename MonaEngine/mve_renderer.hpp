@@ -23,6 +23,7 @@ namespace mve {
 		MveRenderer& operator=(const MveRenderer&) = delete;
 	
 		VkRenderPass getSwapChainRenderPass() const { return mveSwapChain->getRenderPass(); }
+		float getAspectRatio() const { return mveSwapChain->extentAspectRatio(); }
 		bool isFrameInProgress() const { return isFrameStarted; }
 
 		VkCommandBuffer getCurrentCommandBuffer() const {
