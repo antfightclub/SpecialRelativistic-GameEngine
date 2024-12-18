@@ -62,13 +62,19 @@ namespace mve {
 
 
 	void FirstApp::loadGameObjects() {
-		std::shared_ptr<MveModel> mveModel = MveModel::createModelFromFile(mveDevice, "models/smooth_vase.obj");
+		std::shared_ptr<MveModel> mveModel = MveModel::createModelFromFile(mveDevice, "models/flat_vase.obj");
+		auto flatVase = MveGameObject::createGameObject();
+		flatVase.model = mveModel;
+		flatVase.transform.translation = { -.5f, .5f, 1.5f };
+		flatVase.transform.scale = glm::vec3{ 3.f, 1.5f, 3.f };
+		gameObjects.push_back(std::move(flatVase));
 
-		auto gameObject = MveGameObject::createGameObject();
-		gameObject.model = mveModel;
-		gameObject.transform.translation = { .0f, .0f, 1.5f };
-		gameObject.transform.scale = glm::vec3{ 3.f };
-		gameObjects.push_back(std::move(gameObject));
+		mveModel = MveModel::createModelFromFile(mveDevice, "models/smooth_vase.obj");
+		auto smoothVase = MveGameObject::createGameObject();
+		smoothVase.model = mveModel;
+		smoothVase.transform.translation = { .5f, .5f, 1.5f };
+		smoothVase.transform.scale = glm::vec3{ 3.f, 1.5f, 3.f };
+		gameObjects.push_back(std::move(smoothVase));
 	}
 
 } // namespace mve
