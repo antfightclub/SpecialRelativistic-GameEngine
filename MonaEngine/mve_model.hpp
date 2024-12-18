@@ -20,7 +20,12 @@ namespace mve {
 			static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
 		};
 
-		MveModel(MveDevice &device, const std::vector<Vertex> vertices);
+		struct Builder {
+			std::vector<Vertex> vertices{};
+			std::vector<uint32_t> indices{};
+		};
+
+		MveModel(MveDevice &device, const MveModel::Builder &builder);
 		~MveModel();
 
 		MveModel(const MveModel&) = delete;
@@ -31,11 +36,18 @@ namespace mve {
 
 	private:
 		void createVertexBuffers(const std::vector<Vertex>& vertices);
+		void createIndexBuffers(const std::vector<uint32_t>& indices);
 
 		MveDevice &mveDevice;
+
 		VkBuffer vertexBuffer;
 		VkDeviceMemory vertexBufferMemory;
 		uint32_t vertexCount;
+
+		bool hasIndexBuffer = false;
+		VkBuffer indexBuffer;
+		VkDeviceMemory indexBufferMemory;
+		uint32_t indexCount;
 	};
 	
 }
