@@ -156,6 +156,7 @@
     <ClInclude Include="mve_pipeline.hpp" />
     <ClInclude Include="mve_renderer.hpp" />
     <ClInclude Include="mve_swap_chain.hpp" />
+    <ClInclude Include="mve_utils.hpp" />
     <ClInclude Include="mve_window.hpp" />
     <ClInclude Include="mve_device.hpp" />
     <ClInclude Include="simple_render_system.hpp" />
