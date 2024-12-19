@@ -138,6 +138,7 @@
     <ClCompile Include="first_app.cpp" />
     <ClCompile Include="keyboard_movement_controller.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="mve_buffer.cpp" />
     <ClCompile Include="mve_camera.cpp" />
     <ClCompile Include="mve_game_object.cpp" />
     <ClCompile Include="mve_model.cpp" />
@@ -151,7 +152,9 @@
   <ItemGroup>
     <ClInclude Include="first_app.hpp" />
     <ClInclude Include="keyboard_movement_controller.hpp" />
+    <ClInclude Include="mve_buffer.hpp" />
     <ClInclude Include="mve_camera.hpp" />
+    <ClInclude Include="mve_frame_info.hpp" />
     <ClInclude Include="mve_game_object.hpp" />
     <ClInclude Include="mve_model.hpp" />
     <ClInclude Include="mve_pipeline.hpp" />

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mve_device.hpp"
+#include "mve_buffer.hpp"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -51,13 +52,11 @@ namespace mve {
 
 		MveDevice &mveDevice;
 
-		VkBuffer vertexBuffer;
-		VkDeviceMemory vertexBufferMemory;
+		std::unique_ptr<MveBuffer> vertexBuffer;
 		uint32_t vertexCount;
 
 		bool hasIndexBuffer = false;
-		VkBuffer indexBuffer;
-		VkDeviceMemory indexBufferMemory;
+		std::unique_ptr<MveBuffer> indexBuffer;
 		uint32_t indexCount;
 	};
 	

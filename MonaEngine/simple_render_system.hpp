@@ -4,6 +4,7 @@
 #include "mve_pipeline.hpp"
 #include "mve_game_object.hpp"
 #include "mve_device.hpp"
+#include "mve_frame_info.hpp"
 
 //std
 #include <memory>
@@ -22,7 +23,7 @@ namespace mve {
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 		SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
-		void renderGameObjects(VkCommandBuffer commandBuffer, std::vector<MveGameObject> &gameObjects, const MveCamera& camera);
+		void renderGameObjects(FrameInfo& frameInfo, std::vector<MveGameObject>& gameObjects);
 
 	private:
 
