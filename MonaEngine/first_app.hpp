@@ -37,6 +37,6 @@ namespace mve {
 
 		// note: order of declarations matters
 		std::unique_ptr<MveDescriptorPool> globalPool{};
-		std::vector<MveGameObject> gameObjects;
+		MveGameObject::Map gameObjects;
 	};
 }

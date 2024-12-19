@@ -57,7 +57,7 @@ namespace mve {
 			pipelineConfig);
 	};
 
-	void SimpleRenderSystem::renderGameObjects(FrameInfo& frameInfo, std::vector<MveGameObject> &gameObjects) {
+	void SimpleRenderSystem::renderGameObjects(FrameInfo& frameInfo) {
 
 		mvePipeline->bind(frameInfo.commandBuffer);
 
@@ -71,7 +71,9 @@ namespace mve {
 			0,
 			nullptr);
 
-		for (auto& obj : gameObjects) {
+		for (auto& kv : frameInfo.gameObjects) {
+			auto& obj = kv.second;
+			if (obj.model == nullptr) continue;
 			SimplePushConstantData push{};
 			auto modelMatrix = obj.transform.mat4();
 			push.modelMatrix = obj.transform.mat4();;

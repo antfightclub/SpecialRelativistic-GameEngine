@@ -5,6 +5,7 @@
 #include <gtc/matrix_transform.hpp>
 
 #include <memory>
+#include <unordered_map>
 
 namespace mve {
 
@@ -23,7 +24,8 @@ namespace mve {
 	class MveGameObject {
 	public:
 		using id_t = unsigned int;
-		
+		using Map = std::unordered_map<id_t, MveGameObject>;
+
 		static MveGameObject createGameObject() {
 			static id_t currentId = 0;
 			return MveGameObject{ currentId++ };

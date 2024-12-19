@@ -62,7 +62,7 @@ namespace mve {
 		globalUboBuffer.map();
 
 		auto globalSetLayout = MveDescriptorSetLayout::Builder(mveDevice)
-			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
 			.build();
 
 		std::vector<VkDescriptorSet> globalDescriptorSets(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -104,7 +104,8 @@ namespace mve {
 					frameTime,
 					commandBuffer,
 					camera,
-					globalDescriptorSets[frameIndex]
+					globalDescriptorSets[frameIndex],
+					gameObjects
 				};
 
 			
@@ -117,7 +118,7 @@ namespace mve {
 
 				// render
 				mveRenderer.beginSwapChainRenderPass(commandBuffer);
-				simpleRenderSystem.renderGameObjects(frameInfo, gameObjects);
+				simpleRenderSystem.renderGameObjects(frameInfo);
 				mveRenderer.endSwapChainRenderPass(commandBuffer);
 				mveRenderer.endFrame();
 			}
@@ -134,21 +135,21 @@ namespace mve {
 		flatVase.model = mveModel;
 		flatVase.transform.translation = { -.5f, .5f, 0.f };
 		flatVase.transform.scale = glm::vec3{ 3.f, 1.5f, 3.f };
-		gameObjects.push_back(std::move(flatVase));
+		gameObjects.emplace(flatVase.getId(), std::move(flatVase));
 
 		mveModel = MveModel::createModelFromFile(mveDevice, "models/smooth_vase.obj");
 		auto smoothVase = MveGameObject::createGameObject();
 		smoothVase.model = mveModel;
 		smoothVase.transform.translation = { .5f, .5f, 0.f };
 		smoothVase.transform.scale = glm::vec3{ 3.f, 1.5f, 3.f };
-		gameObjects.push_back(std::move(smoothVase));
+		gameObjects.emplace(smoothVase.getId(), std::move(smoothVase));
 
 		mveModel = MveModel::createModelFromFile(mveDevice, "models/quad.obj");
 		auto floor = MveGameObject::createGameObject();
 		floor.model = mveModel;
 		floor.transform.translation = { 0.f, .5f, 0.f };
 		floor.transform.scale = glm::vec3{ 3.f, 1.f, 3.f };
-		gameObjects.push_back(std::move(floor));
+		gameObjects.emplace(floor.getId(), std::move(floor));
 	}
 
 } // namespace mve
