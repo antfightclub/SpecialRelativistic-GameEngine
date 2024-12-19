@@ -30,6 +30,18 @@ namespace mve {
 	FirstApp::~FirstApp() {}
 
 	void FirstApp::run() {
+
+		std::vector<std::unique_ptr<MveBuffer>> uboBuffers(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < uboBuffers.size(); i++) {
+			uboBuffers[i] = std::make_unique<MveBuffer>(
+				mveDevice,
+				sizeof(GlobalUbo),
+				1,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+			);
+			uboBuffers[i]->map();
+		}
 		MveBuffer globalUboBuffer{
 			mveDevice,
 			sizeof(GlobalUbo),
@@ -38,6 +50,7 @@ namespace mve {
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
 			mveDevice.properties.limits.minUniformBufferOffsetAlignment,
 		};
+
 		globalUboBuffer.map();
 
 		SimpleRenderSystem simpleRenderSystem{ mveDevice, mveRenderer.getSwapChainRenderPass() };
@@ -76,7 +89,8 @@ namespace mve {
 				// update
 				GlobalUbo ubo{};
 				ubo.projectionView = camera.getProjection() * camera.getView();
-				globalUboBuffer.writeToIndex(&ubo, frameIndex);
+				uboBuffers[frameIndex]->writeToBuffer(&ubo);
+				uboBuffers[frameIndex]->flush();
 				globalUboBuffer.flushIndex(frameIndex);
 
 				// render
