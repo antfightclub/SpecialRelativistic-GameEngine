@@ -10,5 +10,6 @@ namespace mve {
 		int frameTime;
 		VkCommandBuffer commandBuffer;
 		MveCamera& camera;
+		VkDescriptorSet globalDescriptorSet;
 	};
 } 

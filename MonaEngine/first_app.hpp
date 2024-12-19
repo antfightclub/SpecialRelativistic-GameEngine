@@ -1,5 +1,6 @@
 #pragma once
 
+#include "mve_descriptors.hpp"
 #include "mve_window.hpp"
 #include "mve_game_object.hpp"
 #include "mve_device.hpp"
@@ -33,6 +34,9 @@ namespace mve {
 		MveWindow mveWindow{ WIDTH, HEIGHT, "MonaCube.exe" };
 		MveDevice mveDevice{ mveWindow };
 		MveRenderer mveRenderer{ mveWindow, mveDevice };
+
+		// note: order of declarations matters
+		std::unique_ptr<MveDescriptorPool> globalPool{};
 		std::vector<MveGameObject> gameObjects;
 	};
 }

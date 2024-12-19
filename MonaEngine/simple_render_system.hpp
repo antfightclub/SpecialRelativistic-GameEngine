@@ -17,7 +17,7 @@ namespace mve {
 	public:
 
 
-		SimpleRenderSystem(MveDevice& device, VkRenderPass renderPass);
+		SimpleRenderSystem(MveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
 		~SimpleRenderSystem();
 
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
@@ -27,7 +27,7 @@ namespace mve {
 
 	private:
 
-		void createPipelineLayout();
+		void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
 		void createPipeline(VkRenderPass renderPass);
 		
 
