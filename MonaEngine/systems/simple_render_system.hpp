@@ -1,10 +1,10 @@
 #pragma once
 
-#include "mve_camera.hpp"
-#include "mve_pipeline.hpp"
-#include "mve_game_object.hpp"
-#include "mve_device.hpp"
-#include "mve_frame_info.hpp"
+#include "../mve_camera.hpp"
+#include "../mve_pipeline.hpp"
+#include "../mve_game_object.hpp"
+#include "../mve_device.hpp"
+#include "../mve_frame_info.hpp"
 
 //std
 #include <memory>

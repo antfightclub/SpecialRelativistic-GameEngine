@@ -76,8 +76,8 @@ MvePipeline::~MvePipeline() {
 		shaderStages[1].pSpecializationInfo = nullptr;
 		
 
-		auto bindingDescriptions = MveModel::Vertex::getBindingDescriptions();
-		auto attributeDescriptions = MveModel::Vertex::getAttributeDescriptions();
+		auto& bindingDescriptions = configInfo.bindingDescriptions;
+		auto& attributeDescriptions = configInfo.attributeDescriptions;
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 		vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
@@ -204,5 +204,8 @@ MvePipeline::~MvePipeline() {
 		configInfo.dynamicStateInfo.pDynamicStates = configInfo.dynamicStateEnables.data();
 		configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
 		configInfo.dynamicStateInfo.flags = 0;
+
+		configInfo.bindingDescriptions = MveModel::Vertex::getBindingDescriptions();
+		configInfo.attributeDescriptions = MveModel::Vertex::getAttributeDescriptions();
 	}
 }
