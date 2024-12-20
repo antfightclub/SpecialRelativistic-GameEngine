@@ -115,8 +115,11 @@ namespace mve {
 
 				// render
 				mveRenderer.beginSwapChainRenderPass(commandBuffer);
+
+				// order here matters (all solid objects first - then semitransparent objects after!)
 				simpleRenderSystem.renderGameObjects(frameInfo);
 				pointLightSystem.render(frameInfo);
+				
 				mveRenderer.endSwapChainRenderPass(commandBuffer);
 				mveRenderer.endFrame();
 			}
