@@ -1,15 +1,21 @@
 #pragma once
 
+#include <iostream>
+
 namespace mve {
 
 	class Vector3 {
-
+	public:
 		// Constructors
 		Vector3() : x(0.0), y(0.0), z(0.0) {};
 
 		Vector3(double val) : x(val), y(val), z(val) {};
 
 		Vector3(double x, double y, double z) : x(x), y(y), z(z) {};
+		
+		// Printing values
+		friend std::ostream& operator<<(std::ostream& os, const Vector3& v);
+
 
 		// Operator overloads
 		//Vector3& operator+(Vector3& const u) {  }
@@ -69,5 +75,10 @@ namespace mve {
 		double y;
 		double z;
 	};
+
+	std::ostream& operator<<(std::ostream& os, const Vector3& v) {
+		os << "Vector3{" << v.x << ", " << v.y << ", " << v.z << "}" << '\n';
+		return os;
+	}
 
 }

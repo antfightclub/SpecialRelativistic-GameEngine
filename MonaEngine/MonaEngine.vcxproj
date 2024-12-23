@@ -166,6 +166,7 @@
     <ClInclude Include="mve_utils.hpp" />
     <ClInclude Include="mve_window.hpp" />
     <ClInclude Include="mve_device.hpp" />
+    <ClInclude Include="relativity\math\Vector3.hpp" />
     <ClInclude Include="systems\point_light_system.hpp" />
     <ClInclude Include="systems\simple_render_system.hpp" />
   </ItemGroup>

@@ -6,6 +6,27 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "relativity/math/Vector3.hpp"
+
+// For testing relativity math:
+int main() {
+
+	double x = 1.0;
+	double y = 2.0;
+	double z = 3.0;
+
+	auto vec1 = mve::Vector3::Vector3(x, y, z);
+	auto vec2 = mve::Vector3::Vector3(10.0);
+	auto vec3 = vec1 - vec2;
+	std::cout << "vec1 = " << vec1 << '\n' << "vec2 = " << vec2 << '\n';
+	std::cout << "vec1 - vec2 = " << vec3 << '\n';
+
+	return EXIT_SUCCESS;
+}
+
+
+// VULKAN APP MAIN:
+/*
 int main() {
 	mve::FirstApp app{};
 	try {
@@ -17,4 +38,6 @@ int main() {
 	}
 
 	return EXIT_SUCCESS;
+	
 }
+*/
