@@ -18,9 +18,10 @@ int main() {
 	double a = 2.0;
 
 	Math::Vector3 vec1 = Math::Vector3(x, y, z);
-	Math::Vector3 vec2 = vec1.getHat();
+	Math::Vector3 vec2 = vec1;
+	vec2.hat();
 
-	std::cout << "vec1 = " << vec1 << "vec2 = vec1.getHat() = " << vec2 << '\n';
+	std::cout << "vec1 = " << vec1 << "vec2 = vec1; vec2.hat(); = " << vec2 << '\n';
 
 
 	return EXIT_SUCCESS;

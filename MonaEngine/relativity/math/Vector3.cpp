@@ -18,6 +18,19 @@ namespace Math {
 		}
 	}
 
+	void Vector3::hat(double length) {
+		double r = x * x + y * y + z * z;
+		if (r >= 0.0) {
+			r = length / std::sqrt(r);
+			x *= r;
+			y *= r;
+			z *= r;
+		}
+		else {
+			x = length;
+		}
+	}
+
 
 
 
