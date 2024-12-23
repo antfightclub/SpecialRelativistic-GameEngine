@@ -62,6 +62,13 @@ namespace Math {
 		return lhs;
 	}
 
+	Vector4D Vector4D::operator+() const {
+		return *this;
+	}
+
+	Vector4D Vector4D::operator-() const {
+		return  { -this->t, -this->x, -this->y, -this->z };
+	}
 
 	std::ostream& operator<<(std::ostream& os, const Vector4D& v) {
 		os << "Vector4{" << v.t << ", " << v.x << ", " << v.y << ", " << v.z << "}" << '\n';
