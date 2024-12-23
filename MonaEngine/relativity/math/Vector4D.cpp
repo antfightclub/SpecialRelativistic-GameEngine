@@ -57,6 +57,55 @@ namespace Math {
 		return b * b + c * c + d * d - a * a;
 	}
 
+	//
+	Vector3 Vector4D::getHat(double length = 1.0) {
+		double r = x * x + y * y + z * z;
+		if (r > 0.0) {
+			r = length / std::sqrt(r);
+			return Vector3(x * r, y * r, z * r);
+		}
+		else {
+			return Vector3(length, 0.0, 0.0);
+		}
+	}
+
+	//
+	void Vector4D::hat(double length = 1.0) {
+		double r = x * x + y * y + z * z;
+		if (r > 0.0) {
+			r = length / std::sqrt(r);
+			x *= r;
+			y *= r;
+			z *= r;
+		}
+		else {
+			x = length;
+		}
+	}
+
+	//
+	Vector4D Vector4D::getNormalize(double length = 1.0) {
+		double r = x * x + y * y + z * z;
+		if (r > 0.0) {
+			r = length / std::sqrt(r);
+			return Vector4D(t, x * r, y * r, z * r);
+		}
+		else {
+			return Vector4D(t, 0.0, 0.0, 0.0);
+		}
+	}
+
+	//
+	void Vector4D::normalize(double length = 1.0) {
+		double r = x * x + y * y + z * z;
+		if (r > 0.0) {
+			r = length / std::sqrt(r);
+			x *= r;
+			y *= r;
+			z *= r;
+		}
+	}
+
 	//Compound assignment plus
 	Vector4D& Vector4D::operator+=(const Vector4D& rhs) {
 		t = t + rhs.t;
