@@ -2,6 +2,32 @@
 
 namespace Math {
 
+	//length of spatial component
+	double Vector4D::length() {
+		return std::sqrt(x*x + y*y + z*z);
+	}
+
+	// Length squared of spatial component
+	double Vector4D::length_squared() {
+		return x * x + y * y + z * z;
+	}
+
+	// distance in 3D between spatial components of self and other
+	double Vector4D::distanceTo(Vector4D other) {
+		double a = x - other.getX();
+		double b = y - other.getY();
+		double c = z - other.getZ();
+		return std::sqrt(a * a + b * b + c * c);
+	}
+
+	// distance squared in 3D between spatial components of self and other
+	double Vector4D::distanceToSquared(Vector4D other) {
+		double a = x - other.getX();
+		double b = y - other.getY();
+		double c = z - other.getZ();
+		return a * a + b * b + c * c;
+	}
+
 	//Compound assignment plus
 	Vector4D& Vector4D::operator+=(const Vector4D& rhs) {
 		t = t + rhs.t;
