@@ -149,6 +149,7 @@
     <ClCompile Include="mve_window.cpp" />
     <ClCompile Include="mve_device.cpp" />
     <ClCompile Include="relativity\math\Vector3.cpp" />
+    <ClCompile Include="relativity\math\Vector4D.cpp" />
     <ClCompile Include="systems\point_light_system.cpp" />
     <ClCompile Include="systems\simple_render_system.cpp" />
   </ItemGroup>
@@ -168,6 +169,7 @@
     <ClInclude Include="mve_window.hpp" />
     <ClInclude Include="mve_device.hpp" />
     <ClInclude Include="relativity\math\Vector3.hpp" />
+    <ClInclude Include="relativity\math\Vector4D.hpp" />
     <ClInclude Include="systems\point_light_system.hpp" />
     <ClInclude Include="systems\simple_render_system.hpp" />
   </ItemGroup>
