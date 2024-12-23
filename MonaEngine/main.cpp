@@ -15,17 +15,18 @@ int main() {
 	double y = 2.0;
 	double z = 3.0;
 
-	double a = 10.0;
+	double a = 1.0;
 
 	auto vec1 = Math::Vector3::Vector3(x, y, z);
 	auto vec2 = Math::Vector3::Vector3(10.0);
 	//auto vec3 = -vec1;
 	
+	auto vec3 = vec1.copy();
+
 	//std::cout << "vec1 = " << vec1 << '\n' << "a = " << a << '\n';
 	//std::cout << "vec1 * a = " << vec3 << '\n';
 
-	std::cout << "vec1 = " << vec1 << '\n' << "-vec1 = " << -vec1 << '\n';
-	std::cout << "vec1 = " << -vec1 << '\n';
+	std::cout << "vec1 = " << vec1 << '\n' << "vec3 = vec1.copy() = " << vec3 << '\n';
 
 	return EXIT_SUCCESS;
 }

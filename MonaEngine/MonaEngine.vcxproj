@@ -148,6 +148,7 @@
     <ClCompile Include="mve_swap_chain.cpp" />
     <ClCompile Include="mve_window.cpp" />
     <ClCompile Include="mve_device.cpp" />
+    <ClCompile Include="relativity\math\Vector3.cpp" />
     <ClCompile Include="systems\point_light_system.cpp" />
     <ClCompile Include="systems\simple_render_system.cpp" />
   </ItemGroup>

@@ -89,13 +89,13 @@ namespace Math {
 		// Vector3 operations
 		Vector3 copy();
 
-		Vector3 getHat();
+		Vector3 getHat(double length = 1.0);
 
-		void hat();
+		void hat(double length = 1.0);
 
-		Vector3 getNormalize();
+		Vector3 getNormalize(double length = 1.0);
 
-		void normalize();
+		void normalize(double length = 1.0);
 
 		double length();
 		

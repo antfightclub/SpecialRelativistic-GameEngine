@@ -60,6 +60,9 @@
     <ClCompile Include="systems\point_light_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="relativity\math\Vector3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mve_window.hpp">
