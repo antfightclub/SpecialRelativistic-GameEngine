@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-namespace mve {
+namespace Math {
 
 	class Vector3 {
 	public:
