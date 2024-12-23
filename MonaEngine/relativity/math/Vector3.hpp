@@ -51,22 +51,11 @@ namespace Math {
 		// Binary divide (vec3 / double)
 		friend Vector3 operator/(Vector3 lhs, const double& rhs);
 
-
 		Vector3 operator+() const;
 
 		Vector3 operator-() const;
 
-		// Negative
-		// FIXME: Not sure if friend or just Vector3& here.... this works, but modifies original!
-		//friend Vector3 operator-(Vector3& rhs) {
-		//	rhs.x = -rhs.x;
-		//	rhs.y = -rhs.y;
-		//	rhs.z = -rhs.z;
-		//	return rhs;
-		//}
 
-		// Vector3 operations
-//		Vector3 copy();
 
 		Vector3 getHat(double length = 1.0);
 

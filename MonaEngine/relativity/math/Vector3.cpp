@@ -74,6 +74,17 @@ namespace Math {
 		return a * a + b * b + c * c;
 	}
 
+	double Vector3::dot(Vector3 other) {
+		return x * other.x + y * other.y + z * other.z; 
+	}
+
+	Vector3 Vector3::cross(Vector3 other) {
+		return Vector3{
+			y * other.z - other.y * z,
+			z * other.x - other.z * x,
+			x * other.y - other.x * y
+		};
+	}
 
 
 	//Compound assignment plus

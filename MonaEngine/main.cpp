@@ -10,20 +10,6 @@
 
 // For testing relativity math:
 int main() {
-
-	double x = 1.0;
-	double y = 2.0;
-	double z = 3.0;
-	
-	double a = 2.0;
-
-	Math::Vector3 vec1 = Math::Vector3(x, y, z);
-	Math::Vector3 vec2 = vec1;
-	vec2.normalize();
-
-	std::cout << "vec1 = " << vec1 << "vec2 = vec1; vec2.normalize() = " << vec2 << '\n';
-
-
 	return EXIT_SUCCESS;
 }
 
