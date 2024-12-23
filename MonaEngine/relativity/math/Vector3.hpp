@@ -49,6 +49,35 @@ namespace mve {
 			return lhs;
 		}
 
+		// compount assignment multiply with double
+		Vector3& operator *=(const double& rhs) {
+			x = x * rhs;
+			y = y * rhs;
+			z = z * rhs;
+			return *this;
+		}
+
+		// Binary multiply (vec3 * double)
+		friend Vector3 operator*(Vector3 lhs, const double& rhs) {
+			lhs *= rhs;
+			return lhs;
+		}
+
+		// Compound assignment division with double
+		Vector3& operator /=(const double& rhs) {
+			x = x / rhs;
+			y = y / rhs;
+			z = z / rhs;
+			return *this;
+		}
+		
+		// Binary divide (vec3 / double)
+		friend Vector3 operator/(Vector3 lhs, const double& rhs) {
+			lhs /= rhs;
+			return lhs;
+		}
+
+
 		// Vector3 operations
 		Vector3 copy();
 
