@@ -106,6 +106,25 @@ namespace Math {
 		}
 	}
 
+	Vector4D Vector4D::getLinearAdd(Vector4D N, double s) {
+		double tt = t + N.getT() * s;
+		double xx = x + N.getX() * s;
+		double yy = y + N.getY() * s;
+		double zz = z + N.getZ() * s;
+		return Vector4D(tt, xx, yy, zz);
+	}
+
+	// (1 - s) * self + s * other
+	Vector4D Vector4D::getDivPoint(Vector4D other, double s) {
+		double time = 1.0 - s; // Not sure if actually represents time. Named "time" instead of "t" to avoid local scope confusion.
+		double tt = t * time + other.getT() * s;
+		double xx = x * time + other.getX() * s;
+		double yy = y * time + other.getY() * s;
+		double zz = z * time + other.getZ() * s;
+		return Vector4D(tt, xx, yy, zz);
+	}
+
+
 	//Compound assignment plus
 	Vector4D& Vector4D::operator+=(const Vector4D& rhs) {
 		t = t + rhs.t;
