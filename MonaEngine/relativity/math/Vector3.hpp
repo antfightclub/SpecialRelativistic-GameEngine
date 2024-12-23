@@ -77,6 +77,14 @@ namespace mve {
 			return lhs;
 		}
 
+		// Negative
+		// FIXME: Not sure if friend or just Vector3& here.... this works, but modifies original!
+		friend Vector3 operator-(Vector3& rhs) {
+			rhs.x = -rhs.x;
+			rhs.y = -rhs.y;
+			rhs.z = -rhs.z;
+			return rhs;
+		}
 
 		// Vector3 operations
 		Vector3 copy();

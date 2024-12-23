@@ -19,10 +19,13 @@ int main() {
 
 	auto vec1 = mve::Vector3::Vector3(x, y, z);
 	auto vec2 = mve::Vector3::Vector3(10.0);
-	auto vec3 = vec1 * a;
+	//auto vec3 = -vec1;
 	
-	std::cout << "vec1 = " << vec1 << '\n' << "a = " << a << '\n';
-	std::cout << "vec1 * a = " << vec3 << '\n';
+	//std::cout << "vec1 = " << vec1 << '\n' << "a = " << a << '\n';
+	//std::cout << "vec1 * a = " << vec3 << '\n';
+
+	std::cout << "vec1 = " << vec1 << '\n' << "-vec1 = " << -vec1 << '\n';
+	std::cout << "vec1 = " << -vec1 << '\n';
 
 	return EXIT_SUCCESS;
 }
