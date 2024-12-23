@@ -21,6 +21,12 @@ namespace Math {
 		//Vector3& operator+(Vector3& const u) {  }
 		//Vector3 operator+(Vector3 othr) { this->x = this->x + othr.x; this->y = this->y + othr.y; this->z = this->z + othr.z; }
 		
+		/*
+		BEST PRACTICE FROM LEARNCPP 21.1
+		Operators that do not modify their operands (e.g. arithmetic operators) should generally return results by value
+		Operators that modify their leftmost operand (e.g. pre-increment and any of the assignment operators) should generally return the leftmost operand by reference.
+		*/
+
 		//Compound assignment plus
 		Vector3& operator+=(const Vector3& rhs) {
 			x = x + rhs.x; 
