@@ -16,10 +16,10 @@ namespace Math {
 		// Printing values
 		friend std::ostream& operator<<(std::ostream& os, const Vector3& v);
 
+		double getX() const { return x; }
+		double getY() const { return y; }
+		double getZ() const { return z; }
 
-		// Operator overloads
-		//Vector3& operator+(Vector3& const u) {  }
-		//Vector3 operator+(Vector3 othr) { this->x = this->x + othr.x; this->y = this->y + othr.y; this->z = this->z + othr.z; }
 		
 		/*
 		BEST PRACTICE FROM LEARNCPP 21.1
@@ -28,72 +28,45 @@ namespace Math {
 		*/
 
 		//Compound assignment plus
-		Vector3& operator+=(const Vector3& rhs) {
-			x = x + rhs.x; 
-			y = y + rhs.y;
-			z = z + rhs.z;
-			return *this;
-		}
+		Vector3& operator+=(const Vector3& rhs);
 
-		// Binary plus
-		friend Vector3 operator+(Vector3 lhs, const Vector3& rhs) {
-			lhs += rhs;
-			return lhs;
-		}
+		 //Binary plus
+		friend Vector3 operator+(Vector3 lhs, const Vector3& rhs);
 
 		// Compound assignment minus
-		Vector3& operator-=(const Vector3& rhs) {
-			x = x - rhs.x;
-			y = y - rhs.y;
-			z = z - rhs.z;
-			return *this;
-		}
+		Vector3& operator-=(const Vector3& rhs);
 
 		// Binary minus
-		friend Vector3 operator-(Vector3 lhs, const Vector3& rhs) {
-			lhs -= rhs;
-			return lhs;
-		}
+		friend Vector3 operator-(Vector3 lhs, const Vector3& rhs);
 
 		// compount assignment multiply with double
-		Vector3& operator *=(const double& rhs) {
-			x = x * rhs;
-			y = y * rhs;
-			z = z * rhs;
-			return *this;
-		}
+		Vector3& operator *=(const double& rhs);
 
 		// Binary multiply (vec3 * double)
-		friend Vector3 operator*(Vector3 lhs, const double& rhs) {
-			lhs *= rhs;
-			return lhs;
-		}
+		friend Vector3 operator*(Vector3 lhs, const double& rhs);
 
 		// Compound assignment division with double
-		Vector3& operator /=(const double& rhs) {
-			x = x / rhs;
-			y = y / rhs;
-			z = z / rhs;
-			return *this;
-		}
+		Vector3& operator /=(const double& rhs);
 		
 		// Binary divide (vec3 / double)
-		friend Vector3 operator/(Vector3 lhs, const double& rhs) {
-			lhs /= rhs;
-			return lhs;
-		}
+		friend Vector3 operator/(Vector3 lhs, const double& rhs);
+
+
+		Vector3 operator+() const;
+
+		Vector3 operator-() const;
 
 		// Negative
 		// FIXME: Not sure if friend or just Vector3& here.... this works, but modifies original!
-		friend Vector3 operator-(Vector3& rhs) {
-			rhs.x = -rhs.x;
-			rhs.y = -rhs.y;
-			rhs.z = -rhs.z;
-			return rhs;
-		}
+		//friend Vector3 operator-(Vector3& rhs) {
+		//	rhs.x = -rhs.x;
+		//	rhs.y = -rhs.y;
+		//	rhs.z = -rhs.z;
+		//	return rhs;
+		//}
 
 		// Vector3 operations
-		Vector3 copy();
+//		Vector3 copy();
 
 		Vector3 getHat(double length = 1.0);
 
@@ -118,10 +91,4 @@ namespace Math {
 		double y;
 		double z;
 	};
-
-	std::ostream& operator<<(std::ostream& os, const Vector3& v) {
-		os << "Vector3{" << v.x << ", " << v.y << ", " << v.z << "}" << '\n';
-		return os;
-	}
-
 }
