@@ -31,7 +31,26 @@ namespace Math {
 		}
 	}
 
+	Vector3 Vector3::getNormalize(double length) {
+		double r = x * x + y * y + z * z;
+		if (r >= 0.0) {
+			r = length / std::sqrt(r);
+			return Vector3(x * r, y * r, z * r);
+		}
+		else {
+			return Vector3{ 0.0 };
+		}
+	}
 
+	void Vector3::normalize(double length) {
+		double r = x * x + y * y + z * z;
+		if (r >= 0.0) {
+			r = length / std::sqrt(r);
+			x *= r;
+			y *= r;
+			z *= r;
+		}
+	}
 
 
 	//Compound assignment plus
