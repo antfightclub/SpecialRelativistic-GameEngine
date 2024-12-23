@@ -87,7 +87,7 @@ namespace Math {
 		double getGamma();
 
 		// Get lorentzian inner product
-		double lorentzianInnerProduct();
+		double lorentzianInnerProduct(Vector4D other);
 
 		// Get the lorentzian squared norm
 		double lorentzianSquaredNorm();

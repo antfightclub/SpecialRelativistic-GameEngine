@@ -28,6 +28,35 @@ namespace Math {
 		return a * a + b * b + c * c;
 	}
 
+	// Dot product of spatial component
+	double Vector4D::dot(Vector4D other) {
+		return x * other.getX() + y * other.getY() + z * other.getZ();
+	}
+
+	// Get lorentz factor
+	double Vector4D::getGamma() {
+		return std::sqrt(1.0 + x*x + y*y+z*z);
+	}
+
+	// Get lorentzian inner product
+	double Vector4D::lorentzianInnerProduct(Vector4D other) {
+		return x * other.getX() + y * other.getY() + z * other.getZ() - t * other.getT();
+	}
+
+	// Get the lorentzian squared norm
+	double Vector4D::lorentzianSquaredNorm() {
+		return x * x + y * y + z * z - t * t;
+	}
+
+	// Get the lorentzian squared norm to another vector
+	double Vector4D::squaredNormTo(Vector4D other) {
+		double a = t - other.t; // time component
+		double b = x - other.x; // spatial x component
+		double c = y - other.y; // spatial y component
+		double d = z - other.z; // spatial z component
+		return b * b + c * c + d * d - a * a;
+	}
+
 	//Compound assignment plus
 	Vector4D& Vector4D::operator+=(const Vector4D& rhs) {
 		t = t + rhs.t;
