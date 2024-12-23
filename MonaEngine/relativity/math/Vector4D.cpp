@@ -49,7 +49,7 @@ namespace Math {
 	}
 
 	// Get the lorentzian squared norm to another vector
-	double Vector4D::squaredNormTo(Vector4D other) {
+	double Vector4D::lorentzianSquaredNormTo(Vector4D other) {
 		double a = t - other.t; // time component
 		double b = x - other.x; // spatial x component
 		double c = y - other.y; // spatial y component
@@ -58,7 +58,7 @@ namespace Math {
 	}
 
 	//
-	Vector3 Vector4D::getHat(double length = 1.0) {
+	Vector3 Vector4D::getHat(double length) {
 		double r = x * x + y * y + z * z;
 		if (r > 0.0) {
 			r = length / std::sqrt(r);
@@ -70,7 +70,7 @@ namespace Math {
 	}
 
 	//
-	void Vector4D::hat(double length = 1.0) {
+	void Vector4D::hat(double length) {
 		double r = x * x + y * y + z * z;
 		if (r > 0.0) {
 			r = length / std::sqrt(r);
@@ -84,7 +84,7 @@ namespace Math {
 	}
 
 	//
-	Vector4D Vector4D::getNormalize(double length = 1.0) {
+	Vector4D Vector4D::getNormalize(double length) {
 		double r = x * x + y * y + z * z;
 		if (r > 0.0) {
 			r = length / std::sqrt(r);
@@ -96,7 +96,7 @@ namespace Math {
 	}
 
 	//
-	void Vector4D::normalize(double length = 1.0) {
+	void Vector4D::normalize(double length) {
 		double r = x * x + y * y + z * z;
 		if (r > 0.0) {
 			r = length / std::sqrt(r);

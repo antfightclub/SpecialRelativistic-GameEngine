@@ -93,7 +93,7 @@ namespace Math {
 		double lorentzianSquaredNorm();
 
 		// Get the lorentzian squared norm to another vector
-		double squaredNormTo(Vector4D other);
+		double lorentzianSquaredNormTo(Vector4D other);
 		
 		//
 		Vector3 getHat(double length = 1.0);
