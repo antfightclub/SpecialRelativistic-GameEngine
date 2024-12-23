@@ -2,6 +2,36 @@
 
 namespace Math {
 
+	//Compound assignment plus
+	Vector4D& Vector4D::operator+=(const Vector4D& rhs) {
+		t = t + rhs.t;
+		x = x + rhs.x;
+		y = y + rhs.y;
+		z = z + rhs.z;
+		return *this;
+	}
+
+	//Binary plus
+	Vector4D operator+(Vector4D lhs, const Vector4D& rhs) {
+		lhs += rhs;
+		return lhs;
+	}
+
+	// Compound assignment minus
+	Vector4D& Vector4D::operator-=(const Vector4D& rhs) {
+		t = t - rhs.t;
+		x = x - rhs.x;
+		y = y - rhs.y;
+		z = z - rhs.z;
+		return *this;
+	}
+
+	// Binary minus
+	Vector4D operator-(Vector4D lhs, const Vector4D& rhs) {
+		lhs -= rhs;
+		return lhs;
+	}
+
 
 
 
