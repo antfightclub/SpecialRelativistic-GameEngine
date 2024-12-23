@@ -82,6 +82,8 @@ namespace Math {
 
 		double distanceTo(Vector3 other);
 
+		double distanceToSquared(Vector3 other);
+
 		double dot(Vector3 other);
 
 		Vector3 cross(Vector3 other);

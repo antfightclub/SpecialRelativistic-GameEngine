@@ -60,6 +60,21 @@ namespace Math {
 		return x * x + y * y + z * z;
 	}
 
+	double Vector3::distanceTo(Vector3 other) {
+		double a = x - other.getX();
+		double b = y - other.getY();
+		double c = z - other.getZ();
+		return std::sqrt(a * a + b * b + c * c);
+	}
+
+	double Vector3::distanceToSquared(Vector3 other) {
+		double a = x - other.getX();
+		double b = y - other.getY();
+		double c = z - other.getZ();
+		return a * a + b * b + c * c;
+	}
+
+
 
 	//Compound assignment plus
 	Vector3& Vector3::operator+=(const Vector3& rhs) {
