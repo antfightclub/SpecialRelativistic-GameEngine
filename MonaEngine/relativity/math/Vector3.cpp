@@ -52,6 +52,14 @@ namespace Math {
 		}
 	}
 
+	double Vector3::length() {
+		return std::sqrt(x*x + y*y + z*z);
+	}
+
+	double Vector3::lengthSquared() {
+		return x * x + y * y + z * z;
+	}
+
 
 	//Compound assignment plus
 	Vector3& Vector3::operator+=(const Vector3& rhs) {
