@@ -32,7 +32,35 @@ namespace Math {
 		return lhs;
 	}
 
+	// compount assignment multiply with double
+	Vector4D& Vector4D::operator *=(const double& rhs) {
+		t = t * rhs;
+		x = x * rhs;
+		y = y * rhs;
+		z = z * rhs;
+		return *this;
+	}
 
+	// Binary multiply (vec3 * double)
+	Vector4D operator*(Vector4D lhs, const double& rhs) {
+		lhs *= rhs;
+		return lhs;
+	}
+
+	// Compound assignment division with double
+	Vector4D& Vector4D::operator /=(const double& rhs) {
+		t = t / rhs;
+		x = x / rhs;
+		y = y / rhs;
+		z = z / rhs;
+		return *this;
+	}
+
+	// Binary divide (vec3 / double)
+	Vector4D operator/(Vector4D lhs, const double& rhs) {
+		lhs /= rhs;
+		return lhs;
+	}
 
 
 	std::ostream& operator<<(std::ostream& os, const Vector4D& v) {
