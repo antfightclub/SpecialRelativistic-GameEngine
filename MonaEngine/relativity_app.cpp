@@ -28,7 +28,12 @@ namespace mve {
 	}
 
 	RelativityApp::~RelativityApp() {}
+	
+	void RelativityApp::run() {
 
+
+		vkDeviceWaitIdle(mveDevice.device());
+	}
 
 	void RelativityApp::loadGameObjects() {
 		// generate lattice

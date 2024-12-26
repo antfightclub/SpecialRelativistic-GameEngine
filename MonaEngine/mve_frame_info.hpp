@@ -21,7 +21,12 @@ namespace mve {
 		glm::vec4 ambientLightColor{ 1.f, 1.f, 1.f, .02f }; // w is intensity
 		PointLight pointLights[MAX_LIGHTS];
 		int numLights;
+	};
 
+	struct WireframeUbo {
+		glm::vec3 Xp{0.f};
+		glm::vec3 Xo{0.f};
+		glm::mat4 Lorentz{1.f};
 	};
 
 	struct FrameInfo {

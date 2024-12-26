@@ -72,6 +72,9 @@
     <ClCompile Include="systems\lattice_wireframe_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="relativity_app.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mve_window.hpp">
@@ -132,6 +135,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="systems\lattice_wireframe_system.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="relativity_app.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
