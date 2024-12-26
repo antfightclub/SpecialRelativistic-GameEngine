@@ -31,6 +31,27 @@ namespace mve {
 	RelativityApp::~RelativityApp() {}
 	
 	void RelativityApp::run() {
+		// uboBuffers
+
+		// wireframeUboBuffer
+
+		// map global buffer
+
+		// gloablSetLayout
+
+		// descriptorsets
+
+		// add render system (lattice this time)
+
+		// init camera
+
+		// create viewerobject
+		// create camera controller
+		// current time
+
+		// while !mveWindow.shouldClose() (update loop)
+		//...etc
+
 
 
 		vkDeviceWaitIdle(mveDevice.device());
