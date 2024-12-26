@@ -135,8 +135,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="first_app.cpp" />
     <ClCompile Include="keyboard_movement_controller.cpp" />
+    <ClCompile Include="lattice.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mve_buffer.cpp" />
     <ClCompile Include="mve_camera.cpp" />
@@ -153,12 +153,11 @@
     <ClCompile Include="relativity\math\Vector4D.cpp" />
     <ClCompile Include="relativity_app.cpp" />
     <ClCompile Include="systems\lattice_wireframe_system.cpp" />
-    <ClCompile Include="systems\point_light_system.cpp" />
     <ClCompile Include="systems\simple_render_system.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="first_app.hpp" />
     <ClInclude Include="keyboard_movement_controller.hpp" />
+    <ClInclude Include="lattice.hpp" />
     <ClInclude Include="mve_buffer.hpp" />
     <ClInclude Include="mve_camera.hpp" />
     <ClInclude Include="mve_descriptors.hpp" />
@@ -176,11 +175,12 @@
     <ClInclude Include="relativity\math\Vector4D.hpp" />
     <ClInclude Include="relativity_app.hpp" />
     <ClInclude Include="systems\lattice_wireframe_system.hpp" />
-    <ClInclude Include="systems\point_light_system.hpp" />
     <ClInclude Include="systems\simple_render_system.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\compile.bat" />
+    <None Include="shaders\lattice_shader.frag" />
+    <None Include="shaders\lattice_shader.vert" />
     <None Include="shaders\point_light.frag" />
     <None Include="shaders\point_light.vert" />
     <None Include="shaders\simple_shader.frag" />

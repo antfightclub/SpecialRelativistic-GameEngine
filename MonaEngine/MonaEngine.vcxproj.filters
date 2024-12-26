@@ -21,9 +21,6 @@
     <ClCompile Include="mve_window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="first_app.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="mve_pipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -57,9 +54,6 @@
     <ClCompile Include="systems\simple_render_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="systems\point_light_system.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="relativity\math\Vector3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -75,12 +69,12 @@
     <ClCompile Include="relativity_app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="lattice.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mve_window.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="first_app.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mve_pipeline.hpp">
@@ -122,9 +116,6 @@
     <ClInclude Include="systems\simple_render_system.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="systems\point_light_system.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="relativity\math\Vector3.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -140,6 +131,9 @@
     <ClInclude Include="relativity_app.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="lattice.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\simple_shader.vert" />
@@ -149,5 +143,7 @@
     </None>
     <None Include="shaders\point_light.frag" />
     <None Include="shaders\point_light.vert" />
+    <None Include="shaders\lattice_shader.frag" />
+    <None Include="shaders\lattice_shader.vert" />
   </ItemGroup>
 </Project>
