@@ -113,6 +113,60 @@ namespace Math {
 	}
 
 
+
+	// Returns the inverse of a Matrix44 that is a 3D rotation by transposing its 3D rotation part.
+	Matrix44 Matrix44::getInverseRotation() {
+		Matrix44 m = Matrix44(0.0);
+		m.m00 = this->m00; m.m01 = this->m01; m.m02 = this->m02; m.m03 = this->m03;
+		m.m10 = this->m10; m.m11 = this->m11; m.m12 = this->m21; m.m13 = this->m31;
+		m.m20 = this->m20; m.m21 = this->m12; m.m22 = this->m22; m.m23 = this->m32;
+		m.m30 = this->m30; m.m31 = this->m13; m.m32 = this->m23; m.m33 = this->m33;
+		return m;
+	}
+
+	// Rotates self. Let M be the 3D rotation part of self. This routine overwrites v by M*v
+	//Vector3 Matrix44::rotate(Vector3& v) {
+	//	Vector3 vec = Vector3(0.0);
+	//	double x, y, z;
+	//	x = v.getX();
+	//	y = v.getY();
+	//	z = v.getZ();
+	//}
+
+	// Returns lorentz factor
+	double Matrix44::getGamma() {
+		return this->m00;
+	}
+
+	Matrix44 Matrix44::Lorentz(Vector4D u) {
+		Matrix44 m = Matrix44(1.0);
+		double x, y, z, x2, y2, z2, r, g, xy, yz, zx;
+		x = u.getX();
+		y = u.getY();
+		z = u.getZ();
+		x2 = x * x;
+		y2 = y * y;
+		z2 = z * z;
+		r = x2 + y2 + z2;
+		if (r > 0.0) {
+			g = std::sqrt(1.0 + r); // Lorentz factor
+			r = 1.0 / r;
+			xy = (g - 1.0) * x * y * r;
+			yz = (g - 1.0) * y * z * r;
+			zx = (g - 1.0) * z * x * r;
+
+			m.m00 =  g;		m.m01 = -x;						m.m02 = -y;						m.m03 = -z;
+			m.m10 = -x;		m.m11 = (g * x2 + y2 + z2) * r; m.m12 = xy;						m.m13 = zx;
+			m.m20 = -y;		m.m21 = xy;						m.m22 = (x2 + g * y2 + z2) * r; m.m23 = yz;
+			m.m30 = -z;		m.m31 = zx;						m.m32 = yz;						m.m33 = (x2 + y2 + g * z2) * r;
+			return m;
+		}
+		else {
+			return m; // Return Identity matrix44 if r is zero
+		}
+	}
+
+
 	std::ostream& operator<<(std::ostream& os, const Matrix44& mat) {
 		os << "Matrix44{\n"
 			<< mat.m00 << ", " << mat.m01 << ", " << mat.m02 << ", " << mat.m03 << ", \n"

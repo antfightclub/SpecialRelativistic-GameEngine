@@ -49,8 +49,8 @@ namespace Math {
 		// Returns the inverse of a Matrix44 that is a 3D rotation by transposing its 3D rotation part.
 		Matrix44 getInverseRotation();
 
-		// Rotates self
-		void rotateSelf(Vector3 v);
+		// ... not sure!! TODO
+		Vector3 rotate(Vector3& v);
 
 		// TBD how to do
 		// array? GetRotate()
