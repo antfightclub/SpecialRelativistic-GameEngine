@@ -13,6 +13,7 @@
 namespace mve {
 
 	class RelativityApp {
+	public:
 		static constexpr int WIDTH = 800;
 		static constexpr int HEIGHT = 600;
 
