@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <stdexcept>
+#include <iostream>
 
 namespace mve {
 
@@ -12,15 +13,17 @@ namespace mve {
 		}
 		return this->vertices;
 	}
-	std::vector<uint32_t> Lattice::getIndices() {
+	/*std::vector<uint32_t> Lattice::getIndices() {
 		if (this->indices.empty()) {
 			throw std::runtime_error("Failed to get indices since index vector is empty!");
 		}
 		return this->indices;
-	}
+	}*/
 
-	void Lattice::makeLattice(double N, double L, double scale) {
+	void Lattice::makeLattice(int N, int L, double scale) {
 		//std::shared_ptr<MveModel> mveModel = MveModel::MveModel(mveDevice);
+		std::cout << "Start of makeLattice!" << "\n";
+		
 		int n = 2 * N + 1;
 		int xx, yy, zz;
 		for (int i = -N; i < N + 1; i++) {
@@ -34,6 +37,7 @@ namespace mve {
 
 			}
 		}
+		std::cout << "first for loop complete!" << "\n";
 
 		for (int i = -N; i < N + 1; i++) {
 			xx = (i + 0.5) * (L / N);
@@ -46,6 +50,7 @@ namespace mve {
 
 			}
 		}
+		std::cout << "second for loop complete!" << "\n";
 
 		for (int i = -N; i < N + 1; i++) {
 			zz = (i + 0.5) * (L / N);
@@ -58,15 +63,17 @@ namespace mve {
 
 			}
 		}
+		std::cout << "third for loop complete!" << "\n";
+
 
 	}
 
 	void Lattice::add(double xx, double yy, double zz, double a) {
 		vertices.push_back(glm::vec3{ xx, yy, zz });
-		if (a < N * c) {
-			indices.push_back(static_cast<uint32_t>(vertices.size()) / 3 - 1);
-			indices.push_back(static_cast<uint32_t>(vertices.size()) / 3);
-		}
+		/*if (a < N * c) {
+			indices.push_back(std::floor(static_cast<uint32_t>(vertices.size()) / 3 - 1));
+			indices.push_back(std::floor(static_cast<uint32_t>(vertices.size()) / 3));
+		}*/
 	}
 
 

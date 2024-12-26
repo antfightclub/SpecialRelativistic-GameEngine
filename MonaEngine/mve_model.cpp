@@ -9,6 +9,7 @@
 #include <cassert>
 #include <cstring>
 #include <unordered_map>
+#include <iostream>
 
 namespace std {
 	template<>
@@ -37,9 +38,12 @@ namespace mve {
 		return std::make_unique<MveModel>(device, builder);
 	}
 	
-	std::unique_ptr<MveModel> MveModel::createModelFromStdVectors(MveDevice& device, std::vector<glm::vec3>& vertices, std::vector<uint32_t>& indices) {
+	std::unique_ptr<MveModel> MveModel::createModelFromStdVector(MveDevice& device, std::vector<glm::vec3>& vertices) {
+		std::cout << "createModelFromStdVectors just called..." << '\n';
 		Builder builder{};
-		builder.loadModelFromStdVectors(vertices, indices);
+		std::cout << "builder initialized... Calling loadModelFromStdVectors" << '\n';
+		builder.loadModelFromStdVector(vertices);
+		std::cout << "returning MveModel..." << '\n';
 		return std::make_unique<MveModel>(device, builder);
 	}
 
@@ -105,7 +109,7 @@ namespace mve {
 		mveDevice.copyBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
 	}
 
-	void MveModel::draw(VkCommandBuffer commandBuffer) {
+	const void MveModel::draw(VkCommandBuffer commandBuffer) {
 		if (hasIndexBuffer) {
 			vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
 		}
@@ -201,23 +205,36 @@ namespace mve {
 
 	}
 
-	void MveModel::Builder::loadModelFromStdVectors(std::vector<glm::vec3>& verts, std::vector<uint32_t>& indic) {
+	void MveModel::Builder::loadModelFromStdVector(std::vector<glm::vec3>& verts) {
+		std::cout << "loadModelFromStdVectors just called..." << '\n';
 		vertices.clear();
+		std::cout << "vertices.clear()" << '\n';
 		indices.clear();
-		//std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+		std::cout << "indices.clear()" << '\n';
+
+		std::cout << "Amount of vertices in verts: " << verts.size() << '\n';
+
+		std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
 		for (const auto& vert : verts) {
-			for (const auto& ind : indic) {
-				Vertex vertex{};
-				vertex.position = vert;
-				vertex.color = { 1.f, 1.f, 1.f};
-				vertex.normal = {};
-				vertex.uv = {};
+		
+			//std::cout << "Inside nested for loop!" << '\n';
+			Vertex vertex{};
+			vertex.position = vert;
+			vertex.color = { 1.f, 1.f, 1.f};
+			vertex.normal = {1.0f, 1.0f, 1.0f};
+			vertex.uv = {1.0f, 1.0f};
 
+			//std::cout << "Pushing back..." << '\n';
+			//vertices.push_back(vertex);
+			
+			if (uniqueVertices.count(vertex) == 0) {
+				uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
 				vertices.push_back(vertex);
-				indices.push_back(ind);
 			}
+			indices.push_back(uniqueVertices[vertex]);
 
 		}
+		std::cout << "For loop exited!!..." << '\n';
 	}
 }
