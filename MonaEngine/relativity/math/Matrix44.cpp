@@ -105,7 +105,11 @@ namespace Math {
 
 	// Scale a matrix
 	Matrix44 Matrix44::scale(double scale) {
-
+		Matrix44 m = Matrix44(0.0);
+		m.m00 = 1.0;	m.m01 = 0.0;		m.m02 = 0.0;		m.m03 = 0.0;
+		m.m10 = 0.0;	m.m11 = scale;		m.m12 = 0.0;		m.m13 = 0.0;
+		m.m20 = 0.0;	m.m21 = 0.0;		m.m22 = scale;		m.m23 = 0.0;
+		m.m30 = 0.0;	m.m31 = 0.0;		m.m32 = 0.0;		m.m33 = scale;
 	}
 
 
