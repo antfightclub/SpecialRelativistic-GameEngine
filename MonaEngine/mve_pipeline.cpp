@@ -55,7 +55,7 @@ MvePipeline::~MvePipeline() {
 		createShaderModule(vertCode, &vertShaderModule);
 		createShaderModule(fragCode, &fragShaderModule);
 
-		VkPipelineShaderStageCreateInfo shaderStages[2];
+		VkPipelineShaderStageCreateInfo shaderStages[2]{ };
 
 		// Vertex shader stage
 		shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -105,6 +105,7 @@ MvePipeline::~MvePipeline() {
 
 		pipelineInfo.basePipelineIndex = -1;
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+
 
 		if (vkCreateGraphicsPipelines(mveDevice.device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create graphics pipeline!");
@@ -212,7 +213,7 @@ MvePipeline::~MvePipeline() {
 	void MvePipeline::wireframePipelineConfigInfo(PipelineConfigInfo& configInfo) {
 		// Input Assembly state create info default config
 		configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-		configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+		configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST; // not sure if line list or strip or with or without adjacency
 		configInfo.inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
 
 		// ViewportInfo
@@ -226,7 +227,7 @@ MvePipeline::~MvePipeline() {
 		configInfo.rasterizationInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 		configInfo.rasterizationInfo.depthClampEnable = VK_FALSE;
 		configInfo.rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;
-		configInfo.rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL;
+		configInfo.rasterizationInfo.polygonMode = VK_POLYGON_MODE_LINE;
 		configInfo.rasterizationInfo.lineWidth = 1.0f;
 		configInfo.rasterizationInfo.cullMode = VK_CULL_MODE_NONE;
 		configInfo.rasterizationInfo.frontFace = VK_FRONT_FACE_CLOCKWISE;

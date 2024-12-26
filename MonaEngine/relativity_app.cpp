@@ -16,6 +16,7 @@
 #include <chrono>
 #include <stdexcept>
 #include <array>
+#include <iostream>
 
 namespace mve {
 
@@ -31,6 +32,8 @@ namespace mve {
 	RelativityApp::~RelativityApp() {}
 	
 	void RelativityApp::run() {
+
+		std::cout << "start run!" << std::endl;
 
 		// (I Think) this is buffers for each frame in flight
 		std::vector<std::unique_ptr<MveBuffer>> globalUboBuffers(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -54,6 +57,8 @@ namespace mve {
 			mveDevice.properties.limits.minUniformBufferOffsetAlignment,
 		};
 		
+		std::cout << "global ubo buffers created!" << std::endl;
+
 		std::vector<std::unique_ptr<MveBuffer>> latticeUboBuffers(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (int i = 0; i < latticeUboBuffers.size(); i++) {
 			latticeUboBuffers[i] = std::make_unique<MveBuffer>(
@@ -75,14 +80,20 @@ namespace mve {
 			mveDevice.properties.limits.minUniformBufferOffsetAlignment,
 		};
 
+		std::cout << "lattice ubo buffers created!" << std::endl;
+
 		globalUboBuffer.map();
 		latticeUboBuffer.map();
 
+		std::cout << "global and lattice ubo buffers mapped!!" << std::endl;
+
 		auto descriptorSetLayout = MveDescriptorSetLayout::Builder(mveDevice)
 			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT) // Global Ubo 
-			.addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)								 // Lattice Ubo
+			.addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)								 // Lattice Ubo
 			.build();
 		
+		std::cout << "descriptorsetlayout!" << std::endl;
+
 		std::vector<VkDescriptorSet> globalDescriptorSets(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (int i = 0; i < globalDescriptorSets.size(); i++) {
 			auto globalBufferInfo = globalUboBuffers[i]->descriptorInfo();
@@ -93,6 +104,8 @@ namespace mve {
 				.build(globalDescriptorSets[i]);
 		}
 
+		std::cout << "globalDescriptorsets!!" << std::endl;
+
 		LatticeWireframeSystem latticeRenderSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), descriptorSetLayout->getDescriptorSetLayout() };
 		MveCamera camera{};
 		camera.setViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
@@ -102,20 +115,29 @@ namespace mve {
 		viewerObject.transform.translation.z = -2.5f;
 		KeyboardMovementController cameraController{};
 
+		std::cout << "rendersystem and viewer object and cam!" << std::endl;
+
 		auto currentTime = std::chrono::high_resolution_clock::now();
 	
+		std::cout << "just before while loop!" <<  std::endl;
 		while (!mveWindow.shouldClose()) {
 			glfwPollEvents();
+
+			std::cout << "start of while loop!!" << std::endl;
 
 			auto newTime = std::chrono::high_resolution_clock::now();
 			float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
 			
+			std::cout << "frameTime = " << frameTime << std::endl;
+
 			cameraController.moveInPlaneXZ(mveWindow.getGLFWwindow(), frameTime, viewerObject);
 			camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
 			float aspect = mveRenderer.getAspectRatio();
 
-			camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.0f);
+			std::cout << "aspect = " << aspect << std::endl;
+
+			camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.0f);
 
 			if (auto commandBuffer = mveRenderer.beginFrame()) {
 				int frameIndex = mveRenderer.getFrameIndex();
@@ -129,7 +151,7 @@ namespace mve {
 				};
 
 				// ***** update
-
+				std::cout << "just before update in while loop!" << std::endl;
 				// update global ubo buffer
 				GlobalUbo globalUbo{};
 				globalUbo.projection = camera.getProjection();
@@ -140,9 +162,18 @@ namespace mve {
 				
 				// TODO: update lattice ubo buffer
 				LatticeUbo latticeUbo{};
+				latticeUbo.Xp = camera.getPosition();
+				latticeUbo.Xo = glm::vec3{ 0.0f,0.0f,0.0f };
+				latticeUbo.Lorentz = glm::mat4{ 1.0f };
+				latticeUboBuffers[frameIndex]->writeToBuffer(&latticeUbo);
+				latticeUboBuffers[frameIndex]->flush();
+				latticeUboBuffer.flushIndex(frameIndex);
 				
-				// Render
+				std::cout << "just before render in while loop!" << std::endl;
 
+				// Render
+				mveRenderer.beginSwapChainRenderPass(commandBuffer);
+				
 				// order matters (if semitransparency is involved)
 				latticeRenderSystem.renderWireframe(frameInfo);
 
@@ -156,16 +187,24 @@ namespace mve {
 	}
 
 	void RelativityApp::loadGameObjects() {
+		std::cout << "loadGameObjects called!" << '\n';
 		// generate lattice
-		Lattice lattice;
-		lattice.makeLattice(30.0, 100.0, 1.0);
+		Lattice lattice{100, 30, 5, 1, 1.0};
+		std::cout << "Calling makeLattice..." << '\n';
+		
+		std::cout << "Getting vertices..." << '\n';
 		auto vertices = lattice.getVertices();
-		auto indices = lattice.getIndices();
-		std::shared_ptr<MveModel> mveModel = MveModel::createModelFromStdVectors(mveDevice, vertices, indices);
+		
+		std::cout << "creating model from std vectors..." << '\n';
+		std::shared_ptr<MveModel> mveModel = MveModel::createModelFromStdVector(mveDevice, vertices);
+		std::cout << "Creating MveGameObject..." << '\n';
 		auto latticeGameObject = MveGameObject::createGameObject();
+		std::cout << "Assigning model and transform..." << '\n';
 		latticeGameObject.model = mveModel;
 		latticeGameObject.transform.translation = { 0.f,0.f,0.f };
 		latticeGameObject.transform.scale = glm::vec3{ 1.f, 1.f, 1.f };
+		std::cout << "Emplacing gameobject..." << '\n';
 		gameObjects.emplace(latticeGameObject.getId(), std::move(latticeGameObject));
+		std::cout << "loadGameObjects finished!" << '\n';
 	}
 }

@@ -42,6 +42,7 @@ namespace mve {
         descriptorSetLayoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
         descriptorSetLayoutInfo.pBindings = setLayoutBindings.data();
 
+
         if (vkCreateDescriptorSetLayout(
             mveDevice.device(),
             &descriptorSetLayoutInfo,
@@ -108,7 +109,7 @@ namespace mve {
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocInfo.descriptorPool = descriptorPool;
         allocInfo.pSetLayouts = &descriptorSetLayout;
-        allocInfo.descriptorSetCount = 1;
+        allocInfo.descriptorSetCount = 2;
 
         // Might want to create a "DescriptorPoolManager" class that handles this case, and builds
         // a new pool whenever an old pool fills up. But this is beyond our current scope
