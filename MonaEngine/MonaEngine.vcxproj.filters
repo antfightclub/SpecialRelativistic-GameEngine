@@ -69,6 +69,9 @@
     <ClCompile Include="relativity\math\Matrix44.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="systems\lattice_wireframe_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mve_window.hpp">
@@ -126,6 +129,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="relativity\math\Matrix44.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="systems\lattice_wireframe_system.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
