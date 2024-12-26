@@ -8,10 +8,10 @@ namespace mve {
 
 		
 		
-		//Lattice();
+		Lattice() {};
 
-		//~Lattice();
-		
+		~Lattice() {};
+
 		void makeLattice(double N, double L, double scale);
 		
 		void add(double xx, double yy, double zz, double a);
