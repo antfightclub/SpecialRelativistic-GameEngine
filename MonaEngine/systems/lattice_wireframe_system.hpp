@@ -29,6 +29,6 @@ namespace mve {
 		MveDevice& mveDevice;
 
 		std::unique_ptr<MvePipeline> mvePipeline;
-		VkPipelineLayout pipeLineLayout;
+		VkPipelineLayout pipelineLayout;
 	};
 }
