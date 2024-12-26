@@ -1,5 +1,7 @@
 #include "Matrix44.hpp"
 
+
+
 namespace Math {
 
 	// Multiplication (returns new matrix)
@@ -61,6 +63,50 @@ namespace Math {
 		return *this;
 	}
 
+
+	// X rotation (angle in radians) FIXME: NOT ACCOUNTED FOR AXIS DIFFERENCES
+	Matrix44 Matrix44::xRotation(double angle) {
+		double cos_a = std::cos(angle);
+		double sin_a = std::sin(angle);
+		Matrix44 m = Matrix44(0.0);
+
+		m.m00 = 1.0;	m.m01 = 0.0;	m.m02 =   0.0;		m.m03 =    0.0;
+		m.m10 = 0.0;	m.m11 = 1.0;	m.m12 =   0.0;		m.m13 =    0.0;
+		m.m20 = 0.0;	m.m21 = 0.0;	m.m22 = cos_a;		m.m23 = -sin_a;
+		m.m30 = 0.0;	m.m31 = 0.0;	m.m32 = sin_a;		m.m33 =  cos_a;
+		return m;
+	}
+
+	// y rotation (angle in radians) FIXME: NOT ACCOUNTED FOR AXIS DIFFERENCES
+	Matrix44 Matrix44::yRotation(double angle) {
+		double cos_a = std::cos(angle);
+		double sin_a = std::sin(angle);
+		Matrix44 m = Matrix44(0.0);
+
+		m.m00 = 1.0;	m.m01 =    0.0;		m.m02 = 0.0;	m.m03 =   0.0;
+		m.m10 = 0.0;	m.m11 =  cos_a;		m.m12 = 0.0;	m.m13 = sin_a;
+		m.m20 = 0.0;	m.m21 =    0.0;		m.m22 = 1.0;	m.m23 =   0.0;
+		m.m30 = 0.0;	m.m31 = -sin_a;		m.m32 = 0.0;	m.m33 = cos_a;
+		return m;
+	}
+
+	// z rotation (angle in radians) FIXME: NOT ACCOUNTED FOR AXIS DIFFERENCES
+	Matrix44 Matrix44::zRotation(double angle) {
+		double cos_a = std::cos(angle);
+		double sin_a = std::sin(angle);
+		Matrix44 m = Matrix44(0.0);
+
+		m.m00 = 1.0;	m.m01 =   0.0;		m.m02 =    0.0;		m.m03 = 0.0;
+		m.m10 = 0.0;	m.m11 = cos_a;		m.m12 = -sin_a;		m.m13 = 0.0;
+		m.m20 = 0.0;	m.m21 = sin_a;		m.m22 =  cos_a;		m.m23 = 0.0;
+		m.m30 = 0.0;	m.m31 =   0.0;		m.m32 =    0.0;		m.m33 = 1.0;
+		return m;
+	}
+
+	// Scale a matrix
+	Matrix44 Matrix44::scale(double scale) {
+
+	}
 
 
 	std::ostream& operator<<(std::ostream& os, const Matrix44& mat) {
