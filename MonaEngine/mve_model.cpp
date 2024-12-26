@@ -33,10 +33,16 @@ namespace mve {
 
 	std::unique_ptr<MveModel> MveModel::createModelFromFile(MveDevice& device, const std::string& filepath) {
 		Builder builder{};
-		builder.loadModel(filepath);
+		builder.loadModelFromFile(filepath);
 		return std::make_unique<MveModel>(device, builder);
 	}
 	
+	std::unique_ptr<MveModel> MveModel::createModelFromStdVectors(MveDevice& device, std::vector<glm::vec3>& vertices, std::vector<uint32_t>& indices) {
+		Builder builder{};
+		builder.loadModelFromStdVectors(vertices, indices);
+		return std::make_unique<MveModel>(device, builder);
+	}
+
 	void MveModel::createVertexBuffers(const std::vector<Vertex>& vertices) {
 		vertexCount = static_cast<uint32_t>(vertices.size());
 		assert(vertexCount >= 3 && "Vertex count must be at least 3!");
@@ -136,7 +142,7 @@ namespace mve {
 		return attributeDescriptions;
 	}
 
-	void MveModel::Builder::loadModel(const std::string& filepath) {
+	void MveModel::Builder::loadModelFromFile(const std::string& filepath) {
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
 		std::vector<tinyobj::material_t> materials;
@@ -195,4 +201,23 @@ namespace mve {
 
 	}
 
+	void MveModel::Builder::loadModelFromStdVectors(std::vector<glm::vec3>& verts, std::vector<uint32_t>& indic) {
+		vertices.clear();
+		indices.clear();
+		//std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+
+		for (const auto& vert : verts) {
+			for (const auto& ind : indic) {
+				Vertex vertex{};
+				vertex.position = vert;
+				vertex.color = { 1.f, 1.f, 1.f};
+				vertex.normal = {};
+				vertex.uv = {};
+
+				vertices.push_back(vertex);
+				indices.push_back(ind);
+			}
+
+		}
+	}
 }
