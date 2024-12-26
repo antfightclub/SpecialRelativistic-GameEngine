@@ -13,9 +13,12 @@
 // For testing relativity math:
 int main() {
 
-	Math::Matrix44 mat = Math::Matrix44(1.0);
+	Math::Matrix44 mat1 = Math::Matrix44(2.0);
+	Math::Matrix44 mat2 = Math::Matrix44(3.0);
 
-	std::cout << mat;
+	Math::Matrix44 mat3 = mat1 * mat2;
+
+	std::cout << mat3;
 
 
 	return EXIT_SUCCESS;

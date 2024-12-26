@@ -23,6 +23,55 @@ namespace Math {
 		// Printing
 		friend std::ostream& operator<<(std::ostream& os, const Matrix44& mat);
 
+		// Operator overloads
+
+		// Multiplication (returns new matrix)
+		friend Matrix44 operator*(Matrix44 lhs, const Matrix44& rhs);
+
+		// Multiplication (overwrites self)
+		Matrix44& operator*=(const Matrix44& rhs);
+
+
+		// Operations
+
+		// X rotation (angle in radians)
+		Matrix44 xRotation(double angle);
+
+		// y rotation (angle in radians)
+		Matrix44 yRotation(double angle);
+
+		// z rotation (angle in radians)
+		Matrix44 zRotation(double angle);
+
+		// Scale a matrix
+		Matrix44 scale(double scale);
+
+		// Returns the inverse of a Matrix44 that is a 3D rotation by transposing its 3D rotation part.
+		Matrix44 getInverseRotation();
+
+		// Rotates self
+		void rotateSelf(Vector3 v);
+
+		// TBD how to do
+		// array? GetRotate()
+		
+		Vector3 getRotate();
+
+		// Overvwrites v by self * v
+		int transform(Vector4D v);
+
+		// TBD not sure how I'll handle returning stuff as lists of things
+		// array getTransform(Vector4D)
+
+		// TBD 
+		// array? toGLSL();
+
+		// Returns lorentz factor
+		double getGamma(); 
+
+		// Returns a lorentz transformation matrix
+		Matrix44 Lorentz(Vector4D u);
+
 
 
 	private:
