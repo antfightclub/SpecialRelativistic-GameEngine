@@ -110,6 +110,7 @@ namespace Math {
 		m.m10 = 0.0;	m.m11 = scale;		m.m12 = 0.0;		m.m13 = 0.0;
 		m.m20 = 0.0;	m.m21 = 0.0;		m.m22 = scale;		m.m23 = 0.0;
 		m.m30 = 0.0;	m.m31 = 0.0;		m.m32 = 0.0;		m.m33 = scale;
+		return m;
 	}
 
 

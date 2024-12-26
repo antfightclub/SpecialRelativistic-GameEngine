@@ -15,8 +15,9 @@ int main() {
 
 	Math::Matrix44 mat1 = Math::Matrix44(2.0);
 	Math::Matrix44 mat2 = Math::Matrix44(3.0);
+	Math::Vector4D Vec4D = Math::Vector4D(5.0, 2.0, 4.0, 4.0);
 
-	Math::Matrix44 mat3 = mat1 * mat2;
+	Math::Matrix44 mat3 = mat1.Lorentz(Vec4D);
 
 	std::cout << mat3;
 
