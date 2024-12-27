@@ -3,6 +3,7 @@
 // std
 #include <cassert>
 #include <stdexcept>
+#include <iostream>
 
 namespace mve {
 
@@ -110,6 +111,8 @@ namespace mve {
         allocInfo.descriptorPool = descriptorPool;
         allocInfo.pSetLayouts = &descriptorSetLayout;
         allocInfo.descriptorSetCount = 2;
+        
+
 
         // Might want to create a "DescriptorPoolManager" class that handles this case, and builds
         // a new pool whenever an old pool fills up. But this is beyond our current scope
@@ -139,20 +142,21 @@ namespace mve {
 
     MveDescriptorWriter& MveDescriptorWriter::writeBuffer(
         uint32_t binding, VkDescriptorBufferInfo* bufferInfo) {
+        std::cout << "Write buffer called.." << std::endl;
         assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
         auto& bindingDescription = setLayout.bindings[binding];
-
-        assert(
-            bindingDescription.descriptorCount == 1 &&
-            "Binding single descriptor info, but binding expects multiple");
+        
+        //assert(
+        //    bindingDescription.descriptorCount == 1 &&
+        //    "Binding single descriptor info, but binding expects multiple");
 
         VkWriteDescriptorSet write{};
         write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         write.descriptorType = bindingDescription.descriptorType;
         write.dstBinding = binding;
         write.pBufferInfo = bufferInfo;
-        write.descriptorCount = 1;
+        write.descriptorCount = 2;
 
         writes.push_back(write);
         return *this;
@@ -180,7 +184,9 @@ namespace mve {
     }
 
     bool MveDescriptorWriter::build(VkDescriptorSet& set) {
+        std::cout << "mvedescriptorwriter build called" << std::endl;
         bool success = pool.allocateDescriptor(setLayout.getDescriptorSetLayout(), set);
+        std::cout << "value of success = " << success << std::endl;
         if (!success) {
             return false;
         }

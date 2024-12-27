@@ -46,6 +46,7 @@ namespace mve {
 			"shaders/lattice_shader.vert.spv",
 			"shaders/lattice_shader.frag.spv",
 			pipelineConfig);
+		mvePipeline->enableAlphaBlending(pipelineConfig);
 
 	}
 

@@ -14,6 +14,7 @@ namespace mve {
         public:
             Builder(MveDevice& mveDevice) : mveDevice{ mveDevice } {}
 
+            // This adds a descriptor set layout (used as a blueprint during pipeline creation)
             Builder& addBinding(
                 uint32_t binding,
                 VkDescriptorType descriptorType,
