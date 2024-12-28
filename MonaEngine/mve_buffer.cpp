@@ -35,13 +35,12 @@ namespace mve {
         uint32_t instanceCount,
         VkBufferUsageFlags usageFlags,
         VkMemoryPropertyFlags memoryPropertyFlags,
-        MveBuffer* pNext,
         VkDeviceSize minOffsetAlignment)
         : mveDevice{ device },
         instanceSize{ instanceSize },
         instanceCount{ instanceCount },
         usageFlags{ usageFlags },
-        pNext{pNext},
+        //pNext{pNext},
         memoryPropertyFlags{ memoryPropertyFlags } {   
         alignmentSize = getAlignment(instanceSize, minOffsetAlignment);
         bufferSize = alignmentSize * instanceCount;

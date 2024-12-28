@@ -20,6 +20,7 @@ layout(set = 0, binding = 1) uniform LatticeUbo {
 	mat4 Lorentz;
 } latticeUbo;
 
+
 void main() {
 	vec3 v = position - latticeUbo.Xp + latticeUbo.Xo;
 	vec4 vertex = latticeUbo.Lorentz * vec4(v, -length(v));

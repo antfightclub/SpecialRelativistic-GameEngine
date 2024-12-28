@@ -51,7 +51,7 @@ namespace mve {
             &descriptorSetLayout) != VK_SUCCESS) {
             throw std::runtime_error("failed to create descriptor set layout!");
         }
-    }
+    }   
 
     MveDescriptorSetLayout::~MveDescriptorSetLayout() {
         vkDestroyDescriptorSetLayout(mveDevice.device(), descriptorSetLayout, nullptr);
@@ -110,7 +110,7 @@ namespace mve {
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocInfo.descriptorPool = descriptorPool;
         allocInfo.pSetLayouts = &descriptorSetLayout;
-        allocInfo.descriptorSetCount = 2;
+        allocInfo.descriptorSetCount = 1;
         
 
 

@@ -14,7 +14,7 @@ namespace mve {
 	class LatticeWireframeSystem {
 	public:
 
-		LatticeWireframeSystem(MveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
+		LatticeWireframeSystem(MveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalUboDescriptorSetLayout, VkDescriptorSetLayout latticeDescriptorSetLayout);
 		~LatticeWireframeSystem();
 
 		LatticeWireframeSystem(const LatticeWireframeSystem&) = delete;
@@ -23,7 +23,8 @@ namespace mve {
 		void renderWireframe(FrameInfo& frameInfo);
 
 	private:
-		void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
+		// "global" here refers to the "GlobalUbo" defined in mve::FrameInfo::GlobalUbo
+		void createPipelineLayout(VkDescriptorSetLayout globalDescriptorSetLayout, VkDescriptorSetLayout latticeDescriptorSetLayout);
 		void createPipeline(VkRenderPass renderPass);
 
 		MveDevice& mveDevice;

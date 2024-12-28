@@ -13,7 +13,7 @@ namespace mve {
             uint32_t instanceCount,
             VkBufferUsageFlags usageFlags,
             VkMemoryPropertyFlags memoryPropertyFlags,
-            MveBuffer* pNext = nullptr,
+            //MveBuffer* pNext = nullptr,
             VkDeviceSize minOffsetAlignment = 1);
 
         ~MveBuffer();
@@ -52,7 +52,7 @@ namespace mve {
         VkDeviceMemory memory = VK_NULL_HANDLE;
 
         // If chaining set to a pointer of VkBufferCreateInfo objects
-        MveBuffer* pNext = nullptr;
+        //MveBuffer* pNext = nullptr;
 
         VkDeviceSize bufferSize;
         uint32_t instanceCount;

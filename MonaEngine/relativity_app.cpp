@@ -36,7 +36,6 @@ namespace mve {
 		std::cout << "start run!" << std::endl;
 
 
-
 		std::vector<std::unique_ptr<MveBuffer>> latticeUboBuffers(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (int i = 0; i < latticeUboBuffers.size(); i++) {
 			latticeUboBuffers[i] = std::make_unique<MveBuffer>(
@@ -44,8 +43,7 @@ namespace mve {
 				sizeof(LatticeUbo),
 				1,
 				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-				nullptr
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
 				);
 			latticeUboBuffers[i]->map();
 		}
@@ -56,7 +54,6 @@ namespace mve {
 			MveSwapChain::MAX_FRAMES_IN_FLIGHT,
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-			nullptr,
 			mveDevice.properties.limits.minUniformBufferOffsetAlignment,
 		};
 		latticeUboBuffer.map();
@@ -69,8 +66,8 @@ namespace mve {
 				sizeof(GlobalUbo),
 				1,
 				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-				&latticeUboBuffers[i]
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+				//&latticeUboBuffers[i]
 			);
 			globalUboBuffers[i]->map();
 		}
@@ -81,7 +78,7 @@ namespace mve {
 			MveSwapChain::MAX_FRAMES_IN_FLIGHT,
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-			&latticeUboBuffer,
+			//&latticeUboBuffer,
 			mveDevice.properties.limits.minUniformBufferOffsetAlignment,
 		};
 	
@@ -90,25 +87,38 @@ namespace mve {
 
 
 		
-		auto globalSetLayout = MveDescriptorSetLayout::Builder(mveDevice)
-			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 2U) // Global Ubo 
+		auto globalUboSetLayout = MveDescriptorSetLayout::Builder(mveDevice)
+			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U) // Global Ubo 
+			.addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U)
+			.build();
+		
+		auto latticeUboSetLayout = MveDescriptorSetLayout::Builder(mveDevice)
+			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U)
 			.build();
 		
 	
-		std::vector<VkDescriptorSet> globalDescriptorSets(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
-
-		for (int i = 0; i < globalDescriptorSets.size(); i++) {	
+		std::vector<VkDescriptorSet> globalUboDescriptorSets(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < globalUboDescriptorSets.size(); i++) {	
 			auto globalBufferInfo = globalUboBuffers[i]->descriptorInfo();
-		
-			
-			MveDescriptorWriter(*globalSetLayout, *globalPool)
+			//auto latticeBufferInfo = latticeUboBuffers[i]->descriptorInfo();
+			MveDescriptorWriter(*globalUboSetLayout, *globalPool)
 				.writeBuffer(0, &globalBufferInfo)
-				.build(globalDescriptorSets[i]);
+				//.writeBuffer(1, &latticeBufferInfo)
+				.build(globalUboDescriptorSets[i]);
+		}
+
+		std::vector<VkDescriptorSet> latticeUboDescriptorSets(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < latticeUboDescriptorSets.size(); i++) {
+			auto latticeBufferInfo = latticeUboBuffers[i]->descriptorInfo();
+			MveDescriptorWriter(*latticeUboSetLayout, *globalPool)
+				.writeBuffer(0, &latticeBufferInfo)
+				.build(latticeUboDescriptorSets[i]);
+
 		}
 
 		std::cout << "globalDescriptorsets!!" << std::endl;
 
-		LatticeWireframeSystem latticeRenderSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
+		LatticeWireframeSystem latticeRenderSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalUboSetLayout->getDescriptorSetLayout(), latticeUboSetLayout->getDescriptorSetLayout() };
 		MveCamera camera{};
 		camera.setViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
 		camera.setViewTarget(glm::vec3(-1.f, -2.f, -2.f), glm::vec3(0.f, 0.f, 2.5f));
@@ -141,14 +151,17 @@ namespace mve {
 
 			camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.0f);
 
+		
+
 			if (auto commandBuffer = mveRenderer.beginFrame()) {
 				int frameIndex = mveRenderer.getFrameIndex();
+				std::vector<VkDescriptorSet> frameIndexedDescriptorSets = { globalUboDescriptorSets[frameIndex], latticeUboDescriptorSets[frameIndex] };
 				FrameInfo frameInfo{
 					frameIndex,
 					frameTime,
 					commandBuffer,
 					camera,
-					globalDescriptorSets[frameIndex],
+					frameIndexedDescriptorSets,
 					gameObjects
 				};
 
@@ -160,11 +173,11 @@ namespace mve {
 				globalUbo.view = camera.getView();
 				globalUbo.inverseView = camera.getInverseView();
 				globalUbo.ambientLightColor = { 1.f, 1.f, 1.f, .02f };
-				//globalUbo.Lorentz = glm::mat4{ 1.0f };
-				//globalUbo.Xp = camera.getPosition();
-				//globalUbo.Xo = glm::vec3{ 0.f, 0.f, 0.f };
 				globalUboBuffers[frameIndex]->writeToBuffer(&globalUbo);
 				globalUboBuffers[frameIndex]->flush();
+				/*globalUbo.Lorentz = glm::mat4{ 1.0f };
+				globalUbo.Xp = camera.getPosition();
+				globalUbo.Xo = glm::vec3{ 0.f, 0.f, 0.f };*/
 				
 				// TODO: update lattice ubo buffer with a lorentz matrix calculated in accordance with special relativit
 				LatticeUbo latticeUbo{};

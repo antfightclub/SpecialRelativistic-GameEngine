@@ -11,16 +11,16 @@
 
 namespace mve {
 	
-	LatticeWireframeSystem::LatticeWireframeSystem(MveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout descriptorSetLayout) : mveDevice{ device } {
-		createPipelineLayout(descriptorSetLayout);
+	LatticeWireframeSystem::LatticeWireframeSystem(MveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalUboDescriptorSetLayout, VkDescriptorSetLayout latticeUboDescriptorSetLayout) : mveDevice{ device } {
+		createPipelineLayout(globalUboDescriptorSetLayout, latticeUboDescriptorSetLayout);
 		createPipeline(renderPass);
 		//createpipeline pass renderpass
 	}
 
 	LatticeWireframeSystem::~LatticeWireframeSystem() { vkDestroyPipelineLayout(mveDevice.device(), pipelineLayout, nullptr); }
 
-	void LatticeWireframeSystem::createPipelineLayout(VkDescriptorSetLayout descriptorSetLayout) {
-		std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ descriptorSetLayout };
+	void LatticeWireframeSystem::createPipelineLayout(VkDescriptorSetLayout globalDescriptorSetLayout, VkDescriptorSetLayout latticeDescriptorSetLayout) {
+		std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ globalDescriptorSetLayout, latticeDescriptorSetLayout };
 		
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -50,16 +50,20 @@ namespace mve {
 
 	}
 
+	
 	void LatticeWireframeSystem::renderWireframe(FrameInfo& frameInfo) {
 		mvePipeline->bind(frameInfo.commandBuffer);
 
+		// The following error tells me I need to bind 
+		// ONE descriptor set with BOTH bindings! Do not pass
+		// a std::vector of descriptor sets.
 		vkCmdBindDescriptorSets(
 			frameInfo.commandBuffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,
 			pipelineLayout,
 			0,
-			2,
-			&frameInfo.globalDescriptorSet,
+			1,
+			&frameInfo.descriptorSets,
 			0,
 			nullptr);
 		

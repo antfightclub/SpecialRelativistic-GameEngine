@@ -4,6 +4,7 @@
 #include "mve_game_object.hpp"
 
 #include <vulkan/vulkan.h>
+#include <vector>
 
 namespace mve {
 
@@ -41,7 +42,8 @@ namespace mve {
 		float frameTime;
 		VkCommandBuffer commandBuffer;
 		MveCamera& camera;
-		VkDescriptorSet globalDescriptorSet;
+		std::vector<VkDescriptorSet> descriptorSets;
+		//VkDescriptorSet latticeDescriptorSet;
 		MveGameObject::Map& gameObjects;
 	};
 } 

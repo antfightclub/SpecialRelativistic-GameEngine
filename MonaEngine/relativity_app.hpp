@@ -10,6 +10,8 @@
 #include <memory>
 #include <vector>
 
+// Perhaps I need to pass an array of descriptor set handles!
+
 namespace mve {
 
 	class RelativityApp {
