@@ -6,26 +6,33 @@ namespace Math {
 
 	class Vector3 {
 	public:
-		// Constructors
+		// ********** Constructors **********
 		Vector3() : x(0.0), y(0.0), z(0.0) {};
 
 		Vector3(double val) : x(val), y(val), z(val) {};
 
 		Vector3(double x, double y, double z) : x(x), y(y), z(z) {};
 		
-		// Printing values
+
+		// ********** String representation **********
 		friend std::ostream& operator<<(std::ostream& os, const Vector3& v);
 
+
+		// ********** Getters & Setters **********
 		double getX() const { return x; }
 		double getY() const { return y; }
 		double getZ() const { return z; }
 
+		void setX(double val) { x = val; }
+		void setY(double val) { y = val; }
+		void setZ(double val) { z = val; }
+
 		
-		/*
-		BEST PRACTICE FROM LEARNCPP 21.1
-		Operators that do not modify their operands (e.g. arithmetic operators) should generally return results by value
-		Operators that modify their leftmost operand (e.g. pre-increment and any of the assignment operators) should generally return the leftmost operand by reference.
-		*/
+		// ********** Operator overloads **********
+
+		//BEST PRACTICE FROM LEARNCPP 21.1
+		//Operators that do not modify their operands (e.g. arithmetic operators) should generally return results by value
+		//Operators that modify their leftmost operand (e.g. pre-increment and any of the assignment operators) should generally return the leftmost operand by reference.
 
 		//Compound assignment plus
 		Vector3& operator+=(const Vector3& rhs);
@@ -56,6 +63,7 @@ namespace Math {
 		Vector3 operator-() const;
 
 
+		// ********** 3D vector math **********
 
 		Vector3 getHat(double length = 1.0);
 

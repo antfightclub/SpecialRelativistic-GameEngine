@@ -6,6 +6,7 @@
 namespace Math {
 	class Matrix44 {
 	public:
+		// ********** Constructors **********
 		// identity matrix if no value given
 		Matrix44() :
 			m00{ 1.0 }, m01{ 0.0 }, m02{ 0.0 }, m03{ 0.0 },
@@ -20,10 +21,15 @@ namespace Math {
 			m20{ 0.0 },  m21{ 0.0 }, m22{ diag }, m23{ 0.0 },
 			m30{ 0.0 },  m31{ 0.0 }, m32{ 0.0 },  m33{ diag } {};
 
-		// Printing
+		// // ********** String representation **********
 		friend std::ostream& operator<<(std::ostream& os, const Matrix44& mat);
 
-		// Operator overloads
+		// ********** Getters and Setters **********
+
+
+
+
+		// ********** Operator overloads **********
 
 		// Multiplication (returns new matrix)
 		friend Matrix44 operator*(Matrix44 lhs, const Matrix44& rhs);
@@ -32,8 +38,11 @@ namespace Math {
 		Matrix44& operator*=(const Matrix44& rhs);
 
 
-		// Operations
-
+		
+		// // ********** 4x4 Matrix operations **********
+		// NOTE: A lot of these are w.r.t. Lorentz transformations, using these matrix operations precede
+		// that the matrix is a Lorentz transformation matrix. See "Special Relativity in Games", Sogebu et al.
+		
 		// X rotation (angle in radians)
 		Matrix44 xRotation(double angle);
 
@@ -58,7 +67,7 @@ namespace Math {
 		Vector3 getRotate();
 
 		// Overvwrites v by self * v
-		int transform(Vector4D v);
+		void transform(Vector4D& v);
 
 		// TBD not sure how I'll handle returning stuff as lists of things
 		// array getTransform(Vector4D)
