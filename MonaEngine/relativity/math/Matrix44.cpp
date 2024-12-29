@@ -188,6 +188,10 @@ namespace Math {
 
 	Vector4D Matrix44::getTransform(Vector4D& v) {
 		double t, x, y, z, tt, xx, yy, zz;
+		t = v.getT();
+		x = v.getX();
+		y = v.getY();
+		z = v.getZ();
 		tt = m00 * t + m01 * x + m02 * y + m03 * z;
 		xx = m10 * t + m11 * x + m12 * y + m13 * z;
 		yy = m20 * t + m21 * x + m22 * y + m23 * z;
