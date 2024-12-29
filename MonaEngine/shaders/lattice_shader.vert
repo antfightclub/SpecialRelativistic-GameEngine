@@ -20,12 +20,15 @@ layout(set = 0, binding = 1) uniform LatticeUbo {
 	mat4 Lorentz;
 } latticeUbo;
 
+layout(push_constant) uniform Push {
+	mat4 modelMatrix;
+} push;
 
 void main() {
 	vec3 v = position - latticeUbo.Xp + latticeUbo.Xo;
 	vec4 vertex = latticeUbo.Lorentz * vec4(v, -length(v));
 	vertex.w = 1.0;
-	gl_Position = ubo.projection * ubo.view * vertex;
+	gl_Position = ubo.projection * ubo.view * push.modelMatrix * vertex;
 	float factor = max(0.0, min(1.0, (200.0/(gl_Position.w*gl_Position.w))));
 	vec4 col = vec4(color, 1.0*factor);
 	fragColor = col;

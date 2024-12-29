@@ -92,39 +92,44 @@ namespace mve {
 			.addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U)
 			.build();
 		
-		auto latticeUboSetLayout = MveDescriptorSetLayout::Builder(mveDevice)
+		/*auto latticeUboSetLayout = MveDescriptorSetLayout::Builder(mveDevice)
 			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U)
 			.build();
-		
+		*/
 	
-		std::vector<VkDescriptorSet> globalUboDescriptorSets(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
-		for (int i = 0; i < globalUboDescriptorSets.size(); i++) {	
+		std::vector<VkDescriptorSet> descriptorSets(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < descriptorSets.size(); i++) {	
 			auto globalBufferInfo = globalUboBuffers[i]->descriptorInfo();
-			//auto latticeBufferInfo = latticeUboBuffers[i]->descriptorInfo();
+			auto latticeBufferInfo = latticeUboBuffers[i]->descriptorInfo();
 			MveDescriptorWriter(*globalUboSetLayout, *globalPool)
 				.writeBuffer(0, &globalBufferInfo)
-				//.writeBuffer(1, &latticeBufferInfo)
-				.build(globalUboDescriptorSets[i]);
+				.writeBuffer(1, &latticeBufferInfo)
+				.build(descriptorSets[i]);
+			
+			/*MveDescriptorWriter(*latticeUboSetLayout, *globalPool)
+				.writeBuffer(0, &latticeBufferInfo)
+				.build(descriptorSets[i]);*/
 		}
 
-		std::vector<VkDescriptorSet> latticeUboDescriptorSets(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
+		/*std::vector<VkDescriptorSet> latticeUboDescriptorSets(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (int i = 0; i < latticeUboDescriptorSets.size(); i++) {
 			auto latticeBufferInfo = latticeUboBuffers[i]->descriptorInfo();
 			MveDescriptorWriter(*latticeUboSetLayout, *globalPool)
 				.writeBuffer(0, &latticeBufferInfo)
 				.build(latticeUboDescriptorSets[i]);
 
-		}
+		}*/
 
 		std::cout << "globalDescriptorsets!!" << std::endl;
 
-		LatticeWireframeSystem latticeRenderSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalUboSetLayout->getDescriptorSetLayout(), latticeUboSetLayout->getDescriptorSetLayout() };
+		LatticeWireframeSystem latticeRenderSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalUboSetLayout->getDescriptorSetLayout()};
 		MveCamera camera{};
-		camera.setViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
-		camera.setViewTarget(glm::vec3(-1.f, -2.f, -2.f), glm::vec3(0.f, 0.f, 2.5f));
+		camera.setViewDirection(glm::vec3(4.f, 0.f, 0.f), glm::vec3(0.5f, 0.f, 1.f));
+		camera.setViewTarget(glm::vec3(4.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f));
 
 		auto viewerObject = MveGameObject::createGameObject();
-		viewerObject.transform.translation.z = -2.5f;
+		viewerObject.transform.translation.z = 0.f;
+		viewerObject.transform.translation.x = 4.f;
 		KeyboardMovementController cameraController{};
 
 		std::cout << "rendersystem and viewer object and cam!" << std::endl;
@@ -149,19 +154,19 @@ namespace mve {
 
 			std::cout << "aspect = " << aspect << std::endl;
 
-			camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.0f);
+			camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.0f);
 
 		
 
 			if (auto commandBuffer = mveRenderer.beginFrame()) {
 				int frameIndex = mveRenderer.getFrameIndex();
-				std::vector<VkDescriptorSet> frameIndexedDescriptorSets = { globalUboDescriptorSets[frameIndex], latticeUboDescriptorSets[frameIndex] };
+				//std::vector<VkDescriptorSet> frameIndexedDescriptorSets = { globalUboDescriptorSets[frameIndex], latticeUboDescriptorSets[frameIndex] };
 				FrameInfo frameInfo{
 					frameIndex,
 					frameTime,
 					commandBuffer,
 					camera,
-					frameIndexedDescriptorSets,
+					descriptorSets[frameIndex],
 					gameObjects
 				};
 
@@ -183,7 +188,7 @@ namespace mve {
 				LatticeUbo latticeUbo{};
 				latticeUbo.Xp = camera.getPosition();
 				latticeUbo.Xo = glm::vec3{ 0.0f,0.0f,0.0f };
-				latticeUbo.Lorentz = glm::mat4{ 1.0f };
+				latticeUbo.Lorentz = glm::mat4{ 0.5f };
 				latticeUboBuffers[frameIndex]->writeToBuffer(&latticeUbo);
 				latticeUboBuffers[frameIndex]->flush();
 				latticeUboBuffer.flushIndex(frameIndex);

@@ -156,7 +156,7 @@ namespace mve {
         write.descriptorType = bindingDescription.descriptorType;
         write.dstBinding = binding;
         write.pBufferInfo = bufferInfo;
-        write.descriptorCount = 2;
+        write.descriptorCount = 1;
 
         writes.push_back(write);
         return *this;

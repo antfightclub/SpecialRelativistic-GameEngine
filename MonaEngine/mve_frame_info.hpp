@@ -42,7 +42,7 @@ namespace mve {
 		float frameTime;
 		VkCommandBuffer commandBuffer;
 		MveCamera& camera;
-		std::vector<VkDescriptorSet> descriptorSets;
+		VkDescriptorSet descriptorSet;
 		//VkDescriptorSet latticeDescriptorSet;
 		MveGameObject::Map& gameObjects;
 	};

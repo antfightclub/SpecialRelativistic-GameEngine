@@ -17,6 +17,10 @@ layout(set = 0, binding = 1) uniform LatticeUbo {
 	mat4 Lorentz;
 } latticeUbo;
 
+layout(push_constant) uniform Push {
+	mat4 modelMatrix;
+} push;
+
 void main() {
 	outColor = fragColor;
 }
