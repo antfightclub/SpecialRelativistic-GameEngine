@@ -145,6 +145,7 @@
     <ClCompile Include="mve_model.cpp" />
     <ClCompile Include="mve_pipeline.cpp" />
     <ClCompile Include="mve_renderer.cpp" />
+    <ClCompile Include="mve_special_relativity.cpp" />
     <ClCompile Include="mve_swap_chain.cpp" />
     <ClCompile Include="mve_window.cpp" />
     <ClCompile Include="mve_device.cpp" />
