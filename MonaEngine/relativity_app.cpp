@@ -154,7 +154,7 @@ namespace mve {
 
 			std::cout << "aspect = " << aspect << std::endl;
 
-			camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.0f);
+			camera.setPerspectiveProjection(glm::radians(100.f), aspect, 0.1f, 1000.0f);
 
 		
 
@@ -187,8 +187,8 @@ namespace mve {
 				// TODO: update lattice ubo buffer with a lorentz matrix calculated in accordance with special relativit
 				LatticeUbo latticeUbo{};
 				latticeUbo.Xp = camera.getPosition();
-				latticeUbo.Xo = glm::vec3{ 0.0f,0.0f,0.0f };
-				latticeUbo.Lorentz = glm::mat4{ 0.5f };
+				latticeUbo.Xo = glm::vec3{ 1.0f,0.0f,0.0f };
+				latticeUbo.Lorentz = glm::mat4{ 0.f };
 				latticeUboBuffers[frameIndex]->writeToBuffer(&latticeUbo);
 				latticeUboBuffers[frameIndex]->flush();
 				latticeUboBuffer.flushIndex(frameIndex);
@@ -226,7 +226,7 @@ namespace mve {
 		std::cout << "Assigning model and transform..." << '\n';
 		latticeGameObject.model = mveModel;
 		latticeGameObject.transform.translation = { 0.f,0.f,0.f };
-		latticeGameObject.transform.scale = glm::vec3{ 1.f, 1.f, 1.f };
+		latticeGameObject.transform.scale = glm::vec3{ 5.f, 5.f, 5.f };
 		std::cout << "Emplacing gameobject..." << '\n';
 		gameObjects.emplace(latticeGameObject.getId(), std::move(latticeGameObject));
 		std::cout << "loadGameObjects finished!" << '\n';

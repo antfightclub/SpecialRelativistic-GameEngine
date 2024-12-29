@@ -63,10 +63,6 @@ namespace mve {
 	
 	void LatticeWireframeSystem::renderWireframe(FrameInfo& frameInfo) {
 		mvePipeline->bind(frameInfo.commandBuffer);
-
-		// The following error tells me I need to bind 
-		// ONE descriptor set with BOTH bindings! Do not pass
-		// a std::vector of descriptor sets.
 		vkCmdBindDescriptorSets(
 			frameInfo.commandBuffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,
