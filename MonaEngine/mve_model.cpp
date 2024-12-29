@@ -39,11 +39,8 @@ namespace mve {
 	}
 	
 	std::unique_ptr<MveModel> MveModel::createModelFromStdVector(MveDevice& device, std::vector<glm::vec3>& vertices) {
-		std::cout << "createModelFromStdVectors just called..." << '\n';
 		Builder builder{};
-		std::cout << "builder initialized... Calling loadModelFromStdVectors" << '\n';
 		builder.loadModelFromStdVector(vertices);
-		std::cout << "returning MveModel..." << '\n';
 		return std::make_unique<MveModel>(device, builder);
 	}
 
@@ -206,13 +203,9 @@ namespace mve {
 	}
 
 	void MveModel::Builder::loadModelFromStdVector(std::vector<glm::vec3>& verts) {
-		std::cout << "loadModelFromStdVectors just called..." << '\n';
 		vertices.clear();
-		std::cout << "vertices.clear()" << '\n';
 		indices.clear();
-		std::cout << "indices.clear()" << '\n';
-
-		std::cout << "Amount of vertices in verts: " << verts.size() << '\n';
+		std::cout << "Amount of vertices in lattice: " << verts.size() << '\n';
 
 		std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
@@ -235,6 +228,5 @@ namespace mve {
 			indices.push_back(uniqueVertices[vertex]);
 
 		}
-		std::cout << "For loop exited!!..." << '\n';
 	}
 }

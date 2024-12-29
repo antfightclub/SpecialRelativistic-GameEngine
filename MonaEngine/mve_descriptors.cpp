@@ -142,7 +142,6 @@ namespace mve {
 
     MveDescriptorWriter& MveDescriptorWriter::writeBuffer(
         uint32_t binding, VkDescriptorBufferInfo* bufferInfo) {
-        std::cout << "Write buffer called.." << std::endl;
         assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
         auto& bindingDescription = setLayout.bindings[binding];
@@ -184,9 +183,7 @@ namespace mve {
     }
 
     bool MveDescriptorWriter::build(VkDescriptorSet& set) {
-        std::cout << "mvedescriptorwriter build called" << std::endl;
         bool success = pool.allocateDescriptor(setLayout.getDescriptorSetLayout(), set);
-        std::cout << "value of success = " << success << std::endl;
         if (!success) {
             return false;
         }

@@ -33,9 +33,6 @@ namespace mve {
 	
 	void RelativityApp::run() {
 
-		std::cout << "start run!" << std::endl;
-
-
 		std::vector<std::unique_ptr<MveBuffer>> latticeUboBuffers(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (int i = 0; i < latticeUboBuffers.size(); i++) {
 			latticeUboBuffers[i] = std::make_unique<MveBuffer>(
@@ -120,8 +117,6 @@ namespace mve {
 
 		}*/
 
-		std::cout << "globalDescriptorsets!!" << std::endl;
-
 		LatticeWireframeSystem latticeRenderSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalUboSetLayout->getDescriptorSetLayout()};
 		MveCamera camera{};
 		camera.setViewDirection(glm::vec3(4.f, 0.f, 0.f), glm::vec3(0.5f, 0.f, 1.f));
@@ -132,20 +127,18 @@ namespace mve {
 		viewerObject.transform.translation.x = 4.f;
 		KeyboardMovementController cameraController{};
 
-		std::cout << "rendersystem and viewer object and cam!" << std::endl;
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
-	
-		std::cout << "just before while loop!" <<  std::endl;
+		float timeSince = 0.f; // used to count time between frames!
+
 		while (!mveWindow.shouldClose()) {
 			glfwPollEvents();
 
-			std::cout << "start of while loop!!" << std::endl;
-
 			auto newTime = std::chrono::high_resolution_clock::now();
 			float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+			float dt = frameTime - timeSince;
 			
-			std::cout << "frameTime = " << frameTime << std::endl;
+			std::cout << "frameTime = " << frameTime << " and dt = "  << dt << std::endl;
 
 			cameraController.moveInPlaneXZ(mveWindow.getGLFWwindow(), frameTime, viewerObject);
 			camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
@@ -171,7 +164,7 @@ namespace mve {
 				};
 
 				// ***** update
-				std::cout << "just before update in while loop!" << std::endl;
+				
 				// update global ubo buffer
 				GlobalUbo globalUbo{};
 				globalUbo.projection = camera.getProjection();
@@ -193,7 +186,7 @@ namespace mve {
 				latticeUboBuffers[frameIndex]->flush();
 				latticeUboBuffer.flushIndex(frameIndex);
 				
-				std::cout << "just before render in while loop!" << std::endl;
+				
 
 				// Render
 				mveRenderer.beginSwapChainRenderPass(commandBuffer);
@@ -204,6 +197,7 @@ namespace mve {
 				mveRenderer.endSwapChainRenderPass(commandBuffer);
 				mveRenderer.endFrame();				
 			}
+			timeSince = frameTime;
 		}
 
 
@@ -211,24 +205,18 @@ namespace mve {
 	}
 
 	void RelativityApp::loadGameObjects() {
-		std::cout << "loadGameObjects called!" << '\n';
 		// generate lattice
 		Lattice lattice{50, 10, 5, 1, 1.0};
-		std::cout << "Calling makeLattice..." << '\n';
-		
-		std::cout << "Getting vertices..." << '\n';
+
 		auto vertices = lattice.getVertices();
-		
-		std::cout << "creating model from std vectors..." << '\n';
+
 		std::shared_ptr<MveModel> mveModel = MveModel::createModelFromStdVector(mveDevice, vertices);
-		std::cout << "Creating MveGameObject..." << '\n';
+
 		auto latticeGameObject = MveGameObject::createGameObject();
-		std::cout << "Assigning model and transform..." << '\n';
+
 		latticeGameObject.model = mveModel;
 		latticeGameObject.transform.translation = { 0.f,0.f,0.f };
 		latticeGameObject.transform.scale = glm::vec3{ 5.f, 5.f, 5.f };
-		std::cout << "Emplacing gameobject..." << '\n';
 		gameObjects.emplace(latticeGameObject.getId(), std::move(latticeGameObject));
-		std::cout << "loadGameObjects finished!" << '\n';
 	}
 }
