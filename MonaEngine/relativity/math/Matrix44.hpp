@@ -97,8 +97,6 @@ namespace Math {
 		// 
 		Vector3 getRotate(Vector3 v);
 		
-		//
-		Vector3 getRotate();
 
 		// Overvwrites v by self * v
 		void transform(Vector4D& v);
@@ -120,7 +118,7 @@ namespace Math {
 		double getGamma(); 
 
 		// Returns a lorentz transformation matrix
-		Matrix44 Lorentz(Vector4D u);
+		static Matrix44 Lorentz(Vector4D u);
 
 
 
