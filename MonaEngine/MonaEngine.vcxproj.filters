@@ -75,6 +75,12 @@
     <ClCompile Include="mve_special_relativity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="relativity\math\PhaseSpace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="relativity\math\Quaternion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mve_window.hpp">
@@ -135,6 +141,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="lattice.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mve_special_relativity.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="relativity\math\PhaseSpace.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="relativity\math\Quaternion.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
