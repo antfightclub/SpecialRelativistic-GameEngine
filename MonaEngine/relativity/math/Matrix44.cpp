@@ -63,6 +63,14 @@ namespace Math {
 		return *this;
 	}
 
+	Matrix44 Matrix44::copy() {
+		Matrix44 m = Matrix44{};
+		m.m00 = this->m00;		m.m01 = this->m01;		m.m02 = this->m02;		m.m03 = this->m03;
+		m.m10 = this->m10;		m.m11 = this->m11;		m.m12 = this->m12;		m.m13 = this->m13;
+		m.m20 = this->m20;		m.m21 = this->m21;		m.m22 = this->m22;		m.m23 = this->m23;
+		m.m30 = this->m30;		m.m31 = this->m31;		m.m32 = this->m32;		m.m33 = this->m33;
+		return m;
+	}
 
 	// X rotation (angle in radians) FIXME: NOT ACCOUNTED FOR AXIS DIFFERENCES
 	Matrix44 Matrix44::xRotation(double angle) {
@@ -125,18 +133,85 @@ namespace Math {
 		return m;
 	}
 
-	// Rotates self. Let M be the 3D rotation part of self. This routine overwrites v by M*v
-	//Vector3 Matrix44::rotate(Vector3& v) {
-	//	Vector3 vec = Vector3(0.0);
-	//	double x, y, z;
-	//	x = v.getX();
-	//	y = v.getY();
-	//	z = v.getZ();
-	//}
+	// Rotates a vector3 v with M. 
+	// Let M be the 3D rotation part of self. (Matrix44)
+	// This routine overwrites v by M*v
+	void Matrix44::rotate(Vector3& v) {
+		
+		double x, y, z;
+		x = v.getX();
+		y = v.getY();
+		z = v.getZ();
+		
+		v.setX(m11 * x + m12 * y + m13 * z);
+		v.setY(m21 * x + m22 * y + m23 * z);
+		v.setZ(m31 * x + m32 * y + m33 * z);
+	}
+
+	// Returns a vector3 rotated by M.
+	// Let M be the 3D rotation part of self (Matrix44)
+	// This routine returns M*v
+	Vector3 Matrix44::getRotate(Vector3 v) {
+		double x, y, z, xx, yy, zz;
+		x = v.getX();
+		y = v.getY();
+		z = v.getZ();
+
+		xx = m11 * x + m12 * y + m13 * z;
+		yy = m21 * x + m22 * y + m23 * z;
+		zz = m31 * x + m32 * y + m33 * z;
+		return Vector3{ xx, yy, zz };
+	}
+
 
 	// Returns lorentz factor
 	double Matrix44::getGamma() {
 		return this->m00;
+	}
+
+	// Perform a lorentz transform on a Vector4D
+	// self: Matrix44
+	// v:    Vector4D
+	// This routine overwrites v by self*v
+	void Matrix44::transform(Vector4D& v) {
+		double t, x, y, z;
+		t = v.getT();
+		x = v.getX();
+		y = v.getY();
+		z = v.getZ();
+
+		v.setT(m00 * t + m01 * x + m02 * y + m03 * z);
+		v.setX(m10 * t + m11 * x + m12 * y + m13 * z);
+		v.setY(m20 * t + m21 * x + m22 * y + m23 * z);
+		v.setZ(m30 * t + m31 * x + m32 * y + m33 * z);
+	}
+
+	Vector4D Matrix44::getTransform(Vector4D& v) {
+		double t, x, y, z, tt, xx, yy, zz;
+		tt = m00 * t + m01 * x + m02 * y + m03 * z;
+		xx = m10 * t + m11 * x + m12 * y + m13 * z;
+		yy = m20 * t + m21 * x + m22 * y + m23 * z;
+		zz = m30 * t + m31 * x + m32 * y + m33 * z;
+		return Vector4D{ tt, xx, yy, zz };
+	}
+
+
+	glm::mat4 Matrix44::toOpenGL() {
+		return glm::mat4{
+			m11, m12, m13, 0.f,
+			m21, m22, m23, 0.f,
+			m31, m32, m33, 0.f,
+			0.f, 0.f, 0.f, 1.f 
+		};
+	}
+
+	glm::mat4 Matrix44::toGLM() {
+		return glm::mat4{
+			m11, m21, m31, m01,
+			m12, m22, m32, m02,
+			m13, m23, m33, m03,
+			m10, m20, m30, m00
+		};
 	}
 
 	Matrix44 Matrix44::Lorentz(Vector4D u) {

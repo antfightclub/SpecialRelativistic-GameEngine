@@ -2,6 +2,21 @@
 
 #include "Vector3.hpp"
 #include "Vector4D.hpp"
+#include <glm.hpp>
+
+// LAYOUT: 
+//				col0		col1		col2		col3
+//	row0	|	m00		|	m01		|	m02		|	m03		|
+//	row1	|	m10		|	m11		|	m12		|	m13		|
+//	row2	|	m20		|	m21		|	m22		|	m23		|
+//	row3	|	m30		|	m31		|	m32		|	m33		|
+//
+// With Vector3 
+//				right   = row1
+//				up      = row2
+//				forward = row3
+
+
 
 namespace Math {
 	class Matrix44 {
@@ -26,7 +41,25 @@ namespace Math {
 
 		// ********** Getters and Setters **********
 
+		Vector3 getRow1() const { return Vector3{ m11, m12, m13 }; }
+		Vector3 getRow2() const { return Vector3{ m21, m22, m23 }; }
+		Vector3 getRow3() const { return Vector3{ m31, m32, m33 }; }
 
+		void setRow1(double val11, double val12, double val13) { 
+			m11 = val11;
+			m12 = val12;
+			m13 = val13;
+		}
+		void setRow2(double val21, double val22, double val23) { 
+			m21 = val21;
+			m22 = val22;
+			m23 = val23;
+		}
+		void setRow3(double val31, double val32, double val33) { 
+			m31 = val31;
+			m32 = val32;
+			m33 = val33;
+		}
 
 
 		// ********** Operator overloads **********
@@ -37,7 +70,7 @@ namespace Math {
 		// Multiplication (overwrites self)
 		Matrix44& operator*=(const Matrix44& rhs);
 
-
+		Matrix44 copy();
 		
 		// // ********** 4x4 Matrix operations **********
 		// NOTE: A lot of these are w.r.t. Lorentz transformations, using these matrix operations precede
@@ -58,22 +91,30 @@ namespace Math {
 		// Returns the inverse of a Matrix44 that is a 3D rotation by transposing its 3D rotation part.
 		Matrix44 getInverseRotation();
 
-		// ... not sure!! TODO
-		Vector3 rotate(Vector3& v);
+		// 
+		void rotate(Vector3& v);
 
-		// TBD how to do
-		// array? GetRotate()
+		// 
+		Vector3 getRotate(Vector3 v);
 		
+		//
 		Vector3 getRotate();
 
 		// Overvwrites v by self * v
 		void transform(Vector4D& v);
 
+		Vector4D getTransform(Vector4D& v);
+
 		// TBD not sure how I'll handle returning stuff as lists of things
 		// array getTransform(Vector4D)
 
-		// TBD 
-		// array? toGLSL();
+		// This routine converts the 3D rotation part of self into the openGL format.
+		// TODO: (VERIFY THAT THIS IS CORRECT!)
+		glm::mat4 toOpenGL();
+
+		// This routine converts self into the GLSL format.
+		// (VERIFY THAT THIS IS CORRECT!)
+		glm::mat4 toGLM();
 
 		// Returns lorentz factor
 		double getGamma(); 
