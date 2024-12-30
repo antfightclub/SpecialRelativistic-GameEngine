@@ -246,6 +246,37 @@ namespace Math {
 		}
 	}
 
+	// I know this is scuffed but I don't want to break encapsulation!
+	// There is most definitely a better way of doing this LOL. TODO
+	// Matrix is indexed as such when returned as doubles
+	//	m[ 0] = m00		m[ 1] = m01		m[ 2] = m02		m[ 3] = m03
+	//  m[ 4] = m10		m[ 5] = m11		m[ 6] = m12		m[ 7] = m13
+	//	m[ 8] = m20		m[ 9] = m21		m[10] = m22		m[11] = m23
+	//	m[12] = m30		m[13] = m31		m[14] = m32		m[15] = m33
+	std::vector<double> Matrix44::getDoubles() {
+		std::vector<double> out;
+		out.push_back(this->m00);
+		out.push_back(this->m01);
+		out.push_back(this->m02);
+		out.push_back(this->m03);
+
+		out.push_back(this->m10);
+		out.push_back(this->m11);
+		out.push_back(this->m12);
+		out.push_back(this->m13);
+
+		out.push_back(this->m20);
+		out.push_back(this->m21);
+		out.push_back(this->m22);
+		out.push_back(this->m23);
+
+		out.push_back(this->m30);
+		out.push_back(this->m31);
+		out.push_back(this->m32);
+		out.push_back(this->m33);
+
+		return out;
+	}
 
 	std::ostream& operator<<(std::ostream& os, const Matrix44& mat) {
 		os << "Matrix44{\n"

@@ -3,6 +3,7 @@
 #include "Vector3.hpp"
 #include "Vector4D.hpp"
 #include <glm.hpp>
+#include <vector>
 
 // LAYOUT: 
 //				col0		col1		col2		col3
@@ -129,6 +130,13 @@ namespace Math {
 		// Returns a lorentz transformation matrix
 		static Matrix44 Lorentz(Vector4D u);
 
+		// There is most definitely a much better way of doing this LOL
+		// Matrix is indexed as such when returned as doubles
+		//	m[ 0] = m00		m[ 1] = m01		m[ 2] = m02		m[ 3] = m03
+		//  m[ 4] = m10		m[ 5] = m11		m[ 6] = m12		m[ 7] = m13
+		//	m[ 8] = m20		m[ 9] = m21		m[10] = m22		m[11] = m23
+		//	m[12] = m30		m[13] = m31		m[14] = m32		m[15] = m33
+		std::vector<double> getDoubles();
 
 
 	private:
