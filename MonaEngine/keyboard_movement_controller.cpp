@@ -2,7 +2,7 @@
 
 namespace mve {
 
-	void KeyboardMovementController::moveInPlaneXZ(GLFWwindow* window, float dt, MveGameObject& gameObject) {
+	glm::vec3 KeyboardMovementController::moveInPlaneXZ(GLFWwindow* window, float dt, MveGameObject& gameObject) {
 		
 		glm::vec3 rotate{ 0 };
 		if (glfwGetKey(window, keys.lookRight) == GLFW_PRESS) rotate.y += 1.f;
@@ -33,6 +33,8 @@ namespace mve {
 		if (glm::dot(moveDir, moveDir) > std::numeric_limits<float>::epsilon()) {
 			gameObject.transform.translation += moveSpeed * dt * glm::normalize(moveDir);
 		}
+
+		return moveDir;
 
 	}
 

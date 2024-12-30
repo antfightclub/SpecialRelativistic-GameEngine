@@ -6,10 +6,15 @@
 #include "mve_buffer.hpp"
 #include "lattice.hpp"
 
+#include "relativity/math/Matrix44.hpp"
+#include "relativity/math/Vector3.hpp"
+
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm.hpp>
 #include <gtc/constants.hpp>
+
+
 
 //std
 #include <cassert>
@@ -98,12 +103,11 @@ namespace mve {
 
 		LatticeWireframeSystem latticeRenderSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalUboSetLayout->getDescriptorSetLayout()};
 		MveCamera camera{};
-		camera.setViewDirection(glm::vec3(4.f, 0.f, 0.f), glm::vec3(0.5f, 0.f, 1.f));
+		camera.setViewDirection(glm::vec3(0.f, 0.f, 0.f), glm::vec3(-0.5f, 0.f, 1.f));
 		camera.setViewTarget(glm::vec3(4.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f));
 
 		auto viewerObject = MveGameObject::createGameObject();
-		viewerObject.transform.translation.z = 0.f;
-		viewerObject.transform.translation.x = 4.f;
+		//viewerObject.transform.translation.z = 4.f;
 		KeyboardMovementController cameraController{};
 
 
@@ -119,12 +123,12 @@ namespace mve {
 			
 			std::cout << "frameTime = " << frameTime << " and dt = "  << dt << std::endl;
 
-			cameraController.moveInPlaneXZ(mveWindow.getGLFWwindow(), frameTime, viewerObject);
+			glm::vec3 movedir = cameraController.moveInPlaneXZ(mveWindow.getGLFWwindow(), frameTime, viewerObject);
 			camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
 			float aspect = mveRenderer.getAspectRatio();
 
-			camera.setPerspectiveProjection(glm::radians(100.f), aspect, 0.1f, 1000.0f);
+			camera.setPerspectiveProjection(glm::radians(100.f), aspect, 0.1f, 10000.0f);
 
 			if (auto commandBuffer = mveRenderer.beginFrame()) {
 				int frameIndex = mveRenderer.getFrameIndex();
@@ -148,12 +152,24 @@ namespace mve {
 				globalUboBuffers[frameIndex]->writeToBuffer(&globalUbo);
 				globalUboBuffers[frameIndex]->flush();
 
+				glm::vec3 Xp = camera.getPosition();
+				int xo = int(Xp.x / (50 / 10)) * (50 / 10);
+				int yo = int(Xp.y / (50 / 10)) * (50 / 10);
+				int zo = int(Xp.z / (50 / 10)) * (50 / 10);
+				Math::Matrix44 U{};
+				if (movedir.length() > 0.0) {
+					U = Math::Matrix44::Lorentz(Math::Vector4D{ 1.0, movedir.x, -movedir.y, movedir.z });
+				}
+				else {
+					U = Math::Matrix44::Lorentz(Math::Vector4D{ 1.0, 0.0, 0.0, 0.0 });
+				}
 				
+				//std::cout << U << std::endl;
 				// TODO: update lattice ubo buffer with a lorentz matrix calculated in accordance with special relativity
 				LatticeUbo latticeUbo{};
-				latticeUbo.Xp = camera.getPosition();
-				latticeUbo.Xo = glm::vec3{ 1.0f,0.0f,0.0f };
-				latticeUbo.Lorentz = glm::mat4{ 0.f };
+				latticeUbo.Xp = Xp;
+				latticeUbo.Xo = glm::vec3{ -xo, yo, zo };
+				latticeUbo.Lorentz = U.toGLM();
 				latticeUboBuffers[frameIndex]->writeToBuffer(&latticeUbo);
 				latticeUboBuffers[frameIndex]->flush();
 				latticeUboBuffer.flushIndex(frameIndex);
@@ -178,14 +194,15 @@ namespace mve {
 		Lattice lattice{50, 10, 5, 1, 1.0};
 
 		auto vertices = lattice.getVertices();
+		//auto indices = lattice.getIndices();
 
 		std::shared_ptr<MveModel> mveModel = MveModel::createModelFromStdVector(mveDevice, vertices);
 
 		auto latticeGameObject = MveGameObject::createGameObject();
 
 		latticeGameObject.model = mveModel;
-		latticeGameObject.transform.translation = { 0.f,0.f,0.f };
-		latticeGameObject.transform.scale = glm::vec3{ 5.f, 5.f, 5.f };
+		latticeGameObject.transform.translation = { 0.f, 0.f, 0.f };
+		latticeGameObject.transform.scale = glm::vec3{ 50.f, 50.f, 50.f };
 		gameObjects.emplace(latticeGameObject.getId(), std::move(latticeGameObject));
 	}
 }

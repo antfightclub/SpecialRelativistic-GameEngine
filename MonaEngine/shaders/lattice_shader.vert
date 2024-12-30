@@ -26,12 +26,13 @@ layout(push_constant) uniform Push {
 
 void main() {
 	vec3 v = position - latticeUbo.Xp + latticeUbo.Xo;
-	vec4 positionWorld = push.modelMatrix * vec4(v, 1.0);
+	//vec4 positionWorld = push.modelMatrix * vec4(v, 1.0);
 	//vec4 vertex = latticeUbo.Lorentz * vec4(v, -length(v));
 	//vertex.w = 1.0;
-	gl_Position = ubo.projection * ubo.view * positionWorld;
+	gl_Position = (ubo.projection *  ubo.view * push.modelMatrix) * (vec4(v, length(v)));//vec4(v, -length(v));//vec4(v, length(v));// * vertex;
 	float factor = max(0.0, min(1.0, (200.0/(gl_Position.w*gl_Position.w))));
-	vec4 col = vec4(color, 1.0*factor);
+	vec4 col = vec4(color, 1.0);
+	col.a *= factor;
 	fragColor = col;
 }
 

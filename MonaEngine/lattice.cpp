@@ -65,7 +65,7 @@ namespace mve {
 		}
 		std::cout << "third for loop complete!" << "\n";
 
-
+		latticeUnit = L / N;
 	}
 
 	void Lattice::add(double xx, double yy, double zz, double a) {

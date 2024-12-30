@@ -19,11 +19,11 @@ namespace mve {
             int lookDown = GLFW_KEY_DOWN;
         };
         
-        void moveInPlaneXZ(GLFWwindow* window, float dt, MveGameObject &gameObject);
+        glm::vec3 moveInPlaneXZ(GLFWwindow* window, float dt, MveGameObject &gameObject);
         
         KeyMappings keys{};
-        float moveSpeed{ 0.25f };
-        float lookSpeed{ 0.25f };
+        float moveSpeed{ 0.002f };
+        float lookSpeed{ 0.002f };
 
 	};
 

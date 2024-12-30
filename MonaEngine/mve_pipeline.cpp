@@ -213,7 +213,7 @@ MvePipeline::~MvePipeline() {
 	void MvePipeline::wireframePipelineConfigInfo(PipelineConfigInfo& configInfo) {
 		// Input Assembly state create info default config
 		configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-		configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP; // not sure if line list or strip or with or without adjacency
+		configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST; // not sure if line list or strip or with or without adjacency
 		configInfo.inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
 
 		// ViewportInfo
