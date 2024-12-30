@@ -2,6 +2,62 @@
 
 namespace Math {
 
+	// Matrix is indexed as such when returned as doubles
+	//	m[ 0] = m00		m[ 1] = m01		m[ 2] = m02		m[ 3] = m03
+	//  m[ 4] = m10		m[ 5] = m11		m[ 6] = m12		m[ 7] = m13
+	//	m[ 8] = m20		m[ 9] = m21		m[10] = m22		m[11] = m23
+	//	m[12] = m30		m[13] = m31		m[14] = m32		m[15] = m33
+	Quaternion::Quaternion(Matrix44 R) {
+		std::vector<double> rot = R.getDoubles();
+		double m, n, e;
+		int i;
+		m = rot[0] + rot[5] + rot[10] + 1.0;
+		n = rot[0] - rot[5] - rot[10] + 1.0;
+		i = 0;
+		if (m < n) {
+			m = n;
+			i = 1;
+		}
+		n = rot[5] - rot[10] - rot[0] + 1.0;
+		if(m < n) {
+			m = n;
+			i = 2;
+		}
+		n = rot[10] - rot[0] - rot[5] + 1.0;
+		if (m < n) {
+			m = n;
+			i = 3;
+		}
+		e = std::sqrt(m) * 0.5;
+		m = 0.25 / e;
+		if (i == 0) {
+			this->t = e;
+			this->x = (rot[5] - rot[6]) * m;	// (R.m21 - R.m12) * m
+			this->y = (rot[2] - rot[8]) * m;	// (R.m02 - R.m20) * m
+			this->z = (rot[4] - rot[1]) * m;	// (R.m10 - R.m01) * m
+		}
+		else if (i == 1) {
+			this->t = (rot[9] - rot[6]) * m;	//	(R.m21 - R.m12) * m
+			this->x = e;
+			this->y = (rot[1] + rot[4]) * m;	//	(R.m01 + R.m10) * m
+			this->z = (rot[2] + rot[8]) * m;	//	(R.m02 + R.m20) * m
+		}
+		else if (i == 2) {
+			this->t = (rot[2] - rot[8]) * m;	//	(R.m02 - R.m20) * m
+			this->x = (rot[1] + rot[4]) * m;	//	(R.m01 + R.m10) * m
+			this->y = e;
+			this->z = (rot[6] + rot[9]) * m;	//	(R.m12 + R.m21) * m
+		}
+		else {
+			this->t = (rot[4] - rot[1]) * m;	//	(R.m10 - R.m01) * m
+			this->x = (rot[2] + rot[8]) * m;	//	(R.m02 + R.m20) * m 
+			this->y = (rot[6] + rot[9]) * m;	//	(R.m12 + R.m21) * m
+			this->z = e;
+		}
+		rot.clear();
+		//rot.shrink_to_fit();
+	}
+
 
 	// Multiplication (returns new matrix)
 	Quaternion operator*(Quaternion lhs, const Quaternion& rhs) {

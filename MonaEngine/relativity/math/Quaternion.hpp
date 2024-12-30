@@ -9,6 +9,7 @@ namespace Math {
 	class Quaternion
 	{
 	public:
+		Quaternion() : t{0.0}, x{0.0}, y{0.0}, z{0.0} {}
 		// From doubles
 		Quaternion(double t, double x, double y, double z) : t{t}, x{x}, y{x}, z{z} {}
 
@@ -26,16 +27,17 @@ namespace Math {
 			this->z = z * s;
 		};
 
+		// From rotation matrix
+		// Not doing this rn LOL
+		Quaternion(Matrix44 R);
+
+
 		// Multiplication (returns new matrix)
 		friend Quaternion operator*(Quaternion lhs, const Quaternion& rhs);
 
 		// Multiplication (overwrites self)
 		Quaternion& operator*=(const Quaternion& rhs);
 
-		// From rotation matrix
-		// Not doing this rn LOL
-		//Quaternion(Matrix44 R) {
-		//};
 
 		Matrix44 getRotMat();
 
