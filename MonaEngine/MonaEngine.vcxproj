@@ -154,6 +154,7 @@
     <ClCompile Include="relativity\math\PhaseSpace.cpp" />
     <ClCompile Include="relativity\math\Vector3.cpp" />
     <ClCompile Include="relativity\math\Vector4D.cpp" />
+    <ClCompile Include="relativity\math\WorldLine.cpp" />
     <ClCompile Include="relativity_app.cpp" />
     <ClCompile Include="systems\lattice_wireframe_system.cpp" />
     <ClCompile Include="systems\simple_render_system.cpp" />
@@ -179,6 +180,7 @@
     <ClInclude Include="relativity\math\PhaseSpace.hpp" />
     <ClInclude Include="relativity\math\Vector3.hpp" />
     <ClInclude Include="relativity\math\Vector4D.hpp" />
+    <ClInclude Include="relativity\math\WorldLine.hpp" />
     <ClInclude Include="relativity_app.hpp" />
     <ClInclude Include="systems\lattice_wireframe_system.hpp" />
     <ClInclude Include="systems\simple_render_system.hpp" />
