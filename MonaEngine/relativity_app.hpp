@@ -39,6 +39,10 @@ namespace mve {
 		}
 
 	private:
+
+		int N = 10;
+		int L = 5;
+
 		void loadGameObjects();
 
 		MveWindow mveWindow{ WIDTH, HEIGHT, "Monativity.exe" };

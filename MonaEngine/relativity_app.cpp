@@ -8,6 +8,7 @@
 
 #include "relativity/math/Matrix44.hpp"
 #include "relativity/math/Vector3.hpp"
+#include "relativity/math/WorldLine.hpp"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -109,7 +110,18 @@ namespace mve {
 		auto viewerObject = MveGameObject::createGameObject();
 		//viewerObject.transform.translation.z = 4.f;
 		KeyboardMovementController cameraController{};
+		
+		auto viewerObjectID = viewerObject.getId();
+		Math::Vector4D viewerX = Math::Vector4D{
+			0.0,
+		viewerObject.transform.translation.x,
+		viewerObject.transform.translation.y,
+		viewerObject.transform.translation.z};
 
+		//Math::Quaternion viewerQuat = Math::Quaternion{ 0.0 };
+		Math::EntityState viewerState;
+		Math::WorldLine viewerWorldLine = Math::WorldLine{ viewerObjectID, viewerX, viewerState };
+		
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float timeSince = 0.f; // used to count time between frames!
@@ -120,15 +132,30 @@ namespace mve {
 			auto newTime = std::chrono::high_resolution_clock::now();
 			float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
 			float dt = frameTime - timeSince;
-			
+						
 			std::cout << "frameTime = " << frameTime << " and dt = "  << dt << std::endl;
 
 			glm::vec3 movedir = cameraController.moveInPlaneXZ(mveWindow.getGLFWwindow(), frameTime, viewerObject);
 			camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
+			viewerX.setT(viewerX.getT() + dt);
+			auto viewerGlmVec3 = camera.getPosition();
+			viewerX.setX(viewerGlmVec3.x);
+			viewerX.setY(viewerGlmVec3.y);
+			viewerX.setZ(viewerGlmVec3.z);
+			viewerWorldLine.add(viewerX, viewerState); // This should add a new worldline entry every frame.
+			
+			// GETLASTTWO FOR VELOCITY
+			std::vector<Math::Vector4D> viewerLastTwo = viewerWorldLine.getLastTwo();
+			Math::Vector4D vel = viewerLastTwo[0] - viewerLastTwo[1];
+
+			std::cout << "vel from lasttwo = " << vel << std::endl;;
+
+			// This gets slow extremely quickly. But it verifies that it works.
+			//viewerWorldLine.printAllEntries();
 			float aspect = mveRenderer.getAspectRatio();
 
-			camera.setPerspectiveProjection(glm::radians(100.f), aspect, 0.1f, 10000.0f);
+			camera.setPerspectiveProjection(glm::radians(100.f), aspect, 0.01f, 1000.0f);
 
 			if (auto commandBuffer = mveRenderer.beginFrame()) {
 				int frameIndex = mveRenderer.getFrameIndex();
@@ -153,17 +180,19 @@ namespace mve {
 				globalUboBuffers[frameIndex]->flush();
 
 				glm::vec3 Xp = camera.getPosition();
-				int xo = int((Xp.y / (50 / 10)) * (50 / 10));
-				int yo = int((Xp.z / (50 / 10)) * (50 / 10));
-				int zo = int((Xp.x / (50 / 10)) * (50 / 10));
+				int xo = int((Xp.x / (N / L)) * (N / L));
+				int yo = int((Xp.y / (N / L)) * (N / L));
+				int zo = int((Xp.z / (N / L)) * (N / L));
 				Math::Matrix44 U{};
+				
+				U = Math::Matrix44::Lorentz(vel);
 
-				if (movedir.length() > 0.0) {
+		/*		if (movedir.length() > 0.0) {
 					U = Math::Matrix44::Lorentz(Math::Vector4D{ 1.0, movedir.x, movedir.y , movedir.z });
 				}
 				else {
 					U = Math::Matrix44::Lorentz(Math::Vector4D{ 1.0, 0.0, 0.0, 0.0 });
-				}
+				}*/
 				
 				//Math::Vector4D u = Math::Vector4D{};
 
@@ -192,7 +221,7 @@ namespace mve {
 				// TODO: update lattice ubo buffer with a lorentz matrix calculated in accordance with special relativity
 				LatticeUbo latticeUbo{};
 				latticeUbo.Xp = Xp;
-				latticeUbo.Xo = glm::vec3{ -xo, yo, -zo };
+				latticeUbo.Xo = glm::vec3{ xo, yo, zo };
 				latticeUbo.Lorentz = U.toGLM();
 				latticeUboBuffers[frameIndex]->writeToBuffer(&latticeUbo);
 				latticeUboBuffers[frameIndex]->flush();
@@ -215,7 +244,7 @@ namespace mve {
 
 	void RelativityApp::loadGameObjects() {
 		// generate lattice
-		Lattice lattice{50, 10, 5, 1, 5.0};
+		Lattice lattice{N, L, 5, 1, 0.1};
 
 		auto vertices = lattice.getVertices();
 		//auto indices = lattice.getIndices();
