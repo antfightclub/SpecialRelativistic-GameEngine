@@ -153,22 +153,46 @@ namespace mve {
 				globalUboBuffers[frameIndex]->flush();
 
 				glm::vec3 Xp = camera.getPosition();
-				int xo = int(Xp.x / (50 / 10)) * (50 / 10);
-				int yo = int(Xp.y / (50 / 10)) * (50 / 10);
-				int zo = int(Xp.z / (50 / 10)) * (50 / 10);
+				int xo = int((Xp.y / (50 / 10)) * (50 / 10));
+				int yo = int((Xp.z / (50 / 10)) * (50 / 10));
+				int zo = int((Xp.x / (50 / 10)) * (50 / 10));
 				Math::Matrix44 U{};
+
 				if (movedir.length() > 0.0) {
-					U = Math::Matrix44::Lorentz(Math::Vector4D{ 1.0, movedir.x, -movedir.y, movedir.z });
+					U = Math::Matrix44::Lorentz(Math::Vector4D{ 1.0, movedir.x, movedir.y , movedir.z });
 				}
 				else {
 					U = Math::Matrix44::Lorentz(Math::Vector4D{ 1.0, 0.0, 0.0, 0.0 });
 				}
 				
-				//std::cout << U << std::endl;
+				//Math::Vector4D u = Math::Vector4D{};
+
+				//U = Math::Matrix44::Lorentz(u);
+				std::cout << "********** START OF PRINTING MATRICES **********" << std::endl;
+
+				std::cout << "** View Matrix:" << std::endl;
+				printGLMMat4(camera.getView());
+				std::cout << "** Inverse View Matrix:" << std::endl;
+				printGLMMat4(camera.getInverseView());
+				std::cout << "** Projection Matrix:" << std::endl;
+				printGLMMat4(camera.getProjection());
+
+				glm::mat4 temp = U.toGLM();
+				std::cout << "** Lorentz matrix U \n" << U << std::endl;
+				std::cout << "** Lorentz to GLM" << std::endl;
+				printGLMMat4(temp);
+
+				std::cout << "Xo.x = " << xo << ", Xo.y = " << yo << ", Xo.z = " << zo << std::endl;
+				std::cout << "Xp.x = " << Xp.x << ", Xp.y = " << Xp.y << ", Xp.z = " << Xp.z << '\n' << std::endl;
+
+
+
+				
+
 				// TODO: update lattice ubo buffer with a lorentz matrix calculated in accordance with special relativity
 				LatticeUbo latticeUbo{};
 				latticeUbo.Xp = Xp;
-				latticeUbo.Xo = glm::vec3{ -xo, yo, zo };
+				latticeUbo.Xo = glm::vec3{ -xo, yo, -zo };
 				latticeUbo.Lorentz = U.toGLM();
 				latticeUboBuffers[frameIndex]->writeToBuffer(&latticeUbo);
 				latticeUboBuffers[frameIndex]->flush();
@@ -191,10 +215,17 @@ namespace mve {
 
 	void RelativityApp::loadGameObjects() {
 		// generate lattice
-		Lattice lattice{50, 10, 5, 1, 1.0};
+		Lattice lattice{50, 10, 5, 1, 5.0};
 
 		auto vertices = lattice.getVertices();
 		//auto indices = lattice.getIndices();
+
+		std::cout << "printing out ALL lattice vertices!" << std::endl;
+		
+		// This takes a long time!
+		//for (auto& vert : vertices) {
+		//	std::cout << "{ " << vert.x << ", " << vert.y << ", " << vert.z << " }\n";
+		//}
 
 		std::shared_ptr<MveModel> mveModel = MveModel::createModelFromStdVector(mveDevice, vertices);
 
@@ -202,7 +233,7 @@ namespace mve {
 
 		latticeGameObject.model = mveModel;
 		latticeGameObject.transform.translation = { 0.f, 0.f, 0.f };
-		latticeGameObject.transform.scale = glm::vec3{ 50.f, 50.f, 50.f };
+		latticeGameObject.transform.scale = glm::vec3{ 1.f, 1.f, 1.f };
 		gameObjects.emplace(latticeGameObject.getId(), std::move(latticeGameObject));
 	}
 }
