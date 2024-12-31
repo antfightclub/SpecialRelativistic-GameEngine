@@ -24,7 +24,7 @@ namespace mve {
 			},
 			{
 				scale.z * (c2 * s1),
-				scale.z * (-s2),
+				scale.z * (s2),
 				scale.z * (c1 * c2),
 				0.0f,
 			},
@@ -52,7 +52,7 @@ namespace mve {
 			},
 			{
 				invScale.z * (c2 * s1),
-				invScale.z * (-s2),
+				invScale.z * (s2),
 				invScale.z * (c1 * c2),
 			},
 		};
