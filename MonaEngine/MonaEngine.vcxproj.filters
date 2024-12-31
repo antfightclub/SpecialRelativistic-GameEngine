@@ -169,5 +169,6 @@
     <None Include="shaders\point_light.vert" />
     <None Include="shaders\lattice_shader.frag" />
     <None Include="shaders\lattice_shader.vert" />
+    <None Include="shaders\polygon_shader.vert" />
   </ItemGroup>
 </Project>
