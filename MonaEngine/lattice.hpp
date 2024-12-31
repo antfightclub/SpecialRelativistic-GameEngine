@@ -8,11 +8,11 @@ namespace mve {
 
 		
 		
-		Lattice(int range, int div, int innerDiv, int lineWidth, double scale) : L{ range }, N{ div }, c{ innerDiv }, lineWidth{ lineWidth } { makeLattice(div, range, scale); };
+		Lattice(int range, int div, int innerDiv, int lineWidth, double scale) : L{ range }, N{ div }, c{ innerDiv }, lineWidth{ lineWidth } { makeLattice(div, range, innerDiv, scale); };
 
 		~Lattice() {};
 
-		void makeLattice(int N, int L, double scale);
+		void makeLattice(int N, int L, int innerDiv, double scale);
 		
 		void add(double xx, double yy, double zz, double a);
 		

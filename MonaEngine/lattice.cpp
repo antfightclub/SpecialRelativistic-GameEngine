@@ -20,18 +20,18 @@ namespace mve {
 		return this->indices;
 	}*/
 
-	void Lattice::makeLattice(int N, int L, double scale) {
+	void Lattice::makeLattice(int N, int L, int c, double scale) {
 		//std::shared_ptr<MveModel> mveModel = MveModel::MveModel(mveDevice);
 		std::cout << "Start of makeLattice!" << "\n";
 		
 		int n = 2 * N + 1;
 		int xx, yy, zz;
 		for (int i = -N; i < N + 1; i++) {
-			xx = (i + 0.5) * (L / N);
+			xx = int((i + 0.5) * (L / N));
 			for (int j = -N; j < N + 1; j++) {
-				yy = (j + 0.5) * (L / N);
+				yy = int((j + 0.5) * (L / N));
 				for (int k = -N*c; k < N*c + 1; k++) {
-					zz = (((k + 0.5) * c) * L) / (N * c);
+					zz = int((((k + 0.5) * c) * L) / (N * c));
 					add(xx, yy, zz, k);
 				}
 
@@ -40,11 +40,11 @@ namespace mve {
 		std::cout << "first for loop complete!" << "\n";
 
 		for (int i = -N; i < N + 1; i++) {
-			xx = (i + 0.5) * (L / N);
+			xx = int((i + 0.5) * (L / N));
 			for (int j = -N; j < N + 1; j++) {
-				zz = (j + 0.5) * (L / N);
+				zz = int((j + 0.5) * (L / N));
 				for (int k = -N * c; k < N * c + 1; k++) {
-					yy = (((k + 0.5) * c) * L) / (N * c);
+					yy = int((((k + 0.5) * c) * L) / (N * c));
 					add(xx, yy, zz, k);
 				}
 
@@ -53,11 +53,11 @@ namespace mve {
 		std::cout << "second for loop complete!" << "\n";
 
 		for (int i = -N; i < N + 1; i++) {
-			zz = (i + 0.5) * (L / N);
+			zz = int((i + 0.5) * (L / N));
 			for (int j = -N; j < N + 1; j++) {
-				yy = (j + 0.5) * (L / N);
+				yy = int((j + 0.5) * (L / N));
 				for (int k = -N * c; k < N * c + 1; k++) {
-					xx = (((k + 0.5) * c) * L) / (N * c);
+					xx = int((((k + 0.5) * c) * L) / (N * c));
 					add(xx, yy, zz, k);
 				}
 
