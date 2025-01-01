@@ -12,7 +12,7 @@ namespace Math {
 	}
 
 	void PhaseSpace::transform(Vector4D acceleration, double ds) {
-		Vector4D temp = Vector4D{ acceleration.getT(), acceleration.getX(), acceleration.getY(), acceleration.getZ() };
+		Vector4D temp = Vector4D{ this->X.getT(), this->X.getX(), this->X.getY(), this->X.getZ() };
 		this->X.setT(temp.getT() + this->U.getT() * ds);
 		this->X.setX(temp.getX() + this->U.getX() * ds);
 		this->X.setY(temp.getY() + this->U.getY() * ds);
