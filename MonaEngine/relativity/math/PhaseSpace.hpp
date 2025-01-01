@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Vector4D.hpp"
 #include "Matrix44.hpp"
 
