@@ -23,7 +23,7 @@ namespace SRGame {
 	class Player {
 	public:
 
-		Player(mve::MveGameObject& gameObject, Math::Vector4D pos, Math::EntityState firstState) : P{ pos, Math::Vector4D(1.0, 0.0, 0.0, 0.0) }, worldline{ gameObject.getId(), pos, firstState } {
+		Player(mve::MveGameObject& gameObject, Math::Vector4D pos, Math::EntityState firstState) : P{ Math::PhaseSpace{pos, Math::Vector4D(1.0, 0.0, 0.0, 0.0)} }, worldline{ gameObject.getId(), pos, firstState } {
 			init(gameObject);
 		}
 
