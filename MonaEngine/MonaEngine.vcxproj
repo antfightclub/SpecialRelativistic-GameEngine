@@ -149,6 +149,7 @@
     <ClCompile Include="mve_swap_chain.cpp" />
     <ClCompile Include="mve_window.cpp" />
     <ClCompile Include="mve_device.cpp" />
+    <ClCompile Include="player.cpp" />
     <ClCompile Include="relativity\math\Quaternion.cpp" />
     <ClCompile Include="relativity\math\Matrix44.cpp" />
     <ClCompile Include="relativity\math\PhaseSpace.cpp" />
@@ -175,6 +176,8 @@
     <ClInclude Include="mve_utils.hpp" />
     <ClInclude Include="mve_window.hpp" />
     <ClInclude Include="mve_device.hpp" />
+    <ClInclude Include="player.hpp" />
+    <ClInclude Include="relativity\Constants.hpp" />
     <ClInclude Include="relativity\math\Quaternion.hpp" />
     <ClInclude Include="relativity\math\Matrix44.hpp" />
     <ClInclude Include="relativity\math\PhaseSpace.hpp" />
