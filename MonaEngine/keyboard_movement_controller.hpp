@@ -5,9 +5,9 @@
 
 namespace mve {
 	class KeyboardMovementController {
-	public:
+    public:
         struct KeyMappings {
-            int moveLeft = GLFW_KEY_A;
+           /* int moveLeft = GLFW_KEY_A;
             int moveRight = GLFW_KEY_D;
             int moveForward = GLFW_KEY_W;
             int moveBackward = GLFW_KEY_S;
@@ -16,7 +16,21 @@ namespace mve {
             int lookLeft = GLFW_KEY_LEFT;
             int lookRight = GLFW_KEY_RIGHT;
             int lookUp = GLFW_KEY_UP;
-            int lookDown = GLFW_KEY_DOWN;
+            int lookDown = GLFW_KEY_DOWN;*/
+
+            // acceleration
+            int accel_forward   = GLFW_KEY_W;
+            int accel_back = GLFW_KEY_S;
+            int accel_right = GLFW_KEY_D;
+            int accel_left = GLFW_KEY_A;
+            int brake = GLFW_KEY_R;
+            
+            // turning
+            int turn_right = GLFW_KEY_RIGHT;
+            int turn_left = GLFW_KEY_LEFT;
+            int turn_up = GLFW_KEY_UP;
+            int turn_down = GLFW_KEY_DOWN;
+
         };
         
         glm::vec3 moveInPlaneXZ(GLFWwindow* window, float dt, MveGameObject &gameObject);
