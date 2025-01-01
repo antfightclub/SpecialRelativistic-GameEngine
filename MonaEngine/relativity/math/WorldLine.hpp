@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Vector4D.hpp"
 #include "Quaternion.hpp"
 
@@ -13,9 +15,9 @@ namespace Math {
 
 
 
-	// TODO: Change "State" std::vector to a State struct like this!
+	// 
 	struct EntityState {
-		Quaternion quaternion{ 0.0 };
+		//Quaternion quaternion{ 0.0 };
 		//???
 	};
 
