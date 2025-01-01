@@ -1,5 +1,7 @@
 #include "relativity_app.hpp"
 
+#include "player.hpp"
+
 #include "keyboard_movement_controller.hpp"
 #include "mve_camera.hpp"
 #include "systems/lattice_wireframe_system.hpp"
@@ -109,18 +111,10 @@ namespace mve {
 
 		auto viewerObject = MveGameObject::createGameObject();
 		//viewerObject.transform.translation.z = 4.f;
-		KeyboardMovementController cameraController{};
-		
-		auto viewerObjectID = viewerObject.getId();
-		Math::Vector4D viewerX = Math::Vector4D{
-			0.0,
-		viewerObject.transform.translation.x,
-		viewerObject.transform.translation.y,
-		viewerObject.transform.translation.z};
 
-		//Math::Quaternion viewerQuat = Math::Quaternion{ 0.0 };
-		Math::EntityState viewerState;
-		Math::WorldLine viewerWorldLine = Math::WorldLine{ viewerObjectID, viewerX, viewerState };
+		SRGame::Player player{ viewerObject, Math::Vector4D{}, Math::EntityState{} };
+
+		//KeyboardInputController cameraController{};
 		
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
@@ -135,24 +129,13 @@ namespace mve {
 						
 			std::cout << "frameTime = " << frameTime << " and dt = "  << dt << std::endl;
 
-			glm::vec3 movedir = cameraController.moveInPlaneXZ(mveWindow.getGLFWwindow(), frameTime, viewerObject);
-			camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
-
-			viewerX.setT(viewerX.getT() + dt);
-			auto viewerGlmVec3 = camera.getPosition();
-			viewerX.setX(viewerGlmVec3.x);
-			viewerX.setY(viewerGlmVec3.y);
-			viewerX.setZ(viewerGlmVec3.z);
-			viewerWorldLine.add(viewerX, viewerState); // This should add a new worldline entry every frame.
+			//glm::vec3 movedir = cameraController.moveInPlaneXZ(mveWindow.getGLFWwindow(), frameTime, viewerObject);
+			//camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 			
-			// GETLASTTWO FOR VELOCITY
-			std::vector<Math::Vector4D> viewerLastTwo = viewerWorldLine.getLastTwo();
-			Math::Vector4D vel = viewerLastTwo[0] - viewerLastTwo[1];
-
-			std::cout << "vel from lasttwo = " << vel << std::endl;;
-
+			
 			// This gets slow extremely quickly. But it verifies that it works.
 			//viewerWorldLine.printAllEntries();
+
 			float aspect = mveRenderer.getAspectRatio();
 
 			camera.setPerspectiveProjection(glm::radians(100.f), aspect, 0.01f, 1000.0f);
@@ -169,23 +152,42 @@ namespace mve {
 				};
 
 				// ***** update
+
+				player.Action(mveWindow.getGLFWwindow(), dt);
 				
+				glm::mat4 cameraView{1.0};
+				Math::Vector4D playerPos = player.P.U; // Apparently I have U and X backwards???? not sure... 
+
+				glm::vec4 cameraPos = { playerPos.getX(), playerPos.getY(), playerPos.getZ(), 1.0 }; // homogenous coords so the 4th element is 1
+				//cameraView[3] = cameraPos;
+				glm::mat4 cameraRot = player.quaternion.getRotMat().toGLM();
+				cameraView = cameraRot;
+				cameraView[3] = cameraPos;
+
+				camera.setView(cameraView);
+
+				std::cout << "Player Position: " << player.P.X << "Player Acceleration: " << player.P.U << '\n';
+
+				std::cout << "ViewMatrix: " << std::endl;
+				printGLMMat4(camera.getView());
+				
+
 				// update global ubo buffer
 				GlobalUbo globalUbo{};
 				globalUbo.projection = camera.getProjection();
 				globalUbo.view = camera.getView();
-				globalUbo.inverseView = camera.getInverseView();
+				globalUbo.inverseView = glm::mat4{ 1.0 };
 				globalUbo.ambientLightColor = { 1.f, 1.f, 1.f, .02f };
 				globalUboBuffers[frameIndex]->writeToBuffer(&globalUbo);
 				globalUboBuffers[frameIndex]->flush();
 
-				glm::vec3 Xp = camera.getPosition();
+	/*			glm::vec3 Xp = camera.getPosition();
 				int xo = int((Xp.x / (N / L)) * (N / L));
 				int yo = int((Xp.y / (N / L)) * (N / L));
 				int zo = int((Xp.z / (N / L)) * (N / L));
 				Math::Matrix44 U{};
-				
-				U = Math::Matrix44::Lorentz(vel);
+				*/
+				//U = Math::Matrix44::Lorentz(vel);
 
 		/*		if (movedir.length() > 0.0) {
 					U = Math::Matrix44::Lorentz(Math::Vector4D{ 1.0, movedir.x, movedir.y , movedir.z });
@@ -197,7 +199,7 @@ namespace mve {
 				//Math::Vector4D u = Math::Vector4D{};
 
 				//U = Math::Matrix44::Lorentz(u);
-				std::cout << "********** START OF PRINTING MATRICES **********" << std::endl;
+				/*std::cout << "********** START OF PRINTING MATRICES **********" << std::endl;
 
 				std::cout << "** View Matrix:" << std::endl;
 				printGLMMat4(camera.getView());
@@ -213,16 +215,16 @@ namespace mve {
 
 				std::cout << "Xo.x = " << xo << ", Xo.y = " << yo << ", Xo.z = " << zo << std::endl;
 				std::cout << "Xp.x = " << Xp.x << ", Xp.y = " << Xp.y << ", Xp.z = " << Xp.z << '\n' << std::endl;
-
+*/
 
 
 				
 
 				// TODO: update lattice ubo buffer with a lorentz matrix calculated in accordance with special relativity
 				LatticeUbo latticeUbo{};
-				latticeUbo.Xp = Xp;
-				latticeUbo.Xo = glm::vec3{ xo, yo, zo };
-				latticeUbo.Lorentz = U.toGLM();
+				latticeUbo.Xp = glm::vec3{ 0.0 };
+				latticeUbo.Xo = glm::vec3{ 0.0 };
+				latticeUbo.Lorentz = glm::mat4{ 1.0 };
 				latticeUboBuffers[frameIndex]->writeToBuffer(&latticeUbo);
 				latticeUboBuffers[frameIndex]->flush();
 				latticeUboBuffer.flushIndex(frameIndex);
@@ -249,7 +251,7 @@ namespace mve {
 		auto vertices = lattice.getVertices();
 		//auto indices = lattice.getIndices();
 
-		std::cout << "printing out ALL lattice vertices!" << std::endl;
+		//std::cout << "printing out ALL lattice vertices!" << std::endl;
 		
 		// This takes a long time!
 		//for (auto& vert : vertices) {
