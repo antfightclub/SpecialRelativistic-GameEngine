@@ -4,7 +4,7 @@
 #include "mve_window.hpp"
 
 namespace mve {
-	class KeyboardMovementController {
+	class KeyboardInputController {
     public:
         struct KeyMappings {
            /* int moveLeft = GLFW_KEY_A;
@@ -33,7 +33,7 @@ namespace mve {
 
         };
         
-        glm::vec3 moveInPlaneXZ(GLFWwindow* window, float dt, MveGameObject &gameObject);
+        //glm::vec3 moveInPlaneXZ(GLFWwindow* window, float dt, MveGameObject &gameObject);
         
         KeyMappings keys{};
         float moveSpeed{ 0.002f };

@@ -3,7 +3,7 @@
 
 namespace mve {
 
-	glm::vec3 KeyboardMovementController::moveInPlaneXZ(GLFWwindow* window, float dt, MveGameObject& gameObject) {
+	/*glm::vec3 KeyboardMovementController::moveInPlaneXZ(GLFWwindow* window, float dt, MveGameObject& gameObject) {
 		
 		glm::vec3 rotate{ 0 };
 		if (glfwGetKey(window, keys.lookRight) == GLFW_PRESS) rotate.y += 1.f;
@@ -37,6 +37,6 @@ namespace mve {
 		std::cout << "********* MOVEDIR:*********\n" << moveDir.x << " " << moveDir.y << " " << moveDir.z << "\n" << std::endl;
 		return glm::normalize(moveDir);
 
-	}
+	}*/
 
 }
