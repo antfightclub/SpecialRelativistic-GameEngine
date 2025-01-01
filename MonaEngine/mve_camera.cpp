@@ -71,6 +71,10 @@ namespace mve {
 		setViewDirection(position, target - position, up);
 	}
 
+	void MveCamera::setView(glm::mat4 view) {
+		this->viewMatrix = view;
+	}
+
 	void  MveCamera::setViewYXZ(glm::vec3 position, glm::vec3 rotation) {
 		const float c3 = glm::cos(rotation.z);
 		const float s3 = glm::sin(rotation.z);
