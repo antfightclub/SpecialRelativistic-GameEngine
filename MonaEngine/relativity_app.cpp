@@ -181,6 +181,7 @@ namespace mve {
 				);
 				std::cout << "playerOrientation length = " << len <<'\n';*/
 
+				// Could it be that order of operations or similar is wrong here? Otherwise the problem would be related to Math::Matrix44 implementation or Math::Quaternion implementation
 				glm::vec3 playerPos = glm::vec3{ (float)player.P.X.getX(), (float)player.P.X.getY(), (float)player.P.X.getZ() };
 				glm::quat orientation = glm::quat{ (float)playerOrientation.t, (float)playerOrientation.x, (float)playerOrientation.y, (float)playerOrientation.z };
 				glm::mat4 rotate = glm::mat4_cast(orientation);
