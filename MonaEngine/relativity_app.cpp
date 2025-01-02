@@ -2,7 +2,7 @@
 
 #include "player.hpp"
 
-#include "keyboard_movement_controller.hpp"
+//#include "keyboard_movement_controller.hpp"
 #include "mve_camera.hpp"
 #include "systems/lattice_wireframe_system.hpp"
 #include "mve_buffer.hpp"
@@ -12,10 +12,12 @@
 #include "relativity/math/Vector3.hpp"
 #include "relativity/math/WorldLine.hpp"
 
+#define GLM_ENABLE_EXPERIMENTAL
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm.hpp>
 #include <gtc/constants.hpp>
+#include <gtx/quaternion.hpp>
 
 
 
@@ -106,14 +108,24 @@ namespace mve {
 
 		LatticeWireframeSystem latticeRenderSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalUboSetLayout->getDescriptorSetLayout()};
 		MveCamera camera{};
-		camera.setViewDirection(glm::vec3(0.f, 0.f, 0.f), glm::vec3(-0.5f, 0.f, 1.f));
-		camera.setViewTarget(glm::vec3(4.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f));
+		//camera.setViewDirection(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 1.f));
+		//camera.setViewTarget(glm::vec3(4.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f));
+		
+		glm::mat4 cameraView{ 1.0 };
+		
 
 		auto viewerObject = MveGameObject::createGameObject();
 		//viewerObject.transform.translation.z = 4.f;
 
-		SRGame::Player player{ viewerObject, Math::Vector4D{}, Math::EntityState{} };
+		
 
+		Player player{ mveWindow , viewerObject, Math::Vector4D{}, Math::EntityState{} };
+
+		//void (*updateKeypressFcnPointer) (int, int) { nullptr };
+		//void (*fcnPtr) (int, int) {	}
+		//mveWindow.setPlayerPointer();
+
+		//glfwSetWindowUserPointer(mveWindow.getGLFWwindow(), &player);
 		//KeyboardInputController cameraController{};
 		
 
@@ -154,15 +166,33 @@ namespace mve {
 				// ***** update
 
 				player.Action(mveWindow.getGLFWwindow(), dt);
+				Math::Quaternion playerOrientation = player.quaternion;
 				
-				glm::mat4 cameraView{1.0};
-				Math::Vector4D playerPos = player.P.X; // Apparently I have U and X backwards???? not sure... 
+				// WITH THIS I FOUND OUT THAT THE QUATERNION IS NOT OF LENGTH 1!!!!
+				/*Math::Quaternion inv = Math::Quaternion{playerOrientation.t,
+														-playerOrientation.x,
+														-playerOrientation.y,
+														-playerOrientation.z };
+				double len = std::sqrt(
+					playerOrientation.t * inv.t
+					+ playerOrientation.x * inv.x
+					+ playerOrientation.y * inv.y
+					+ playerOrientation.z * inv.z
+				);
+				std::cout << "playerOrientation length = " << len <<'\n';*/
 
-				glm::vec4 cameraPos = {playerPos.getX(), playerPos.getY(), playerPos.getZ(), 1.0 }; // homogenous coords so the 4th element is 1
-				//cameraView[3] = cameraPos;
-				glm::mat4 cameraRot = player.quaternion.getRotMat().toGLM();
-				cameraView *= cameraRot;
-				cameraView[3] = cameraPos;
+				glm::vec3 playerPos = glm::vec3{ (float)player.P.X.getX(), (float)player.P.X.getY(), (float)player.P.X.getZ() };
+				glm::quat orientation = glm::quat{ (float)playerOrientation.t, (float)playerOrientation.x, (float)playerOrientation.y, (float)playerOrientation.z };
+				glm::mat4 rotate = glm::mat4_cast(orientation);
+				glm::mat4 translate = glm::mat4(1.0f);
+				translate = glm::translate(translate, playerPos);
+				cameraView = rotate * translate;
+				
+				
+				
+				//Math::Vector4D playerPos = player.P.X; 
+
+
 
 				camera.setView(cameraView);
 
