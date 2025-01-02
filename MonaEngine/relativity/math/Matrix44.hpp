@@ -71,9 +71,9 @@ namespace Math {
 			m33 = val33;
 		}
 
-		Vector3 getRight() const { return getRow1(); }
-		Vector3 getUp() const { return getRow2(); }
-		Vector3 getForward() const { return getRow3(); }
+		Vector3 getRight() const { return getRow1(); /*return Vector3{m11, m21, m31};*/ }
+		Vector3 getUp() const { return getRow2(); /* return Vector3{m12, m22, m32};*/ }
+		Vector3 getForward() const { return getRow3(); /*return Vector3{m31, m32, m33};*/ }
 
 		// ********** Operator overloads **********
 

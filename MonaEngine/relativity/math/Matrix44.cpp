@@ -209,6 +209,17 @@ namespace Math {
 		};
 	}
 
+	//glm::mat4 Matrix44::toOpenGL() {
+	//	return glm::mat4{
+	//		m11, m21, m31, 0.f,
+	//		m12, m22, m32, 0.f,
+	//		m13, m23, m33, 0.f,
+	//		0.f, 0.f, 0.f, 1.f
+	//	};
+	//}
+
+	
+
 	
 	//glm::mat4 Matrix44::toGLM() {
 	//	return glm::mat4{
@@ -288,6 +299,31 @@ namespace Math {
 
 		return out;
 	}
+
+	//std::vector<double> Matrix44::getDoubles() {
+	//	std::vector<double> out;
+	//	out.push_back(this->m00);
+	//	out.push_back(this->m10);
+	//	out.push_back(this->m20);
+	//	out.push_back(this->m30);
+
+	//	out.push_back(this->m01);
+	//	out.push_back(this->m11);
+	//	out.push_back(this->m21);
+	//	out.push_back(this->m31);
+
+	//	out.push_back(this->m02);
+	//	out.push_back(this->m12);
+	//	out.push_back(this->m22);
+	//	out.push_back(this->m32);
+
+	//	out.push_back(this->m03);
+	//	out.push_back(this->m13);
+	//	out.push_back(this->m23);
+	//	out.push_back(this->m33);
+
+	//	return out;
+	//}
 
 	std::ostream& operator<<(std::ostream& os, const Matrix44& mat) {
 		os << "Matrix44{\n"
