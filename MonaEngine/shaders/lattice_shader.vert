@@ -33,7 +33,7 @@ void main() {
 	vec3 v = vec3(vx, vy, vz);
 	mat4 L = latticeUbo.Lorentz;
 	
-	vec4 vertex = /*L* */vec4(v.z, v.x, v.y, 1.0);//vec4(v, -length(v));
+	vec4 vertex = /*L* */vec4(v.x, v.y, v.z, 1.0);//vec4(v, -length(v));
 	//vertex.w = 1.0;
 	mat4 MVP = (ubo.projection * ubo.view * push.modelMatrix);
 	vec4 POS = MVP * (vertex);
