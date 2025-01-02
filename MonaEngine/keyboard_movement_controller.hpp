@@ -1,7 +1,7 @@
 #pragma once
 
-#include "mve_game_object.hpp"
-#include "mve_window.hpp"
+//#include "mve_game_object.hpp"
+//#include "mve_window.hpp"
 
 namespace mve {
 	class KeyboardInputController {
