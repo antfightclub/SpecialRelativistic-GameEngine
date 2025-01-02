@@ -102,6 +102,25 @@ namespace Math {
 			0.0,       zx - ty,       yz + tx, 1.0 - x2 - y2
 		};
 	}
+
+	//Matrix44 Quaternion::getRotMat() {
+	//	double x2, y2, z2, tx, ty, tz, xy, yz, zx;
+	//	x2 = 2.0 * this->x * this->x;
+	//	y2 = 2.0 * this->y * this->y;
+	//	z2 = 2.0 * this->z * this->z;
+	//	tx = 2.0 * this->t * this->x;
+	//	ty = 2.0 * this->t * this->y;
+	//	tz = 2.0 * this->t * this->z;
+	//	xy = 2.0 * this->x * this->y;
+	//	yz = 2.0 * this->y * this->z;
+	//	zx = 2.0 * this->z * this->x;
+	//	return Matrix44{
+	//		1.0,           0.0,           0.0,           0.0,
+	//		0.0, 1.0 - yz - z2,       xy + tz,       zx - ty,
+	//		0.0,       xy - tz, 1.0 - z2 - x2,       zx - ty,
+	//		0.0,       ,       yz + tx, 1.0 - x2 - y2
+	//	};
+	//}
 	
 	Vector3 Quaternion::getRight_i() {
 		double y2, z2, ty, tz, xy, zx;
@@ -202,7 +221,7 @@ namespace Math {
 		double w = std::acos(c / 1);
 		double sinw = std::sin(w);
 		// FIXME: Questionable equality!
-		if (sinw == 0.0) {
+		if (sinw >= 0.0001) {
 			return Quaternion{ this->t, this->x, this->y, this->z };
 		}
 		else {
@@ -215,6 +234,15 @@ namespace Math {
 				s1 * this->z + s2 * other.z
 			};
 		}
+	}
+
+	void Quaternion::normalize() {
+		double r = this->t * this->t + this->x * this->x + this->y * this->y + this->z * this->z;
+			r = 1.0 / std::sqrt(r);
+			this->t = this->t * r;
+			this->x = this->x * r;
+			this->y = this->y * r;
+			this->z = this->z * r;
 	}
 
 }
