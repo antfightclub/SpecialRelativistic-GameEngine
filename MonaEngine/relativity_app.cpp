@@ -156,17 +156,17 @@ namespace mve {
 				player.Action(mveWindow.getGLFWwindow(), dt);
 				
 				glm::mat4 cameraView{1.0};
-				Math::Vector4D playerPos = player.P.U; // Apparently I have U and X backwards???? not sure... 
+				Math::Vector4D playerPos = player.P.X; // Apparently I have U and X backwards???? not sure... 
 
-				glm::vec4 cameraPos = { playerPos.getX(), playerPos.getY(), playerPos.getZ(), 1.0 }; // homogenous coords so the 4th element is 1
+				glm::vec4 cameraPos = {playerPos.getX(), playerPos.getY(), playerPos.getZ(), 1.0 }; // homogenous coords so the 4th element is 1
 				//cameraView[3] = cameraPos;
 				glm::mat4 cameraRot = player.quaternion.getRotMat().toGLM();
-				cameraView = cameraRot;
+				cameraView *= cameraRot;
 				cameraView[3] = cameraPos;
 
 				camera.setView(cameraView);
 
-				std::cout << "Player Position: " << player.P.X << "Player Acceleration: " << player.P.U << '\n';
+				std::cout << "Player Position: " << player.P.X << "Player Velocity: " << player.P.U << '\n';
 
 				std::cout << "ViewMatrix: " << std::endl;
 				printGLMMat4(camera.getView());
