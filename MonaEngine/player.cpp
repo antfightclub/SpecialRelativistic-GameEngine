@@ -70,7 +70,8 @@ namespace mve {
 
 		
 		Math::Matrix44 mat = this->quaternion.getRotMat();
-		std::cout << "*********** QUAT DEBUG ********\n";
+		Math::Quaternion orientation = this->quaternion;
+	/*	std::cout << "*********** QUAT DEBUG ********\n";
 		double length = std::sqrt(this->quaternion.t* this->quaternion.t + this->quaternion.x* this->quaternion.x + this->quaternion.y * this->quaternion.y + this->quaternion.z* this->quaternion.z);
 		std::cout << "Player::quaternion length = " << length << "\n";
 		std::cout << "Player::changeDirection rotmat from quat:" << mat << '\n';
@@ -88,16 +89,30 @@ namespace mve {
 		std::cout << "dot between up and forward " << dotUpForward << "\n";
 		
 
-		std::cout << "*********** END QUAT DEBUG *********\n";
+		std::cout << "*********** END QUAT DEBUG *********\n";*/
 
 		//Math::Quaternion quatcopy = this->quaternion;
-		/*glm::mat4 mat = glm::toMat4(this->quaternion);
-		glm::quat copy = this->quaternion;*/
+		//glm::mat4 mat = glm::toMat4(this->quaternion);
+		//glm::quat copy = this->quaternion;
+		/*Math::Quaternion copy = this->quaternion;
+		Math::Vector3 up = copy.getUpward().getNormalize();
+		Math::Vector3 right = copy.getRight().getNormalize();*/
 
-		this->quaternion *= Math::Quaternion{ this->turnSpeed1 * deltaTime, mat.getUp().getNormalize()};
+		//this->quaternion = this->quaternion * Math::Quaternion{ this->turnSpeed1 * deltaTime, mat.getUp()};
+		//this->quaternion.normalize();
+		//this->quaternion = Math::Quaternion{ this->turnSpeed2 * deltaTime, mat.getRight()} *this->quaternion;
+		//this->quaternion.normalize();
+
+		Math::Quaternion LeftRightRotation = Math::Quaternion{ this->turnSpeed1 * deltaTime, orientation.getUpward()};
+		LeftRightRotation.normalize();
+		this->quaternion = LeftRightRotation * orientation;
+
+		orientation = this->quaternion;
+		Math::Quaternion UpDownRotation = Math::Quaternion{ this->turnSpeed2 * deltaTime, orientation.getRight()};
+		UpDownRotation.normalize();
+		this->quaternion = UpDownRotation * orientation;
 		this->quaternion.normalize();
-		this->quaternion *= Math::Quaternion{ this->turnSpeed2 * deltaTime, mat.getRight().getNormalize()};
-		this->quaternion.normalize();
+
 
 		this->turnSpeed1 -= this->turnResistivity * this->turnSpeed1 * deltaTime;
 		this->turnSpeed2 -= this->turnResistivity * this->turnSpeed2 * deltaTime;
@@ -106,16 +121,44 @@ namespace mve {
 	Math::Vector4D Player::getAcceleration(GLFWwindow* window, double deltaTime) {
 		int accel = mveWindow.k_state.k_accel;
 		Math::Vector4D ac{};
-		Math::Matrix44 rotationMatrix = this->quaternion.getRotMat();
-
+		//Math::Matrix44 rotationMatrix = this->quaternion.getRotMat();
+		Math::Quaternion quatRot = this->quaternion;
 		
 
-		// Evil 
+		//// Evil 
+		//if (accel & 1) {
+		//	ac = -Math::Vector4D{ 0.0, rotationMatrix.getForward() };
+		//}
+		//else if (accel & 2) {
+		//	ac = Math::Vector4D{ 0.0, rotationMatrix.getForward() };
+		//}
+		//else {
+		//	ac = Math::Vector4D{};
+		//}
+
+		//if (mveWindow.k_state.k_accel_priority == 0) {
+		//	if (accel & 4) {
+		//		ac += Math::Vector4D{ 0.0, rotationMatrix.getRight() };
+		//	}
+		//	else if (accel & 8) {
+		//		ac -= Math::Vector4D{ 0.0, rotationMatrix.getRight() };
+		//	}
+		//}
+		//else {
+		//	if (accel & 8) {
+		//		ac -= Math::Vector4D{ 0.0, rotationMatrix.getRight() };
+		//	}
+		//	else if (accel & 4) {
+		//		ac += Math::Vector4D{ 0.0, rotationMatrix.getRight() };
+		//	}
+		//}
+
+				// Evil 
 		if (accel & 1) {
-			ac = -Math::Vector4D{ 0.0, rotationMatrix.getForward() };
+			ac = Math::Vector4D{ 0.0, quatRot.getForward() };
 		}
 		else if (accel & 2) {
-			ac = Math::Vector4D{ 0.0, rotationMatrix.getForward() };
+			ac = -Math::Vector4D{ 0.0, quatRot.getForward() };
 		}
 		else {
 			ac = Math::Vector4D{};
@@ -123,18 +166,18 @@ namespace mve {
 
 		if (mveWindow.k_state.k_accel_priority == 0) {
 			if (accel & 4) {
-				ac += Math::Vector4D{ 0.0, rotationMatrix.getRight() };
+				ac += Math::Vector4D{ 0.0, quatRot.getRight() };
 			}
 			else if (accel & 8) {
-				ac -= Math::Vector4D{ 0.0, rotationMatrix.getRight() };
+				ac -= Math::Vector4D{ 0.0, quatRot.getRight() };
 			}
 		}
 		else {
 			if (accel & 8) {
-				ac -= Math::Vector4D{ 0.0, rotationMatrix.getRight() };
+				ac -= Math::Vector4D{ 0.0, quatRot.getRight() };
 			}
 			else if (accel & 4) {
-				ac += Math::Vector4D{ 0.0, rotationMatrix.getRight() };
+				ac += Math::Vector4D{ 0.0, quatRot.getRight() };
 			}
 		}
 
