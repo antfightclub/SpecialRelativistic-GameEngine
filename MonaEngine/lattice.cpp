@@ -13,25 +13,32 @@ namespace mve {
 		}
 		return this->vertices;
 	}
-	/*std::vector<uint32_t> Lattice::getIndices() {
+	std::vector<uint32_t> Lattice::getIndices() {
 		if (this->indices.empty()) {
 			throw std::runtime_error("Failed to get indices since index vector is empty!");
 		}
 		return this->indices;
-	}*/
+	}
 
 	void Lattice::makeLattice(int N, int L, int c, double scale) {
+		if (!this->vertices.empty() && !this->indices.empty()) {
+			throw std::runtime_error("MakeLattice: vertices or indices are not empty!");
+		}
 		//std::shared_ptr<MveModel> mveModel = MveModel::MveModel(mveDevice);
 		std::cout << "Start of makeLattice!" << "\n";
 		
-		int n = 2 * N + 1;
-		int xx, yy, zz;
+		//int n = 2 * N + 1;
+
+		double l = (double)L;
+		double n = (double)N;
+
+		double xx, yy, zz;
 		for (int i = -N; i < N + 1; i++) {
-			xx = int((i + 0.5) * (L / N));
+			xx = ((double)i + 0.5) * L / N;
 			for (int j = -N; j < N + 1; j++) {
-				yy = int((j + 0.5) * (L / N));
+				yy = ((double)j + 0.5) * L / N;
 				for (int k = -N*c; k < N*c + 1; k++) {
-					zz = int((((k + 0.5) * c) * L) / (N * c));
+					zz = ((double)k + 0.5 * c) * L / (N * c);
 					add(xx, yy, zz, k);
 				}
 
@@ -40,11 +47,11 @@ namespace mve {
 		std::cout << "first for loop complete!" << "\n";
 
 		for (int i = -N; i < N + 1; i++) {
-			xx = int((i + 0.5) * (L / N));
+			xx = ((double)i + 0.5) * L / N;
 			for (int j = -N; j < N + 1; j++) {
-				zz = int((j + 0.5) * (L / N));
+				zz = ((double)j + 0.5) * L / N;
 				for (int k = -N * c; k < N * c + 1; k++) {
-					yy = int((((k + 0.5) * c) * L) / (N * c));
+					yy = ((double)k + 0.5 * c) * L / (N * c);
 					add(xx, yy, zz, k);
 				}
 
@@ -53,11 +60,11 @@ namespace mve {
 		std::cout << "second for loop complete!" << "\n";
 
 		for (int i = -N; i < N + 1; i++) {
-			zz = int((i + 0.5) * (L / N));
+			zz = ((double)i + 0.5) * L / N;
 			for (int j = -N; j < N + 1; j++) {
-				yy = int((j + 0.5) * (L / N));
+				yy = ((double)j + 0.5) * L / N;
 				for (int k = -N * c; k < N * c + 1; k++) {
-					xx = int((((k + 0.5) * c) * L) / (N * c));
+					xx = ((double)k + 0.5 * c) * L / (N * c);
 					add(xx, yy, zz, k);
 				}
 
@@ -70,10 +77,10 @@ namespace mve {
 
 	void Lattice::add(double xx, double yy, double zz, double a) {
 		vertices.push_back(glm::vec3{ xx, yy, zz });
-		/*if (a < N * c) {
-			indices.push_back(std::floor(static_cast<uint32_t>(vertices.size()) / 3 - 1));
-			indices.push_back(std::floor(static_cast<uint32_t>(vertices.size()) / 3));
-		}*/
+		if (a < N * c) {
+			indices.push_back(std::floor(static_cast<uint32_t>(vertices.size()) / (3U - 1U)));
+			indices.push_back(std::floor(static_cast<uint32_t>(vertices.size()) / 3U));
+		}
 	}
 
 

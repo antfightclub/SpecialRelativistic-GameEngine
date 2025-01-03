@@ -226,13 +226,14 @@ namespace mve {
 				globalUboBuffers[frameIndex]->writeToBuffer(&globalUbo);
 				globalUboBuffers[frameIndex]->flush();
 
-	/*			glm::vec3 Xp = camera.getPosition();
+				glm::vec3 Xp = glm::vec3{ player.P.X.getX(), player.P.X.getY(), player.P.X.getZ() };
 				int xo = int((Xp.x / (N / L)) * (N / L));
 				int yo = int((Xp.y / (N / L)) * (N / L));
 				int zo = int((Xp.z / (N / L)) * (N / L));
 				Math::Matrix44 U{};
-				*/
-				//U = Math::Matrix44::Lorentz(vel);
+				
+				// I think Lorentz might need some sign flips...
+				U = Math::Matrix44::Lorentz(player.P.U.getNormalize());
 
 		/*		if (movedir.length() > 0.0) {
 					U = Math::Matrix44::Lorentz(Math::Vector4D{ 1.0, movedir.x, movedir.y , movedir.z });
@@ -267,9 +268,9 @@ namespace mve {
 
 				// TODO: update lattice ubo buffer with a lorentz matrix calculated in accordance with special relativity
 				LatticeUbo latticeUbo{};
-				latticeUbo.Xp = glm::vec3{ 0.0 };
-				latticeUbo.Xo = glm::vec3{ 0.0 };
-				latticeUbo.Lorentz = glm::mat4{ 1.0 };
+				latticeUbo.Xp = glm::vec3{ Xp };
+				latticeUbo.Xo = glm::vec3{ xo, yo, zo };
+				latticeUbo.Lorentz = U.toGLM();
 				latticeUboBuffers[frameIndex]->writeToBuffer(&latticeUbo);
 				latticeUboBuffers[frameIndex]->flush();
 				latticeUboBuffer.flushIndex(frameIndex);
@@ -291,19 +292,24 @@ namespace mve {
 
 	void RelativityApp::loadGameObjects() {
 		// generate lattice
-		Lattice lattice{N, L, 5, 1, 0.1};
+		// Lattice needs to be .... better...
+		Lattice lattice{N, L, 5, 1, 1.0};
 
 		auto vertices = lattice.getVertices();
-		//auto indices = lattice.getIndices();
+		auto indices = lattice.getIndices();
 
 		//std::cout << "printing out ALL lattice vertices!" << std::endl;
-		
-		// This takes a long time!
+		//
+		//// This takes a long time!
 		//for (auto& vert : vertices) {
 		//	std::cout << "{ " << vert.x << ", " << vert.y << ", " << vert.z << " }\n";
 		//}
+		//std::cout << "printing out ALL lattice indices!" << '\n';
+		//for (auto& indc : indices) {
+		//	std::cout << "index = " << indc << "\n";
+		//}
 
-		std::shared_ptr<MveModel> mveModel = MveModel::createModelFromStdVector(mveDevice, vertices);
+		std::shared_ptr<MveModel> mveModel = MveModel::createModelFromStdVector(mveDevice, vertices, indices);
 
 		auto latticeGameObject = MveGameObject::createGameObject();
 

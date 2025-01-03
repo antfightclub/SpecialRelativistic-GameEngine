@@ -17,7 +17,7 @@ namespace mve {
 		void add(double xx, double yy, double zz, double a);
 		
 		std::vector<glm::vec3> getVertices();
-		//std::vector<uint32_t> getIndices();
+		std::vector<uint32_t> getIndices();
 	
 	private:
 		int L;	// range 
@@ -27,6 +27,6 @@ namespace mve {
 		double latticeUnit;
 
 		std::vector<glm::vec3> vertices{};
-		//std::vector<uint32_t> indices{};
+		std::vector<uint32_t> indices{};
 	};
 }

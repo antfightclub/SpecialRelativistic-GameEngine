@@ -38,9 +38,9 @@ namespace mve {
 		return std::make_unique<MveModel>(device, builder);
 	}
 	
-	std::unique_ptr<MveModel> MveModel::createModelFromStdVector(MveDevice& device, std::vector<glm::vec3>& vertices/*, std::vector<uint32_t>& indices*/) {
+	std::unique_ptr<MveModel> MveModel::createModelFromStdVector(MveDevice& device, std::vector<glm::vec3>& vertices, std::vector<uint32_t>& indices) {
 		Builder builder{};
-		builder.loadModelFromStdVector(vertices);
+		builder.loadModelFromStdVector(vertices, indices);
 		return std::make_unique<MveModel>(device, builder);
 	}
 
@@ -75,6 +75,8 @@ namespace mve {
 	void MveModel::createIndexBuffers(const std::vector<uint32_t>& indices) {
 		indexCount = static_cast<uint32_t>(indices.size());
 		hasIndexBuffer = indexCount > 0;
+
+		//std::cout << "index count = " << indexCount << ", hasIndexBuffer = " << hasIndexBuffer << "\n";
 
 		if (!hasIndexBuffer) {
 			return;
@@ -202,7 +204,7 @@ namespace mve {
 
 	}
 
-	void MveModel::Builder::loadModelFromStdVector(std::vector<glm::vec3>& verts/*, std::vector<uint32_t>& indcs*/) {
+	void MveModel::Builder::loadModelFromStdVector(std::vector<glm::vec3>& verts, std::vector<uint32_t>& indcs) {
 		vertices.clear();
 		indices.clear();
 		std::cout << "Amount of vertices in lattice: " << verts.size() << '\n';
@@ -229,8 +231,8 @@ namespace mve {
 
 		}
 
-	/*	for (const auto& indc : indcs) {
+		for (const auto& indc : indcs) {
 			indices.push_back(indc);
-		}*/
+		}
 	}
 }
