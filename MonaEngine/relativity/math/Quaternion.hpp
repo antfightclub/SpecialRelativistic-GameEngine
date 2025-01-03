@@ -82,7 +82,7 @@ namespace Math {
 			double c, s, x, y, z;
 			c = std::cos(theta * 0.5);
 			s = std::sin(theta * 0.5);
-			x = ax.getZ();
+			x = ax.getX(); /// This was getZ() (insert facepalm emoji)
 			y = ax.getY();
 			z = ax.getZ();
 			this->t = c;
