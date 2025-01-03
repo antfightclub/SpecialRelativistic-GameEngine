@@ -165,7 +165,10 @@ namespace mve {
 
 				// ***** update
 
+				//Math::Quaternion prevPlayerOrientation = player.quaternion;
+
 				player.Action(mveWindow.getGLFWwindow(), dt);
+
 				Math::Quaternion playerOrientation = player.quaternion;
 				
 				// WITH THIS I FOUND OUT THAT THE QUATERNION IS NOT OF LENGTH 1!!!!
@@ -182,12 +185,23 @@ namespace mve {
 				std::cout << "playerOrientation length = " << len <<'\n';*/
 
 				// Could it be that order of operations or similar is wrong here? Otherwise the problem would be related to Math::Matrix44 implementation or Math::Quaternion implementation
+
 				glm::vec3 playerPos = glm::vec3{ (float)player.P.X.getX(), (float)player.P.X.getY(), (float)player.P.X.getZ() };
+
+				//glm::quat prevOrientation = glm::quat{ (float)prevPlayerOrientation.t, (float)prevPlayerOrientation.x, (float)prevPlayerOrientation.y, (float)prevPlayerOrientation.z };
 				glm::quat orientation = glm::quat{ (float)playerOrientation.t, (float)playerOrientation.x, (float)playerOrientation.y, (float)playerOrientation.z };
-				glm::mat4 rotate = glm::mat4_cast(orientation);
+				
+				//orientation = glm::normalize(orientation * prevOrientation);
+
+				glm::mat4 rotate = glm::toMat4(orientation);
 				glm::mat4 translate = glm::mat4(1.0f);
 				translate = glm::translate(translate, playerPos);
-				cameraView = rotate * translate;
+				cameraView = glm::inverse(translate*rotate);
+				
+				
+				viewerObject.transform.translation = playerPos;
+				
+
 				
 				
 				
