@@ -11,7 +11,7 @@ namespace mve {
 		//updateKeyMap(window);
 
 				// Print keymap state
-		std::cout << "***** EVIL KEYMAP STATE *****\n"
+		/*std::cout << "***** EVIL KEYMAP STATE *****\n"
 			<< "k_accel " << mveWindow.k_state.k_accel << '\n'
 			<< "k_accel_priority " << mveWindow.k_state.k_accel_priority << '\n'
 			<< "k_turn_right " << mveWindow.k_state.k_turn_right << '\n'
@@ -19,7 +19,7 @@ namespace mve {
 			<< "k_turn_up " << mveWindow.k_state.k_turn_up << '\n'
 			<< "k_turn_down " << mveWindow.k_state.k_turn_down << '\n'
 			<< "k_turn_priority_1 " << mveWindow.k_state.k_turn_priority_1 << '\n'
-			<< "k_turn_priority_2 " << mveWindow.k_state.k_turn_priority_2 << '\n';
+			<< "k_turn_priority_2 " << mveWindow.k_state.k_turn_priority_2 << '\n';*/
 
 		changeDirection(window, deltaTime);
 
