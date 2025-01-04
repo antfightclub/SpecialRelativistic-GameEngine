@@ -20,7 +20,7 @@ namespace mve {
 		return this->indices;
 	}
 
-	void Lattice::makeLattice(int N, int L, int c, double scale) {
+	void Lattice::makeLattice(int N, int L) {
 		if (!this->vertices.empty() && !this->indices.empty()) {
 			throw std::runtime_error("MakeLattice: vertices or indices are not empty!");
 		}
