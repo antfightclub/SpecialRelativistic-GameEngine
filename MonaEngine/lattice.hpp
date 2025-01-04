@@ -1,5 +1,8 @@
+#pragma once
 #include "mve_model.hpp"
 
+#include <iostream>
+#include <fstream>
 
 
 namespace mve {
@@ -14,10 +17,13 @@ namespace mve {
 
 		void makeLattice(int N, int L, int innerDiv, double scale);
 		
-		void add(double xx, double yy, double zz, double a);
+		void add(double xx, double yy, double zz, int a);
 		
 		std::vector<glm::vec3> getVertices();
 		std::vector<uint32_t> getIndices();
+		
+		void writeVerticesToFile();
+		void writeIndicesToFile();
 	
 	private:
 		int L;	// range 

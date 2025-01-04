@@ -294,9 +294,15 @@ namespace mve {
 		// generate lattice
 		// Lattice needs to be .... better...
 		Lattice lattice{N, L, 5, 1, 1.0};
+		
+		//lattice.writeVerticesToFile();
+		//lattice.writeIndicesToFile();
 
+		//std::cout << "Writing vertices to file...\n";
 		auto vertices = lattice.getVertices();
+		//std::cout << "Writing indices to file...\n";
 		auto indices = lattice.getIndices();
+		//std::cout << "finished writing vertices in Vertices.txt and indices in Indices.txt\n";
 
 		//std::cout << "printing out ALL lattice vertices!" << std::endl;
 		//
@@ -308,6 +314,7 @@ namespace mve {
 		//for (auto& indc : indices) {
 		//	std::cout << "index = " << indc << "\n";
 		//}
+
 
 		std::shared_ptr<MveModel> mveModel = MveModel::createModelFromStdVector(mveDevice, vertices, indices);
 
