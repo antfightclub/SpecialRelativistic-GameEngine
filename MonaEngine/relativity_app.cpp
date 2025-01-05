@@ -269,7 +269,7 @@ namespace mve {
 				// TODO: update lattice ubo buffer with a lorentz matrix calculated in accordance with special relativity
 				LatticeUbo latticeUbo{};
 				latticeUbo.Xp = glm::vec3{ Xp };
-				latticeUbo.Xo = glm::vec3{ xo, yo, zo };
+				latticeUbo.Xo = glm::vec3{ zo, yo, xo };
 				latticeUbo.Lorentz = U.toGLM();
 				latticeUboBuffers[frameIndex]->writeToBuffer(&latticeUbo);
 				latticeUboBuffers[frameIndex]->flush();
@@ -297,7 +297,7 @@ namespace mve {
 		
 		//lattice.writeVerticesToFile();
 		//lattice.writeIndicesToFile();
-
+		
 		//std::cout << "Writing vertices to file...\n";
 		auto vertices = lattice.getVertices();
 		//std::cout << "Writing indices to file...\n";

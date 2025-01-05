@@ -26,16 +26,16 @@ layout(push_constant) uniform Push {
 
 void main() {
 	//vec4 positionWorld = push.modelMatrix  * vec4(position, 1.0);
-	//float vx = position.x;// - latticeUbo.Xp.x;// + latticeUbo.Xo.x;
-	//float vy = position.y;// - latticeUbo.Xp.y;// + latticeUbo.Xo.y;
-	//float vz = position.z;// - latticeUbo.Xp.z;// + latticeUbo.Xo.z;
+	float vx = position.x; //- latticeUbo.Xp.x + latticeUbo.Xo.x;
+	float vy = position.y; //- latticeUbo.Xp.y + latticeUbo.Xo.y;
+	float vz = position.z; //- latticeUbo.Xp.z + latticeUbo.Xo.z;
 
-	//vec3 v = vec3(vx, vy, vz);
+	vec3 v = vec3(vx, vy, vz);
 	//mat4 L = latticeUbo.Lorentz;
-	vec3 v = position; //- latticeUbo.Xp + latticeUbo.Xo;
+	//vec3 v = position - latticeUbo.Xp + latticeUbo.Xo;
 	//mat4 invView = inverse(ubo.view);
 
-	vec4 vertex = /*latticeUbo.Lorentz **/ vec4(v, 1.0);//vec4(v, -length(v));
+	vec4 vertex =/* latticeUbo.Lorentz */ vec4(v, 1.0);//vec4(v, -length(v));
 	//vertex.w = 1.0;
 	mat4 MVP = (ubo.projection * ubo.view * push.modelMatrix);
 	vec4 POS = MVP * (vertex);
