@@ -1,17 +1,18 @@
 #include "relativity_app.hpp"
 
-#include "player.hpp"
-
-//#include "keyboard_movement_controller.hpp"
+// Application
 #include "mve_camera.hpp"
 #include "systems/lattice_wireframe_system.hpp"
 #include "mve_buffer.hpp"
 #include "lattice.hpp"
+#include "player.hpp"
 
+// Math namespace
 #include "relativity/math/Matrix44.hpp"
 #include "relativity/math/Vector3.hpp"
 #include "relativity/math/WorldLine.hpp"
 
+// GLM 
 #define GLM_ENABLE_EXPERIMENTAL
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -19,9 +20,12 @@
 #include <gtc/constants.hpp>
 #include <gtx/quaternion.hpp>
 
+// Dear ImGui 
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_vulkan.h"
 
-
-//std
+//std libs
 #include <cassert>
 #include <chrono>
 #include <stdexcept>
