@@ -4,6 +4,7 @@
 #include "mve_game_object.hpp"
 
 #include <vulkan/vulkan.h>
+#include <vector>
 
 namespace mve {
 
@@ -14,14 +15,26 @@ namespace mve {
 		glm::vec4 color{}; // w is intensity
 	};
 
+	//struct GlobalUbo {
+	//	glm::mat4 projection{ 1.f };
+	//	glm::mat4 view{ 1.f };
+	//	glm::mat4 inverseView{1.f};
+	//	glm::vec4 ambientLightColor{ 1.f, 1.f, 1.f, .02f }; // w is intensity
+	//	PointLight pointLights[MAX_LIGHTS];
+	//	int numLights;
+	//};
+
 	struct GlobalUbo {
 		glm::mat4 projection{ 1.f };
 		glm::mat4 view{ 1.f };
-		glm::mat4 inverseView{1.f};
+		glm::mat4 inverseView{ 1.f };
 		glm::vec4 ambientLightColor{ 1.f, 1.f, 1.f, .02f }; // w is intensity
-		PointLight pointLights[MAX_LIGHTS];
-		int numLights;
+	};
 
+	struct LatticeUbo {
+		glm::vec3 Xp{0.f}; 
+		glm::vec3 Xo{0.f};
+		glm::mat4 Lorentz{1.f};
 	};
 
 	struct FrameInfo {
@@ -29,7 +42,8 @@ namespace mve {
 		float frameTime;
 		VkCommandBuffer commandBuffer;
 		MveCamera& camera;
-		VkDescriptorSet globalDescriptorSet;
+		VkDescriptorSet descriptorSet;
+		//VkDescriptorSet latticeDescriptorSet;
 		MveGameObject::Map& gameObjects;
 	};
 } 

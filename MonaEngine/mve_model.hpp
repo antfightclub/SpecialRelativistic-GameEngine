@@ -32,7 +32,8 @@ namespace mve {
 			std::vector<Vertex> vertices{};
 			std::vector<uint32_t> indices{};
 
-			void loadModel(const std::string& filepath);
+			void loadModelFromFile(const std::string& filepath);
+			void loadModelFromStdVector(std::vector<glm::vec3>& vertices, std::vector<uint32_t>& indices);
 		};
 
 		MveModel(MveDevice &device, const MveModel::Builder &builder);
@@ -42,9 +43,10 @@ namespace mve {
 		MveModel& operator=(const MveModel&) = delete;
 
 		static std::unique_ptr<MveModel> createModelFromFile(MveDevice& device, const std::string& filepath);
+		static std::unique_ptr<MveModel> createModelFromStdVector(MveDevice& device, std::vector<glm::vec3>& vertices, std::vector<uint32_t>& indices);
 
 		void bind(VkCommandBuffer commandBuffer);
-		void draw(VkCommandBuffer commandBuffer);
+		const void draw(VkCommandBuffer commandBuffer);
 
 	private:
 		void createVertexBuffers(const std::vector<Vertex>& vertices);

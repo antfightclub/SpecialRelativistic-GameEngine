@@ -6,8 +6,6 @@
 #include "mve_device.hpp"
 #include "mve_renderer.hpp"
 
-
-
 //std
 #include <memory>
 #include <vector>

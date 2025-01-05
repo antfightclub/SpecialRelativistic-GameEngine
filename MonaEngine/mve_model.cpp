@@ -9,6 +9,7 @@
 #include <cassert>
 #include <cstring>
 #include <unordered_map>
+#include <iostream>
 
 namespace std {
 	template<>
@@ -33,10 +34,16 @@ namespace mve {
 
 	std::unique_ptr<MveModel> MveModel::createModelFromFile(MveDevice& device, const std::string& filepath) {
 		Builder builder{};
-		builder.loadModel(filepath);
+		builder.loadModelFromFile(filepath);
 		return std::make_unique<MveModel>(device, builder);
 	}
 	
+	std::unique_ptr<MveModel> MveModel::createModelFromStdVector(MveDevice& device, std::vector<glm::vec3>& vertices, std::vector<uint32_t>& indices) {
+		Builder builder{};
+		builder.loadModelFromStdVector(vertices, indices);
+		return std::make_unique<MveModel>(device, builder);
+	}
+
 	void MveModel::createVertexBuffers(const std::vector<Vertex>& vertices) {
 		vertexCount = static_cast<uint32_t>(vertices.size());
 		assert(vertexCount >= 3 && "Vertex count must be at least 3!");
@@ -69,6 +76,8 @@ namespace mve {
 		indexCount = static_cast<uint32_t>(indices.size());
 		hasIndexBuffer = indexCount > 0;
 
+		//std::cout << "index count = " << indexCount << ", hasIndexBuffer = " << hasIndexBuffer << "\n";
+
 		if (!hasIndexBuffer) {
 			return;
 		}
@@ -99,7 +108,7 @@ namespace mve {
 		mveDevice.copyBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
 	}
 
-	void MveModel::draw(VkCommandBuffer commandBuffer) {
+	const void MveModel::draw(VkCommandBuffer commandBuffer) {
 		if (hasIndexBuffer) {
 			vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
 		}
@@ -136,7 +145,7 @@ namespace mve {
 		return attributeDescriptions;
 	}
 
-	void MveModel::Builder::loadModel(const std::string& filepath) {
+	void MveModel::Builder::loadModelFromFile(const std::string& filepath) {
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
 		std::vector<tinyobj::material_t> materials;
@@ -195,4 +204,35 @@ namespace mve {
 
 	}
 
+	void MveModel::Builder::loadModelFromStdVector(std::vector<glm::vec3>& verts, std::vector<uint32_t>& indcs) {
+		vertices.clear();
+		indices.clear();
+		std::cout << "Amount of vertices in lattice: " << verts.size() << '\n';
+
+		//std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+
+		for (const auto& vert : verts) {
+		
+			//std::cout << "Inside nested for loop!" << '\n';
+			Vertex vertex{};
+			vertex.position = vert;
+			vertex.color = { 1.f, 1.f, 1.f};
+			vertex.normal = {1.0f, 1.0f, 1.0f};
+			vertex.uv = {1.0f, 1.0f};
+
+			//std::cout << "Pushing back..." << '\n';
+			//vertices.push_back(vertex);
+			
+			//if (uniqueVertices.count(vertex) == 0) {
+				//uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+			vertices.push_back(vertex);
+			//}
+			//indices.push_back(uniqueVertices[vertex]);
+
+		}
+
+		for (const auto& indc : indcs) {
+			indices.push_back(indc);
+		}
+	}
 }

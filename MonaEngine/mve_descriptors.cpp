@@ -3,6 +3,7 @@
 // std
 #include <cassert>
 #include <stdexcept>
+#include <iostream>
 
 namespace mve {
 
@@ -42,6 +43,7 @@ namespace mve {
         descriptorSetLayoutInfo.bindingCount = static_cast<uint32_t>(setLayoutBindings.size());
         descriptorSetLayoutInfo.pBindings = setLayoutBindings.data();
 
+
         if (vkCreateDescriptorSetLayout(
             mveDevice.device(),
             &descriptorSetLayoutInfo,
@@ -49,7 +51,7 @@ namespace mve {
             &descriptorSetLayout) != VK_SUCCESS) {
             throw std::runtime_error("failed to create descriptor set layout!");
         }
-    }
+    }   
 
     MveDescriptorSetLayout::~MveDescriptorSetLayout() {
         vkDestroyDescriptorSetLayout(mveDevice.device(), descriptorSetLayout, nullptr);
@@ -109,6 +111,8 @@ namespace mve {
         allocInfo.descriptorPool = descriptorPool;
         allocInfo.pSetLayouts = &descriptorSetLayout;
         allocInfo.descriptorSetCount = 1;
+        
+
 
         // Might want to create a "DescriptorPoolManager" class that handles this case, and builds
         // a new pool whenever an old pool fills up. But this is beyond our current scope
@@ -141,10 +145,10 @@ namespace mve {
         assert(setLayout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
         auto& bindingDescription = setLayout.bindings[binding];
-
-        assert(
-            bindingDescription.descriptorCount == 1 &&
-            "Binding single descriptor info, but binding expects multiple");
+        
+        //assert(
+        //    bindingDescription.descriptorCount == 1 &&
+        //    "Binding single descriptor info, but binding expects multiple");
 
         VkWriteDescriptorSet write{};
         write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

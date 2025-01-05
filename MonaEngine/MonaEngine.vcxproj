@@ -135,8 +135,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="first_app.cpp" />
     <ClCompile Include="keyboard_movement_controller.cpp" />
+    <ClCompile Include="lattice.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mve_buffer.cpp" />
     <ClCompile Include="mve_camera.cpp" />
@@ -145,18 +145,24 @@
     <ClCompile Include="mve_model.cpp" />
     <ClCompile Include="mve_pipeline.cpp" />
     <ClCompile Include="mve_renderer.cpp" />
+    <ClCompile Include="mve_special_relativity.cpp" />
     <ClCompile Include="mve_swap_chain.cpp" />
     <ClCompile Include="mve_window.cpp" />
     <ClCompile Include="mve_device.cpp" />
+    <ClCompile Include="player.cpp" />
+    <ClCompile Include="relativity\math\Quaternion.cpp" />
     <ClCompile Include="relativity\math\Matrix44.cpp" />
+    <ClCompile Include="relativity\math\PhaseSpace.cpp" />
     <ClCompile Include="relativity\math\Vector3.cpp" />
     <ClCompile Include="relativity\math\Vector4D.cpp" />
-    <ClCompile Include="systems\point_light_system.cpp" />
+    <ClCompile Include="relativity\math\WorldLine.cpp" />
+    <ClCompile Include="relativity_app.cpp" />
+    <ClCompile Include="systems\lattice_wireframe_system.cpp" />
     <ClCompile Include="systems\simple_render_system.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="first_app.hpp" />
     <ClInclude Include="keyboard_movement_controller.hpp" />
+    <ClInclude Include="lattice.hpp" />
     <ClInclude Include="mve_buffer.hpp" />
     <ClInclude Include="mve_camera.hpp" />
     <ClInclude Include="mve_descriptors.hpp" />
@@ -165,20 +171,30 @@
     <ClInclude Include="mve_model.hpp" />
     <ClInclude Include="mve_pipeline.hpp" />
     <ClInclude Include="mve_renderer.hpp" />
+    <ClInclude Include="mve_special_relativity.hpp" />
     <ClInclude Include="mve_swap_chain.hpp" />
     <ClInclude Include="mve_utils.hpp" />
     <ClInclude Include="mve_window.hpp" />
     <ClInclude Include="mve_device.hpp" />
+    <ClInclude Include="player.hpp" />
+    <ClInclude Include="relativity\Constants.hpp" />
+    <ClInclude Include="relativity\math\Quaternion.hpp" />
     <ClInclude Include="relativity\math\Matrix44.hpp" />
+    <ClInclude Include="relativity\math\PhaseSpace.hpp" />
     <ClInclude Include="relativity\math\Vector3.hpp" />
     <ClInclude Include="relativity\math\Vector4D.hpp" />
-    <ClInclude Include="systems\point_light_system.hpp" />
+    <ClInclude Include="relativity\math\WorldLine.hpp" />
+    <ClInclude Include="relativity_app.hpp" />
+    <ClInclude Include="systems\lattice_wireframe_system.hpp" />
     <ClInclude Include="systems\simple_render_system.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\compile.bat" />
+    <None Include="shaders\lattice_shader.frag" />
+    <None Include="shaders\lattice_shader.vert" />
     <None Include="shaders\point_light.frag" />
     <None Include="shaders\point_light.vert" />
+    <None Include="shaders\polygon_shader.vert" />
     <None Include="shaders\simple_shader.frag" />
     <None Include="shaders\simple_shader.vert" />
   </ItemGroup>

@@ -67,7 +67,7 @@ namespace mve {
 			pipelineLayout,
 			0,
 			1,
-			&frameInfo.globalDescriptorSet,
+			&frameInfo.descriptorSet,
 			0,
 			nullptr);
 

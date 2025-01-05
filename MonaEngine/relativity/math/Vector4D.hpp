@@ -6,6 +6,8 @@ namespace Math {
 
 	class Vector4D {
 	public:
+		// ********** Constructors **********
+
 		// All values zero if no args
 		Vector4D() : t{ 0.0 }, x{ 0.0 }, y{ 0.0 }, z{ 0.0 } {};
 
@@ -21,18 +23,25 @@ namespace Math {
 		// Constructor with doubles for spatial component, time is zero
 		Vector4D(double x, double y, double z) : t{ 0.0 }, x{ x }, y{ y }, z{ z } {};
 
-		// Printing values
+
+		// ********** String representation
 		friend std::ostream& operator<<(std::ostream& os, const Vector4D& v);
 		
-		// Getters
+
+		// ********** Getters & Setters **********
 		double  getT()  const { return t; }
 		double  getX()  const { return x; }
 		double  getY()  const { return y; }
 		double  getZ()  const { return z; }
 		Vector3 get3D() const { return Vector3(x, y, z); }
+		
+		void setT(double val) { t = val; }
+		void setX(double val) { x = val; }
+		void setY(double val) { y = val; }
+		void setZ(double val) { z = val; }
 
 
-		// Operator overloads
+		// ********** Operator overloads **********
 		/*
 		BEST PRACTICE FROM LEARNCPP 21.1
 		Operators that do not modify their operands (e.g. arithmetic operators) should generally return results by value
@@ -67,7 +76,8 @@ namespace Math {
 		Vector4D operator-() const;
 		
 
-		// Vector4D methods
+
+		// ********** 4D Vector math **********
 		//length of spatial component
 		double length();
 
