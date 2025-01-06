@@ -1,8 +1,0 @@
-
-
-namespace mve {
-	class MveImGui {
-
-
-	};
-}
