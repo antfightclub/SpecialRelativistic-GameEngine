@@ -149,7 +149,6 @@
     <ClCompile Include="mve_camera.cpp" />
     <ClCompile Include="mve_descriptors.cpp" />
     <ClCompile Include="mve_game_object.cpp" />
-    <ClCompile Include="mve_imgui.cpp" />
     <ClCompile Include="mve_model.cpp" />
     <ClCompile Include="mve_pipeline.cpp" />
     <ClCompile Include="mve_renderer.cpp" />
@@ -181,7 +180,6 @@
     <ClInclude Include="mve_descriptors.hpp" />
     <ClInclude Include="mve_frame_info.hpp" />
     <ClInclude Include="mve_game_object.hpp" />
-    <ClInclude Include="mve_imgui.hpp" />
     <ClInclude Include="mve_model.hpp" />
     <ClInclude Include="mve_pipeline.hpp" />
     <ClInclude Include="mve_renderer.hpp" />
