@@ -44,6 +44,9 @@ class MveDevice {
   VkSurfaceKHR surface() { return surface_; }
   VkQueue graphicsQueue() { return graphicsQueue_; }
   VkQueue presentQueue() { return presentQueue_; }
+  VkInstance getInstance() { return instance; }
+  VkPhysicalDevice getPhysicalDevice() { return physicalDevice; }
+  //uint32_t getGraphicalQueueFamily();
 
   SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(physicalDevice); }
   uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
@@ -79,7 +82,8 @@ class MveDevice {
   void pickPhysicalDevice();
   void createLogicalDevice();
   void createCommandPool();
-
+  //void createCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateFlags flags);
+  
   // helper functions
   bool isDeviceSuitable(VkPhysicalDevice device);
   std::vector<const char *> getRequiredExtensions();

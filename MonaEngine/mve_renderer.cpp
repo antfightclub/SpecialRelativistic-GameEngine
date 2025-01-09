@@ -34,7 +34,7 @@ namespace mve {
 				throw std::runtime_error("Swap chain image or depth format has changed!");
 			}
 		}
-
+				
 		// wawa
 	}
 
@@ -105,21 +105,31 @@ namespace mve {
 		currentFrameIndex = (currentFrameIndex + 1) % MveSwapChain::MAX_FRAMES_IN_FLIGHT;
 	}
 
-	void MveRenderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {
+	void MveRenderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer, VkRenderPass otherRenderPass) {
 		assert(isFrameStarted && "can't call beginSwapchainRenderPass if frame is not in progress!");
 		assert(commandBuffer == getCurrentCommandBuffer() && "can't begin render pass on command buffer from a different frame!");
 
 		VkRenderPassBeginInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		renderPassInfo.renderPass = mveSwapChain->getRenderPass();
+
+		if (otherRenderPass == VK_NULL_HANDLE) {
+			renderPassInfo.renderPass = mveSwapChain->getRenderPass();
+		}
+		else
+		{
+			renderPassInfo.renderPass = otherRenderPass;
+		}
+
+	
 		renderPassInfo.framebuffer = mveSwapChain->getFrameBuffer(currentImageIndex);
 
 		renderPassInfo.renderArea.offset = { 0, 0 };
 		renderPassInfo.renderArea.extent = mveSwapChain->getSwapChainExtent();
 
-		std::array<VkClearValue, 2> clearValues{};
+		std::array<VkClearValue, 3> clearValues{};
 		clearValues[0].color = { 0.01f, 0.01f, 0.01f, 1.0f };
 		clearValues[1].depthStencil = { 1.0f, 0 };
+		clearValues[2].color = { 0.01f, 0.01f, 0.01f, 1.0f };
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 		renderPassInfo.pClearValues = clearValues.data();
 

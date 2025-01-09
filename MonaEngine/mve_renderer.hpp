@@ -25,6 +25,7 @@ namespace mve {
 		VkRenderPass getSwapChainRenderPass() const { return mveSwapChain->getRenderPass(); }
 		float getAspectRatio() const { return mveSwapChain->extentAspectRatio(); }
 		bool isFrameInProgress() const { return isFrameStarted; }
+		VkFormat getSwapChainDepthFormat() const { return mveSwapChain->getDepthFormat(); }
 
 		VkCommandBuffer getCurrentCommandBuffer() const {
 			assert(isFrameStarted && "Cannot get command buffer when frame not in progress!");
@@ -38,7 +39,7 @@ namespace mve {
 
 		VkCommandBuffer beginFrame();
 		void endFrame();
-		void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
+		void beginSwapChainRenderPass(VkCommandBuffer commandBuffer, VkRenderPass renderPass = VK_NULL_HANDLE);
 		void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
 
 
