@@ -26,21 +26,52 @@ layout(push_constant) uniform Push {
 
 void main() {
 	//vec4 positionWorld = push.modelMatrix  * vec4(position, 1.0);
-	float vx = position.x; //- latticeUbo.Xp.x + latticeUbo.Xo.x;
-	float vy = position.y; //- latticeUbo.Xp.y + latticeUbo.Xo.y;
-	float vz = position.z; //- latticeUbo.Xp.z + latticeUbo.Xo.z;
+	vec3 xp = latticeUbo.Xp;
+	vec3 xo = latticeUbo.Xo;
 
-	vec3 v = vec3(vx, vy, vz);
-	//mat4 L = latticeUbo.Lorentz;
-	//vec3 v = position - latticeUbo.Xp + latticeUbo.Xo;
-	//mat4 invView = inverse(ubo.view);
+	//xp.x *= -1.0;
+	//xp.y *= -1.0;
+	//xp.z *= -1.0;
+	
+	//xo.x *= -1.0;
+	//xo.y *= -1.0;
+	//xo.z *= -1.0;
+	
+	
 
-	vec4 vertex =/* latticeUbo.Lorentz */ vec4(v, 1.0);//vec4(v, -length(v));
-	//vertex.w = 1.0;
+
+	//vec3 v = position - xp + xo;
+
+	
+
+	vec3 v = vec3(
+					position.x/* - xp.x + xo.x*/	,					 //	lol
+					position.z/* - xp.y + xo.z*/	,					 //	lol
+					position.y/* - xp.z + xo.y*/						 //	lol
+	);
+
+	mat4 L = latticeUbo.Lorentz;
+	vec4 col0 = L[0];
+	vec4 col1 = L[1];
+	vec4 col2 = L[2];
+	vec4 col3 = L[3];
+
+	mat4 Lorentz = mat4(
+		col0.x, col0.y, col0.z, col0.w,
+		col1.x, col1.y, col0.z, -col0.w,
+		col2.x, col2.y, col2.z, col2.w,
+		col3.x, -col3.y, col3.z, col3.w
+	);
+
+	vec4 vertex =/* Lorentz * */vec4(v, -length(v));//vec4(v, -length(v));
+	vertex.w = 1.0;
+	//vertex.y *= -1.0;
+	
+
 	mat4 MVP = (ubo.projection * ubo.view * push.modelMatrix);
 	vec4 POS = MVP * (vertex);
 	//POS.w = 1.0;
-	gl_Position = POS;//vec4(v, -length(v));//vec4(v, length(v));// * vertex;
+	gl_Position = vec4(POS.x, POS.y, POS.z, POS.w);//vec4(v, -length(v));//vec4(v, length(v));// * vertex;
 
 	
 	
