@@ -50,7 +50,12 @@ namespace mve {
 	void MveWindow::updateKeyMap(int key, int action) {
 		// Evil keymap
 
-		// Key Down
+		// Readability is nowhere to be found, but use some clever bit math to differentiate between keys.
+		// Hint: For each accel state we bitwise OR assign using 1 + the multiples of two for each additional key.
+		// For turning we simply use boolean values.
+
+		// ****** Key down action ******
+		// Acceleration state
 		if (key == keyboardController.keys.accel_forward && action == GLFW_PRESS) {
 			k_state.k_accel |= 1;
 		}
@@ -64,7 +69,17 @@ namespace mve {
 		else if (key == keyboardController.keys.accel_left && action == GLFW_PRESS) {
 			k_state.k_accel |= 8;
 			k_state.k_accel_priority = 1;
+		} 
+		else if (key == keyboardController.keys.accel_up && action == GLFW_PRESS) {
+			k_state.k_accel |= 16;
+			k_state.k_accel_priority = 2;
 		}
+		else if (key == keyboardController.keys.accel_down && action == GLFW_PRESS) {
+			k_state.k_accel |= 32;
+			k_state.k_accel_priority = 3;
+		}
+		
+		// Turning state
 		else if (key == keyboardController.keys.turn_right && action == GLFW_PRESS) {
 			k_state.k_turn_right = true;
 			k_state.k_turn_priority_1 = 0;
@@ -82,7 +97,9 @@ namespace mve {
 			k_state.k_turn_priority_2 = 1;
 		}
 
-		// Key Release
+
+		// ****** Key release action ******
+		// Acceleration state
 		if (key == keyboardController.keys.accel_forward && action == GLFW_RELEASE) {
 			if ((k_state.k_accel & 1) == 1) {
 				k_state.k_accel -= 1;
@@ -108,6 +125,19 @@ namespace mve {
 				k_state.k_accel -= 8;
 			}
 		}
+		else if (key == keyboardController.keys.accel_up && action == GLFW_RELEASE) {
+			if ((k_state.k_accel & 16) == 16) {
+				k_state.k_accel -= 16;
+			}
+		}
+		else if (key == keyboardController.keys.accel_down && action == GLFW_RELEASE) {
+			if ((k_state.k_accel & 32) == 32) {
+				k_state.k_accel -= 32;
+			}
+		}
+
+
+		// Turning state
 		else if (key == keyboardController.keys.turn_right && action == GLFW_RELEASE) {
 			k_state.k_turn_right = false;
 		}
