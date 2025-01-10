@@ -18,7 +18,7 @@ namespace mve {
 	}
 
 	void ImguiRenderSystem::renderImgui(FrameInfo& frameInfo) {
-		mvePipeline->bind(frameInfo.commandBuffer);
+		mvePipeline->bind(frameInfo.frameCommandBuffers.UICommandBuffer);
 
 	}
 
