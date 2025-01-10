@@ -373,7 +373,7 @@ namespace mve {
 	void RelativityApp::loadGameObjects() {
 		// generate lattice
 
-		
+		/*
 		Lattice lattice{N, L, 20, 1, 1.0};
 		
 		//lattice.writeVerticesToFile();
@@ -405,16 +405,16 @@ namespace mve {
 		latticeGameObject.transform.translation = { 0.f, 0.f, 0.f };
 		latticeGameObject.transform.scale = glm::vec3{ 1.f, 1.f, 1.f };
 		gameObjects.emplace(latticeGameObject.getId(), std::move(latticeGameObject));
-		
+		*/
 
 
-		//std::shared_ptr<MveModel> debugModel = MveModel::createDebuggingModel(mveDevice);
-		//auto dbgGameObject = MveGameObject::createGameObject();
+		std::shared_ptr<MveModel> debugModel = MveModel::createDebuggingModel(mveDevice);
+		auto dbgGameObject = MveGameObject::createGameObject();
 
-		//dbgGameObject.model = debugModel;
-		//dbgGameObject.transform.translation = { 0.f, 0.f, 0.f };
-		//dbgGameObject.transform.scale = glm::vec3{ 1.f,1.f,1.f };
-		//gameObjects.emplace(dbgGameObject.getId(), std::move(dbgGameObject));
+		dbgGameObject.model = debugModel;
+		dbgGameObject.transform.translation = { 0.f, 0.f, 0.f };
+		dbgGameObject.transform.scale = glm::vec3{ 1.f,1.f,1.f };
+		gameObjects.emplace(dbgGameObject.getId(), std::move(dbgGameObject));
 	}
 
 	
