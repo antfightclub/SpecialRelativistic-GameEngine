@@ -58,16 +58,15 @@ namespace mve {
 
 		void setupDearImgui();
 		void loadGameObjects();
-		void createImguiRenderPass(VkRenderPass& uiRenderPass);
+		
 
 		MveWindow mveWindow{ WIDTH, HEIGHT, "Monativity.exe" };
 		MveDevice mveDevice{ mveWindow };
 		MveRenderer mveRenderer{ mveWindow, mveDevice };
 
-		VkRenderPass uiRenderPass; 
-
-		// note: order of declarations matters
+		// note: order of declarations matters (?)	
 		std::unique_ptr<MveDescriptorPool> globalPool{};
+		std::unique_ptr<MveDescriptorPool> UIDescriptorPool{};
 		MveGameObject::Map gameObjects;
 	};
 }

@@ -37,10 +37,11 @@ namespace mve {
 			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MveSwapChain::MAX_FRAMES_IN_FLIGHT * 2) // times 2 due to usage of Global Ubo + Lattice Ubo 
 			.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MveSwapChain::MAX_FRAMES_IN_FLIGHT)
 			.build();
-		//UIPool = MveDescriptorPool::Builder(mveDevice)
-		//	.setMaxSets(MveSwapChain::MAX_FRAMES_IN_FLIGHT)
-		//	.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MveSwapChain::MAX_FRAMES_IN_FLIGHT)
-		//	.buildUIPool();
+		UIDescriptorPool = MveDescriptorPool::Builder(mveDevice)
+			.setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
+			.setMaxSets(MveSwapChain::MAX_FRAMES_IN_FLIGHT)
+			.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MveSwapChain::MAX_FRAMES_IN_FLIGHT)
+			.build();
 
 		loadGameObjects();
 
@@ -50,18 +51,7 @@ namespace mve {
 	RelativityApp::~RelativityApp() {}
 	
 	void RelativityApp::run() {
-		
-		//// Create an image sampler buffer for Dear ImGui rendering
-		//std::vector<std::unique_ptr<MveBuffer>> dearImGuiBuffers(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
-		//for (int i = 0; i < dearImGuiBuffers.size(); i++) {
-		//	dearImGuiBuffers[i] = std::make_unique<MveBuffer>(
-		//		mveDevice,
-		//		sizeOf()
-		//	);
-		//}
-
-
-		// Create Uniform Buffer Object for lattice rendering
+		// Create Uniform Buffer Object for LatticeUbo, which contains relativity stuff for the wireframe lattice
 		std::vector<std::unique_ptr<MveBuffer>> latticeUboBuffers(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (int i = 0; i < latticeUboBuffers.size(); i++) {
 			latticeUboBuffers[i] = std::make_unique<MveBuffer>(
@@ -108,14 +98,13 @@ namespace mve {
 		};
 		globalUboBuffer.map();
 		
-		
-
-
+		// Descriptor set layout for GlobalUbo and LatticeUbo
 		auto globalSetLayout = MveDescriptorSetLayout::Builder(mveDevice)
-			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U) // Global Ubo 
-			.addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U)
+			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U) // GlobalUbo 
+			.addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U) // LatticeUBo
 			.build();
 		
+		// Write the descriptor sets to buffers
 		std::vector<VkDescriptorSet> descriptorSets(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (int i = 0; i < descriptorSets.size(); i++) {	
 			auto globalBufferInfo = globalUboBuffers[i]->descriptorInfo();
@@ -126,57 +115,64 @@ namespace mve {
 				.build(descriptorSets[i]);
 		}
 
+		// Wireframe Lattice around player
 		LatticeWireframeSystem latticeRenderSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()};
-		MveCamera camera{};
-		//camera.setViewDirection(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 1.f));
-		//camera.setViewTarget(glm::vec3(4.f, 0.f, 0.f), glm::vec3(0.f, 0.f, 0.f));
+		MveCamera camera{};		
+		glm::mat4 cameraView{ 1.0 }; // This will be updated later in the update loop
 		
-		glm::mat4 cameraView{ 1.0 };
+		auto viewerObject = MveGameObject::createGameObject(); // Game object to hold camera position
 		
+		Player player{ mveWindow , viewerObject, Math::Vector4D{}, Math::EntityState{} }; // Game player
 
-		auto viewerObject = MveGameObject::createGameObject();
-		//viewerObject.transform.translation.z = 4.f;
-
+		// Used to have the keyboard input controller defined here
+		// But the functionality has since been moved to MveWindow
+		// In favor of using it to update a keymap
+		// Keymap is then read from by Player.action() inside update loop.
 		
-
-		Player player{ mveWindow , viewerObject, Math::Vector4D{}, Math::EntityState{} };
-
-		//void (*updateKeypressFcnPointer) (int, int) { nullptr };
-		//void (*fcnPtr) (int, int) {	}
-		//mveWindow.setPlayerPointer();
-
-		//glfwSetWindowUserPointer(mveWindow.getGLFWwindow(), &player);
-		//KeyboardInputController cameraController{};
-		
-
+		// Set up time related variables
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float timeSince = 0.f; // used to count time between frames!
 
-		while (!mveWindow.shouldClose()) {
-			glfwPollEvents();
+		// Main application update loop
+		while (!mveWindow.shouldClose()) { 
+			glfwPollEvents(); // poll GLFW library for user input
 
+			// Calculate frame times 
+			// This is a very naive implementation! As it stands this is the only mechanism for time-steps
+			// which means that movement is framerate-dependent instead of having a fixed-time step for physics etc.
 			auto newTime = std::chrono::high_resolution_clock::now();
-			float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
-			float dt = frameTime - timeSince;
-						
-	
+			float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count(); // seconds since first frame
+			float dt = frameTime - timeSince;																			 // delta time in seconds
+				
 			float aspect = mveRenderer.getAspectRatio();
 
 			camera.setPerspectiveProjection(glm::radians(100.f), aspect, 0.01f, 1000.0f);
 
-			if (auto commandBuffer = mveRenderer.beginFrame()) {
-				int frameIndex = mveRenderer.getFrameIndex();
+			// poll this every update loop, but only actaully begin new frame if one is ready from the swap chain. 
+			// MveRenderer (and by extension MveSwapChain) is responsible for acquiring next image for rendering
+			if (auto result = mveRenderer.beginFrame()) {
+				int frameIndex = mveRenderer.getFrameIndex(); 
+				
+				// ********** Acquire command buffers and set up FrameInfo **********
+				
+				// We have a command buffer for the main application rendering (world, game) and a separate one for the UI.
+				std::array<VkCommandBuffer, 2> cmdBuffers = mveRenderer.getCurrentFrameCommandBuffers();
+				FrameCommandBuffers frameCommandBuffers{
+					cmdBuffers[0],		// Main command buffers (world, game)
+					cmdBuffers[1]		// UI command buffers
+				};
+
+				// Struct used to help render systems
 				FrameInfo frameInfo{
 					frameIndex,
 					frameTime,
-					commandBuffer,
+					frameCommandBuffers,
 					camera,
 					descriptorSets[frameIndex],
 					gameObjects
 				};
-							
-
-				// ********** Update **********
+				
+				// ********** Update game **********
 
 				player.Action(mveWindow.getGLFWwindow(), dt);
 
@@ -192,9 +188,9 @@ namespace mve {
 				cameraView = glm::inverse(translate*rotate);
 				viewerObject.transform.translation = playerPos;
 				
-				camera.setView(cameraView);
+				camera.setView(cameraView); // Sets the camera view matrix
 
-				// update global ubo buffer
+				// Update buffer holding GlobalUbo
 				GlobalUbo globalUbo{};
 				globalUbo.projection = camera.getProjection();
 				globalUbo.view = camera.getView();
@@ -203,7 +199,7 @@ namespace mve {
 				globalUboBuffers[frameIndex]->writeToBuffer(&globalUbo);
 				globalUboBuffers[frameIndex]->flush();
 
-				// This is supposed to center the lattice wireframe grid on the player, but is unused currently.
+				// This is supposed to center the lattice wireframe grid on the player, but is unused currently since I have been struggling without established coord conventions
 				// TODO: Establish coordinate system conventions.
 				glm::vec3 Xp = glm::vec3{ player.P.X.getX(), player.P.X.getY(), player.P.X.getZ() };
 				int xo = int(int(Xp.x / (N / L)) * (N / L));
@@ -213,53 +209,35 @@ namespace mve {
 				
 				// I think Lorentz might need some sign flips... 
 				// TODO: Work on establishing coordinate system conventions and make sure to change Math namespace accordingly
+				// Actually: Make sure to flip the axes here so they correspond to the shader convention, or have a way to convert between MveModel conventions and shader conventions!
 				U = Math::Matrix44::Lorentz(player.P.U); // Does not work if you normalize U LOL
 				glm::mat4 lorentz = U.toGLM();
 
-		/*		if (movedir.length() > 0.0) {
-					U = Math::Matrix44::Lorentz(Math::Vector4D{ 1.0, movedir.x, movedir.y , movedir.z });
-				}
-				else {
-					U = Math::Matrix44::Lorentz(Math::Vector4D{ 1.0, 0.0, 0.0, 0.0 });
-				}*/
-				
-				//Math::Vector4D u = Math::Vector4D{};
-
-				//U = Math::Matrix44::Lorentz(u);
-				/*std::cout << "********** START OF PRINTING MATRICES **********" << std::endl;
-
-				std::cout << "** View Matrix:" << std::endl;
-				printGLMMat4(camera.getView());
-				std::cout << "** Inverse View Matrix:" << std::endl;
-				printGLMMat4(camera.getInverseView());
-				std::cout << "** Projection Matrix:" << std::endl;
-				printGLMMat4(camera.getProjection());
-
-				glm::mat4 temp = U.toGLM();
-				std::cout << "** Lorentz matrix U \n" << U << std::endl;
-				std::cout << "** Lorentz to GLM" << std::endl;
-				printGLMMat4(temp);
-
-				std::cout << "Xo.x = " << xo << ", Xo.y = " << yo << ", Xo.z = " << zo << std::endl;
-				std::cout << "Xp.x = " << Xp.x << ", Xp.y = " << Xp.y << ", Xp.z = " << Xp.z << '\n' << std::endl;
-*/
+				// TODO: update lattice ubo buffer with a lorentz matrix calculated in accordance with special relativity
+				// Update buffer holding LatticeUbo
+				LatticeUbo latticeUbo{};
+				latticeUbo.Xp = glm::vec3{ Xp.x, Xp.y, Xp.z };
+				latticeUbo.Xo = glm::vec3{ xo,   yo,   zo };
+				latticeUbo.Lorentz = lorentz;
+				latticeUboBuffers[frameIndex]->writeToBuffer(&latticeUbo);
+				latticeUboBuffers[frameIndex]->flush();
+				latticeUboBuffer.flushIndex(frameIndex);
 
 
-				// ********** Dear ImGui **********
+				// ********** Update Dear ImGui state **********
+				// This could perhaps be separated into its own function, or perhaps be implemented in a render system.
+				// As it stands it is pretty messy code. But if it is its own class I will have to implement some way
+				// For it to get all the states I want. Could be done with a struct later on.
 
 				ImGui_ImplVulkan_NewFrame();
 				ImGui_ImplGlfw_NewFrame();
 				ImGui::NewFrame();
 
-				static float f = 0.05;
-				static int counter = 0;
-
-				ImGui::Begin("Haiii babe :3c");
+				ImGui::Begin("Debug UI");
 				
+				float framerate = ImGui::GetIO().Framerate; // Rolling average of last 60 frames
 
-				float framerate = ImGui::GetIO().Framerate;
-
-				ImGui::Text("Total frame time = %.4f [s]", frameTime);
+				ImGui::Text("Total frame time = %.3f [s]", frameTime);
 				ImGui::Text("deltaTime = %.3f [ms]", dt*1000);
 				ImGui::Text("FPS = %.0f", framerate);
 
@@ -274,12 +252,12 @@ namespace mve {
 				static ImGuiTableFlags flags = ImGuiTableFlags_Borders;
 				static bool display_headers = true;
 				static int contents_type = CT_Text;
-				// Player table
+				// Player info table
 				ImGui::BeginTable("Player", 4, flags);
-				ImGui::TableSetupColumn("Pos");
-				ImGui::TableSetupColumn("Vel");
-				ImGui::TableSetupColumn("Xp");
-				ImGui::TableSetupColumn("Xo");
+				ImGui::TableSetupColumn("Pos"); // Position
+				ImGui::TableSetupColumn("Vel"); // Velocity
+				ImGui::TableSetupColumn("Xp");	// Currently the player position
+				ImGui::TableSetupColumn("Xo");  // Currently corresponds to a lattice index, sorta
 				ImGui::TableHeadersRow();
 
 				for (int row = 0; row < 4; row++) {
@@ -303,12 +281,11 @@ namespace mve {
 				}
 				ImGui::EndTable();
 
-				// Lorentz
+				// Lorentz 
 				double g = player.P.U.getGamma(); // Lorentz Factor
 				double u = std::sqrt(1.0 - (1.0 /(g*g))); // Fraction of c
 				double v = Math::c * u;
 				
-
 				ImGui::NewLine();
 				ImGui::Text("speed: %f [m/s]", v);
 				ImGui::Text("c = %f", u);
@@ -355,64 +332,39 @@ namespace mve {
 				
 				}
 				ImGui::EndTable();
-
-				//ImGui::NewLine();
-
-
-
-		/*		if (ImGui::Button("Buttone"))
-					counter++;
-				ImGui::SameLine();
-				ImGui::Text("counter = %f", counter);*/
-
 				ImGui::End();
 
-				// ********** Dear ImGui **********
+				// ********** End Dear ImGui **********
 
-				
-				
+							
+				// ********** Rendering **********
 
-				// TODO: update lattice ubo buffer with a lorentz matrix calculated in accordance with special relativity
-				LatticeUbo latticeUbo{};
-				latticeUbo.Xp = glm::vec3{ Xp.x, Xp.y, Xp.z};
-				latticeUbo.Xo = glm::vec3{ xo,   yo,   zo };
-				latticeUbo.Lorentz = lorentz;
-				latticeUboBuffers[frameIndex]->writeToBuffer(&latticeUbo);
-				latticeUboBuffers[frameIndex]->flush();
-				latticeUboBuffer.flushIndex(frameIndex);
-
-				std::cout << " *********** Render begin\n";
-
-				// Render
-				mveRenderer.beginSwapChainRenderPass(commandBuffer);
-				
-				//VkCommandBuffer command_buffer = mveRenderer.;
-
+				// Ordinary render systems go here!
+				mveRenderer.beginSwapChainRenderPass(frameCommandBuffers.mainCommandBuffer);
 				// order matters (if semitransparency is involved)
 				latticeRenderSystem.renderWireframe(frameInfo);
-
-				//mveRenderer.endSwapChainRenderPass(commandBuffer);
+				mveRenderer.endSwapChainRenderPass(frameCommandBuffers.mainCommandBuffer);
 				
-				//mveRenderer.beginSwapChainRenderPass(commandBuffer, uiRenderPass);
+				// UI rendering
+				mveRenderer.beginUIRenderPass(frameCommandBuffers.UICommandBuffer);
 				ImGui::Render();
 				ImDrawData* draw_data = ImGui::GetDrawData();
 				const bool is_minimized = (draw_data->DisplaySize.x <= 0.0f || draw_data->DisplaySize.y <= 0.0f);
 				if (!is_minimized) {
-					ImGui_ImplVulkan_RenderDrawData(draw_data, commandBuffer); // this is probably a big no-no
+					ImGui_ImplVulkan_RenderDrawData(draw_data, frameCommandBuffers.UICommandBuffer);
 				}
-				mveRenderer.endSwapChainRenderPass(commandBuffer);
+				mveRenderer.endUIRenderPass(frameCommandBuffers.UICommandBuffer); // Ends renderpass
 				
-
-				mveRenderer.endFrame();		
-				std::cout << " *********** Render ended \n";
+				// Ends command buffers.
+				mveRenderer.endFrame();	
 			}
 
-			timeSince = frameTime;
+			timeSince = frameTime; // assign timeSince to frameTime at beginning of the loop, such that next loop it can be subtracted from frameTime to calculate deltaTime
 		}
 
-		vkDeviceWaitIdle(mveDevice.device());
+		vkDeviceWaitIdle(mveDevice.device()); // Wait for device to become idle before main.cpp destroys RelativityApp (do not destroy application while e.g. rendering is happening)
 
-		// Dear ImGui cleanup here should definitely be done somewhere else
+		// Dear ImGui cleanup here could be somewhere else, but I'm entirely unsure...
 		ImGui_ImplVulkan_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
@@ -420,7 +372,6 @@ namespace mve {
 
 	void RelativityApp::loadGameObjects() {
 		// generate lattice
-		// Lattice needs to be .... better...
 		Lattice lattice{N, L, 20, 1, 1.0};
 		
 		//lattice.writeVerticesToFile();
@@ -455,9 +406,6 @@ namespace mve {
 	}
 
 	
-	//	I think I would do a looooooot better if I followed Sascha Willem's example
-	//	https://github.com/SaschaWillems/Vulkan/blob/master/examples/imgui/main.cpp
-	//	And make a separate class for ImGui perhaps!!
 	void RelativityApp::setupDearImgui() {
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
@@ -488,85 +436,13 @@ namespace mve {
 		init_info.Allocator = nullptr;
 		init_info.MinImageCount = MveSwapChain::MAX_FRAMES_IN_FLIGHT;
 		init_info.ImageCount = MveSwapChain::MAX_FRAMES_IN_FLIGHT;
-		createImguiRenderPass(uiRenderPass);
-		init_info.RenderPass = uiRenderPass;
+		//createImguiRenderPass(uiRenderPass);
+		
+		init_info.RenderPass = mveRenderer.getUIRenderPass();
 		init_info.Subpass = 0;
 		init_info.CheckVkResultFn;
 		ImGui_ImplVulkan_Init(&init_info);
-
-		//ImGui::ImGui_ImplVulkan_Data* bd = ImGui_ImplVulkan_GetBackendData();
-
-	//	io.BackendRendererUserData->vulkan
-
+		
 		ImGui_ImplVulkan_CreateFontsTexture();
 	}
-
-
-	void RelativityApp::createImguiRenderPass(VkRenderPass& uiRenderPass) {
-		VkAttachmentDescription attachment = {};
-		attachment.format = VK_FORMAT_B8G8R8A8_SRGB;
-		attachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		attachment.loadOp =/* wd->ClearEnable ? VK_ATTACHMENT_LOAD_OP_CLEAR :*/ VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		attachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-		VkAttachmentReference color_attachment = {};
-		color_attachment.attachment = 0;
-		color_attachment.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-		// NOTE!: I added depth attachment even thought it is not needed by ImGui
-		// This is to enforce renderpass / pipeline compatibility...
-		// Later on when I eventually rewrite this entire engine, I should
-		// Definitely make sure I can use vulkan dynamic rendering to avoid
-		// this requirement and setting shit myself
-		// Could also just, ya know, make sure I implement a backend for ImGui myself
-		/*
-		VkAttachmentDescription depthAttachment{};
-		depthAttachment.format = mveRenderer.getSwapChainDepthFormat();
-		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-		VkAttachmentReference depth_attachment = {};
-		depth_attachment.attachment = 1;
-		depth_attachment.layout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
-		*/
-
-
-		VkSubpassDescription subpass = {};
-		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		subpass.colorAttachmentCount = 1;
-		subpass.pColorAttachments = &color_attachment;
-		//subpass.pDepthStencilAttachment = &depth_attachment;
-		
-		
-		VkSubpassDependency dependency = {};
-		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-		dependency.dstSubpass = 0;
-		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		dependency.srcAccessMask = 0;
-		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-
-		std::array<VkAttachmentDescription, /*2*/1> attachments = { attachment /*, depthAttachment*/};
-
-		VkRenderPassCreateInfo info = {};
-		info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		info.attachmentCount = static_cast<uint32_t>(attachments.size());
-		info.pAttachments = attachments.data();
-		info.subpassCount = 1;
-		info.pSubpasses = &subpass;
-		info.dependencyCount = 1;
-		info.pDependencies = &dependency;
-		if (vkCreateRenderPass(mveDevice.device(), &info, nullptr, &uiRenderPass) != VK_SUCCESS) {
-			throw std::runtime_error("Failed to create Dear ImGui render pass!");
-		}
-		//err = vkCreateRenderPass(device, &info, allocator, &wd->RenderPass);
-		//check_vk_result(err);
-	}	
 }
