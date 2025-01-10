@@ -24,7 +24,15 @@ namespace mve {
 		changeDirection(window, deltaTime);
 
 		Math::Vector4D acceleration = this->getAcceleration(window, deltaTime);
+
+		// Brake with regard to the background frame of reference (being the underlying world space grid)
+		// This is not, you know, strictly very smart from a special relativity point of view
+		if (mveWindow.k_state.k_brake == true) {
+			acceleration -= this->P.getResist(resistivity * 20);
+		}
+
 		this->P.transform(acceleration, deltaTime);
+
 		this->time += deltaTime;
 		Math::EntityState entityState{};
 		this->worldline.add(P.X, entityState);
@@ -122,8 +130,7 @@ namespace mve {
 		int accel = mveWindow.k_state.k_accel;
 		Math::Vector4D ac{};
 		//Math::Matrix44 rotationMatrix = this->quaternion.getRotMat();
-		Math::Quaternion quatRot = this->quaternion;
-		
+		Math::Quaternion quatRot = this->quaternion;		
 
 		//// Evil 
 		//if (accel & 1) {
