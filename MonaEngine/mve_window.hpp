@@ -22,7 +22,7 @@ namespace mve {
 		bool k_turn_down = false;
 		int k_turn_priority_1 = 0;
 		int k_turn_priority_2 = 0;
-		int k_brake = 0;
+		bool k_brake = false;
 	};
 
 
