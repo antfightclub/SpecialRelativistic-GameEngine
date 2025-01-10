@@ -64,9 +64,9 @@ namespace mve {
 
 	
 	void LatticeWireframeSystem::renderWireframe(FrameInfo& frameInfo) {
-		mvePipeline->bind(frameInfo.commandBuffer);
+		mvePipeline->bind(frameInfo.frameCommandBuffers.mainCommandBuffer);
 		vkCmdBindDescriptorSets(
-			frameInfo.commandBuffer,
+			frameInfo.frameCommandBuffers.mainCommandBuffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,
 			pipelineLayout,
 			0,
@@ -89,14 +89,14 @@ namespace mve {
 				<< std::endl;*/
 			
 			vkCmdPushConstants(
-				frameInfo.commandBuffer,
+				frameInfo.frameCommandBuffers.mainCommandBuffer,
 				pipelineLayout,
 				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 				0,
 				sizeof(SimplePushConstantData),
 				&push);
-			obj.model->bind(frameInfo.commandBuffer);
-			obj.model->draw(frameInfo.commandBuffer);
+			obj.model->bind(frameInfo.frameCommandBuffers.mainCommandBuffer);
+			obj.model->draw(frameInfo.frameCommandBuffers.mainCommandBuffer);
 
 		}
 

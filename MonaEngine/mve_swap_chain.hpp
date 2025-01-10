@@ -24,9 +24,12 @@ class MveSwapChain {
   MveSwapChain &operator=(const MveSwapChain &) = delete;
 
   VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
+  VkFramebuffer getUIFrameBuffer(int index) { return UIFramebuffers[index]; }
   VkRenderPass getRenderPass() { return renderPass; }
+  VkRenderPass getUIRenderPass() { return imguiRenderPass; }
   VkImageView getImageView(int index) { return swapChainImageViews[index]; }
   size_t imageCount() { return swapChainImages.size(); }
+  //size_t uiImageCount() { return imguiImages.size(); }
   VkFormat getSwapChainImageFormat() { return swapChainImageFormat; }
   VkExtent2D getSwapChainExtent() { return swapChainExtent; }
   uint32_t width() { return swapChainExtent.width; }
@@ -38,19 +41,25 @@ class MveSwapChain {
   VkFormat findDepthFormat();
 
   VkResult acquireNextImage(uint32_t *imageIndex);
-  VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
+  VkResult submitCommandBuffers(const std::array<VkCommandBuffer,2> *buffers, uint32_t *imageIndex);
 
   bool compareSwapFormats(const MveSwapChain& swapChain) const {
       return swapChain.swapChainDepthFormat == swapChainDepthFormat && swapChain.swapChainImageFormat == swapChainImageFormat;
   }
+
+  VkFormat getDepthFormat() { return swapChainDepthFormat; }
+  
 
  private:
   void init();
   void createSwapChain();
   void createImageViews();
   void createDepthResources();
+ // void createUIResources();
   void createRenderPass();
+  void createUIRenderPass();
   void createFramebuffers();
+  void createUIFrameBuffers();
   void createSyncObjects();
 
   // Helper functions
@@ -65,13 +74,17 @@ class MveSwapChain {
   VkExtent2D swapChainExtent;
 
   std::vector<VkFramebuffer> swapChainFramebuffers;
+  std::vector<VkFramebuffer> UIFramebuffers;
   VkRenderPass renderPass;
+  VkRenderPass imguiRenderPass;
 
   std::vector<VkImage> depthImages;
   std::vector<VkDeviceMemory> depthImageMemorys;
   std::vector<VkImageView> depthImageViews;
   std::vector<VkImage> swapChainImages;
   std::vector<VkImageView> swapChainImageViews;
+//  std::vector<VkImage> imguiImages;
+//  std::vector<VkImageView> imguiImageViews;
 
   MveDevice &device;
   VkExtent2D windowExtent;

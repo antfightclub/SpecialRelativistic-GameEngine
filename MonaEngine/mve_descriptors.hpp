@@ -79,7 +79,7 @@ namespace mve {
 
     private:
         MveDevice& mveDevice;
-        VkDescriptorPool descriptorPool;
+        VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
 
         friend class MveDescriptorWriter;
     };

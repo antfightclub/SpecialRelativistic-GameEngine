@@ -1,10 +1,16 @@
 #pragma once
 
+// Engine related
 #include "mve_descriptors.hpp"
 #include "mve_window.hpp"
 #include "mve_game_object.hpp"
 #include "mve_device.hpp"
 #include "mve_renderer.hpp"
+
+// Dear ImGui 
+#include "external/imgui/imgui.h"
+#include "external/imgui/imgui_impl_glfw.h"
+#include "external/imgui/imgui_impl_vulkan.h"
 
 //std
 #include <memory>
@@ -21,11 +27,11 @@
 // or smth like that, to keep track of gameobjects and their worldlines and such.
 
 namespace mve {
-
+	// Application class
 	class RelativityApp {
 	public:
-		static constexpr int WIDTH = 800;
-		static constexpr int HEIGHT = 600;
+		static constexpr int WIDTH = 1280;
+		static constexpr int HEIGHT = 720;
 
 		RelativityApp();
 		~RelativityApp();
@@ -47,17 +53,20 @@ namespace mve {
 
 	private:
 
-		int N = 10;
+		int N = 100;
 		int L = 5;
 
+		void setupDearImgui();
 		void loadGameObjects();
+		
 
 		MveWindow mveWindow{ WIDTH, HEIGHT, "Monativity.exe" };
 		MveDevice mveDevice{ mveWindow };
 		MveRenderer mveRenderer{ mveWindow, mveDevice };
 
-		// note: order of declarations matters
+		// note: order of declarations matters (?)	
 		std::unique_ptr<MveDescriptorPool> globalPool{};
+		std::unique_ptr<MveDescriptorPool> UIDescriptorPool{};
 		MveGameObject::Map gameObjects;
 	};
 }

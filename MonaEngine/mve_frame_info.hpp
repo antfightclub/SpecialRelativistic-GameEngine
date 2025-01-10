@@ -36,14 +36,22 @@ namespace mve {
 		glm::vec3 Xo{0.f};
 		glm::mat4 Lorentz{1.f};
 	};
+	
+	struct FrameCommandBuffers {
+		VkCommandBuffer mainCommandBuffer;
+		VkCommandBuffer UICommandBuffer;
+	};
 
 	struct FrameInfo {
 		int frameIndex;
 		float frameTime;
-		VkCommandBuffer commandBuffer;
+		//VkCommandBuffer commandBuffer;
+		FrameCommandBuffers frameCommandBuffers;
 		MveCamera& camera;
 		VkDescriptorSet descriptorSet;
 		//VkDescriptorSet latticeDescriptorSet;
 		MveGameObject::Map& gameObjects;
 	};
+
+
 } 

@@ -35,7 +35,7 @@ namespace Math {
 
 	// Get lorentz factor
 	double Vector4D::getGamma() {
-		return std::sqrt(1.0 + x*x + y*y+z*z);
+		return std::sqrt(1.0 + x*x + y*y + z*z);
 	}
 
 	// Get lorentzian inner product

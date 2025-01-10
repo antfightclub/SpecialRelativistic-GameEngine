@@ -251,6 +251,7 @@ namespace Math {
 		r = x2 + y2 + z2;
 		if (r > 0.0) {
 			g = std::sqrt(1.0 + r); // Lorentz factor
+			//std::cout << "Lorentz factor : " << g << "\n";
 			r = 1.0 / r;
 			xy = (g - 1.0) * x * y * r;
 			yz = (g - 1.0) * y * z * r;

@@ -153,7 +153,8 @@ namespace mve {
 		//	}
 		//}
 
-				// Evil 
+		// Evil 
+		// Either forwards or backwards
 		if (accel & 1) {
 			ac = Math::Vector4D{ 0.0, quatRot.getForward() };
 		}
@@ -164,7 +165,8 @@ namespace mve {
 			ac = Math::Vector4D{};
 		}
 
-		if (mveWindow.k_state.k_accel_priority == 0) {
+		// Left and right
+		if (mveWindow.k_state.k_accel_priority == 0) { // Right is priority
 			if (accel & 4) {
 				ac += Math::Vector4D{ 0.0, quatRot.getRight() };
 			}
@@ -172,12 +174,29 @@ namespace mve {
 				ac -= Math::Vector4D{ 0.0, quatRot.getRight() };
 			}
 		}
-		else {
+		else if (mveWindow.k_state.k_accel_priority == 1) { // Left is priority
 			if (accel & 8) {
 				ac -= Math::Vector4D{ 0.0, quatRot.getRight() };
 			}
 			else if (accel & 4) {
 				ac += Math::Vector4D{ 0.0, quatRot.getRight() };
+			}
+		}
+
+		else if (mveWindow.k_state.k_accel_priority == 2) { // Up is priority
+			if (accel & 16) {
+				ac -= Math::Vector4D{ 0.0, quatRot.getUpward() };
+			}
+			else if (accel & 32) {
+				ac += Math::Vector4D{ 0.0, quatRot.getUpward() };
+			}
+		}
+		else if (mveWindow.k_state.k_accel_priority == 3) { // Down is priority
+			if (accel & 32) {
+				ac += Math::Vector4D{ 0.0, quatRot.getUpward() };
+			}
+			else if (accel & 16) {
+				ac -= Math::Vector4D{ 0.0, quatRot.getUpward() };
 			}
 		}
 

@@ -54,10 +54,12 @@ MveDevice::MveDevice(MveWindow &window) : window{window} {
   pickPhysicalDevice();
   createLogicalDevice();
   createCommandPool();
+  createUICommandPool();
 }
 
 MveDevice::~MveDevice() {
   vkDestroyCommandPool(device_, commandPool, nullptr);
+  vkDestroyCommandPool(device_, UICommandPool, nullptr);
   vkDestroyDevice(device_, nullptr);
 
   if (enableValidationLayers) {
@@ -184,16 +186,42 @@ void MveDevice::createLogicalDevice() {
 void MveDevice::createCommandPool() {
   QueueFamilyIndices queueFamilyIndices = findPhysicalQueueFamilies();
 
-  VkCommandPoolCreateInfo poolInfo = {};
-  poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-  poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;
-  poolInfo.flags =
+  VkCommandPoolCreateInfo commandPoolCreateInfo = {};
+  commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+  commandPoolCreateInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;
+  commandPoolCreateInfo.flags =
       VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-  if (vkCreateCommandPool(device_, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+  if (vkCreateCommandPool(device_, &commandPoolCreateInfo, nullptr, &commandPool) != VK_SUCCESS) {
     throw std::runtime_error("failed to create command pool!");
   }
 }
+
+void MveDevice::createUICommandPool() {
+    QueueFamilyIndices queueFamilyIndices = findPhysicalQueueFamilies();
+    VkCommandPoolCreateInfo commandPoolCreateInfo = {};
+    commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    commandPoolCreateInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;
+    commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+
+    if (vkCreateCommandPool(device_, &commandPoolCreateInfo, nullptr, &UICommandPool) != VK_SUCCESS) {
+        throw std::runtime_error("Could not create graphics command pool!");
+    }
+}
+
+//// Pass a pointer to a VkCommandPool handle and the flags, then call vkCreateCommandPool
+//void MveDevice::createCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateFlags flags) {
+//    QueueFamilyIndices queueFamilyIndices = findPhysicalQueueFamilies();
+//
+//    VkCommandPoolCreateInfo commandPoolCreateInfo = {};
+//    commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+//    commandPoolCreateInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;
+//    commandPoolCreateInfo.flags = flags;
+//
+//    if (vkCreateCommandPool(device_, &commandPoolCreateInfo, nullptr, commandPool) != VK_SUCCESS) {
+//        throw std::runtime_error("Failed to create command pool!");
+//    }
+//}
 
 void MveDevice::createSurface() { window.createWindowSurface(instance, &surface_); }
 
@@ -436,11 +464,11 @@ void MveDevice::createBuffer(
   vkBindBufferMemory(device_, buffer, bufferMemory, 0);
 }
 
-VkCommandBuffer MveDevice::beginSingleTimeCommands() {
+VkCommandBuffer MveDevice::beginSingleTimeCommands(VkCommandPool cmdPool) {
   VkCommandBufferAllocateInfo allocInfo{};
   allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
   allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-  allocInfo.commandPool = commandPool;
+  allocInfo.commandPool = cmdPool;
   allocInfo.commandBufferCount = 1;
 
   VkCommandBuffer commandBuffer;
@@ -468,8 +496,8 @@ void MveDevice::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
   vkFreeCommandBuffers(device_, commandPool, 1, &commandBuffer);
 }
 
-void MveDevice::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
-  VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+void MveDevice::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkCommandPool cmdPool) {
+  VkCommandBuffer commandBuffer = beginSingleTimeCommands(cmdPool);
 
   VkBufferCopy copyRegion{};
   copyRegion.srcOffset = 0;  // Optional
@@ -482,7 +510,7 @@ void MveDevice::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize 
 
 void MveDevice::copyBufferToImage(
     VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount) {
-  VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+  VkCommandBuffer commandBuffer = beginSingleTimeCommands(commandPool);
 
   VkBufferImageCopy region{};
   region.bufferOffset = 0;

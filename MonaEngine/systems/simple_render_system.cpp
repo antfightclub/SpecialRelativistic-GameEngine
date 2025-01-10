@@ -59,10 +59,10 @@ namespace mve {
 
 	void SimpleRenderSystem::renderGameObjects(FrameInfo& frameInfo) {
 
-		mvePipeline->bind(frameInfo.commandBuffer);
+		mvePipeline->bind(frameInfo.frameCommandBuffers.mainCommandBuffer);
 
 		vkCmdBindDescriptorSets(
-			frameInfo.commandBuffer,
+			frameInfo.frameCommandBuffers.mainCommandBuffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,
 			pipelineLayout,
 			0,
@@ -79,9 +79,9 @@ namespace mve {
 			push.modelMatrix = obj.transform.mat4();;
 			push.normalMatrix = obj.transform.normalMatrix();
 
-			vkCmdPushConstants(frameInfo.commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
-			obj.model->bind(frameInfo.commandBuffer);
-			obj.model->draw(frameInfo.commandBuffer);
+			vkCmdPushConstants(frameInfo.frameCommandBuffers.mainCommandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(SimplePushConstantData), &push);
+			obj.model->bind(frameInfo.frameCommandBuffers.mainCommandBuffer);
+			obj.model->draw(frameInfo.frameCommandBuffers.mainCommandBuffer);
 			}
 
 	}
