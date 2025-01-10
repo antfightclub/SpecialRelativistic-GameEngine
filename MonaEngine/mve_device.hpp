@@ -40,6 +40,7 @@ class MveDevice {
   MveDevice &operator=(MveDevice &&) = delete;
 
   VkCommandPool getCommandPool() { return commandPool; }
+  VkCommandPool getUICommandPool() { return UICommandPool; }
   VkDevice device() { return device_; }
   VkSurfaceKHR surface() { return surface_; }
   VkQueue graphicsQueue() { return graphicsQueue_; }
@@ -61,9 +62,9 @@ class MveDevice {
       VkMemoryPropertyFlags properties,
       VkBuffer &buffer,
       VkDeviceMemory &bufferMemory);
-  VkCommandBuffer beginSingleTimeCommands();
+  VkCommandBuffer beginSingleTimeCommands(VkCommandPool cmdPool);
   void endSingleTimeCommands(VkCommandBuffer commandBuffer);
-  void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+  void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkCommandPool cmdPool);
   void copyBufferToImage(
       VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount);
 
@@ -82,6 +83,7 @@ class MveDevice {
   void pickPhysicalDevice();
   void createLogicalDevice();
   void createCommandPool();
+  void createUICommandPool();
   //void createCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateFlags flags);
   
   // helper functions
@@ -99,6 +101,7 @@ class MveDevice {
   VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
   MveWindow &window;
   VkCommandPool commandPool;
+  VkCommandPool UICommandPool;
 
   VkDevice device_;
   VkSurfaceKHR surface_;
