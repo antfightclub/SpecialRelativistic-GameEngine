@@ -34,6 +34,7 @@ namespace mve {
 
 			void loadModelFromFile(const std::string& filepath);
 			void loadModelFromStdVector(std::vector<glm::vec3>& vertices, std::vector<uint32_t>& indices);
+			void loadDebugModel();
 		};
 
 		MveModel(MveDevice &device, const MveModel::Builder &builder);
@@ -44,6 +45,7 @@ namespace mve {
 
 		static std::unique_ptr<MveModel> createModelFromFile(MveDevice& device, const std::string& filepath);
 		static std::unique_ptr<MveModel> createModelFromStdVector(MveDevice& device, std::vector<glm::vec3>& vertices, std::vector<uint32_t>& indices);
+		static std::unique_ptr<MveModel> createDebuggingModel(MveDevice& device);
 
 		void bind(VkCommandBuffer commandBuffer);
 		const void draw(VkCommandBuffer commandBuffer);

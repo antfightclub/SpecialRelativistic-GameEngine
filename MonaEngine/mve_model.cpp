@@ -44,6 +44,12 @@ namespace mve {
 		return std::make_unique<MveModel>(device, builder);
 	}
 
+	std::unique_ptr<MveModel> MveModel::createDebuggingModel(MveDevice& device) {
+		Builder builder{};
+		builder.loadDebugModel();
+		return std::make_unique <MveModel>(device, builder);
+	}
+
 	void MveModel::createVertexBuffers(const std::vector<Vertex>& vertices) {
 		vertexCount = static_cast<uint32_t>(vertices.size());
 		assert(vertexCount >= 3 && "Vertex count must be at least 3!");
@@ -236,4 +242,75 @@ namespace mve {
 			indices.push_back(indc);
 		}
 	}
+
+	void MveModel::Builder::loadDebugModel() {
+		// I create a simple axis object with some defined colors for what points in what axis.
+		vertices.clear();
+		indices.clear();
+		
+		Vertex base{};
+		base.position = { 0.0, 0.0, 0.0 };
+		base.color = { 1.f, 1.f, 1.f };
+		base.normal = { 1.f, 1.f, 1.f }; // unused
+		base.uv = { 1.f, 1.f };			 // unused
+
+		Vertex up{};
+		up.position = { 0.0, 1.0, 0.0 }; // Y up system
+		up.color = { 0.f, 1.f, 0.f };	 // Green is up
+		up.normal = { 1.f, 1.f, 1.f };	 // unused
+		up.uv = { 1.f, 1.f };			 // unused
+		
+		Vertex down{}; 
+		down.position = { 0.0, -1.0, 0.0 }; // Y up system
+		down.color = { 0.f, 1.f, 0.f };	 // Green is down
+		down.normal = { 1.f, 1.f, 1.f };	 // unused
+		down.uv = { 1.f, 1.f };			 // unused
+
+		Vertex right{};
+		right.position = { 1.0, 0.0, 0.0 };  // right
+		right.color = { 1.f, 0.f, 0.f };	 // red is right
+		right.normal = { 1.f, 1.f, 1.f };	 // unused
+		right.uv = { 1.f, 1.f };			 // unused
+
+
+		Vertex left{};
+		left.position = { -1.0, 0.0, 0.0 };  // right
+		left.color = { 1.f, 0.f, 0.f };	 // red is left
+		left.normal = { 1.f, 1.f, 1.f };	 // unused
+		left.uv = { 1.f, 1.f };			 // unused
+
+		Vertex forward{}; 
+		forward.position = { 0.0, 0.0, 1.0 };  // forward
+		forward.color = { 0.f, 0.f, 1.f };	 // blue is forwad
+		forward.normal = { 1.f, 1.f, 1.f };	 // unused
+		forward.uv = { 1.f, 1.f };			 // unused
+
+		Vertex backward{};
+		backward.position = { 0.0, 0.0, -1.0 };  // forward
+		backward.color = { 0.f, 0.f, 1.f };	 // blue is backward
+		backward.normal = { 1.f, 1.f, 1.f };	 // unused
+		backward.uv = { 1.f, 1.f };			 // unused
+
+		vertices.push_back(base);		// 0
+		vertices.push_back(up);			// 1
+		vertices.push_back(down);		// 2
+		vertices.push_back(right);		// 3
+		vertices.push_back(left);		// 4
+		vertices.push_back(forward);	// 5
+		vertices.push_back(backward);	// 6
+
+		indices.push_back(0);
+		indices.push_back(1);
+		indices.push_back(0);
+		indices.push_back(2);
+		indices.push_back(0);
+		indices.push_back(3);
+		indices.push_back(0);
+		indices.push_back(4);
+		indices.push_back(0);
+		indices.push_back(5);
+		indices.push_back(0);
+		indices.push_back(6);
+	}
+
 }

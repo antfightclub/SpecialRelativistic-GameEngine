@@ -10,6 +10,9 @@
 #include <memory>
 #include <vector>
 
+
+// Note: Is not currently in use.
+
 namespace mve {
 	class ImguiRenderSystem {
 	public:
