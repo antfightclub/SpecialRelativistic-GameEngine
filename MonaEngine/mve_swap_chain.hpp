@@ -24,8 +24,9 @@ class MveSwapChain {
   MveSwapChain &operator=(const MveSwapChain &) = delete;
 
   VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
+  VkFramebuffer getUIFrameBuffer(int index) { return UIFramebuffers[index]; }
   VkRenderPass getRenderPass() { return renderPass; }
- // VkRenderPass getUIRenderPass() { return imguiRenderPass; }
+  VkRenderPass getUIRenderPass() { return imguiRenderPass; }
   VkImageView getImageView(int index) { return swapChainImageViews[index]; }
   size_t imageCount() { return swapChainImages.size(); }
   //size_t uiImageCount() { return imguiImages.size(); }
@@ -40,7 +41,7 @@ class MveSwapChain {
   VkFormat findDepthFormat();
 
   VkResult acquireNextImage(uint32_t *imageIndex);
-  VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
+  VkResult submitCommandBuffers(const std::array<VkCommandBuffer,2> *buffers, uint32_t *imageIndex);
 
   bool compareSwapFormats(const MveSwapChain& swapChain) const {
       return swapChain.swapChainDepthFormat == swapChainDepthFormat && swapChain.swapChainImageFormat == swapChainImageFormat;
@@ -56,9 +57,9 @@ class MveSwapChain {
   void createDepthResources();
  // void createUIResources();
   void createRenderPass();
- // void createUIRenderPass();
+  void createUIRenderPass();
   void createFramebuffers();
- // void createUIFrameBuffers();
+  void createUIFrameBuffers();
   void createSyncObjects();
 
   // Helper functions
@@ -73,9 +74,9 @@ class MveSwapChain {
   VkExtent2D swapChainExtent;
 
   std::vector<VkFramebuffer> swapChainFramebuffers;
-//  std::vector<VkFramebuffer> UIFramebuffers;
+  std::vector<VkFramebuffer> UIFramebuffers;
   VkRenderPass renderPass;
-//  VkRenderPass imguiRenderPass;
+  VkRenderPass imguiRenderPass;
 
   std::vector<VkImage> depthImages;
   std::vector<VkDeviceMemory> depthImageMemorys;

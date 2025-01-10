@@ -27,10 +27,10 @@ void MveSwapChain::init() {
 	createImageViews();
 	//createUIResources();
 	createRenderPass();
-	//createUIRenderPass();
+	createUIRenderPass();
 	createDepthResources();
 	createFramebuffers();
-	//createUIFrameBuffers();
+	createUIFrameBuffers();
 	createSyncObjects();
 }
 
@@ -54,8 +54,12 @@ MveSwapChain::~MveSwapChain() {
   for (auto framebuffer : swapChainFramebuffers) {
 	vkDestroyFramebuffer(device.device(), framebuffer, nullptr);
   }
+  for (auto framebuffer : UIFramebuffers) {
+	  vkDestroyFramebuffer(device.device(), framebuffer, nullptr);
+  }
 
   vkDestroyRenderPass(device.device(), renderPass, nullptr);
+  vkDestroyRenderPass(device.device(), imguiRenderPass, nullptr);
 
   // cleanup synchronization objects
   for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -85,7 +89,7 @@ VkResult MveSwapChain::acquireNextImage(uint32_t *imageIndex) {
 }
 
 VkResult MveSwapChain::submitCommandBuffers(
-	const VkCommandBuffer *buffers, uint32_t *imageIndex) {
+	const std::array<VkCommandBuffer, 2> *buffers, uint32_t *imageIndex) {
   if (imagesInFlight[*imageIndex] != VK_NULL_HANDLE) {
 	vkWaitForFences(device.device(), 1, &imagesInFlight[*imageIndex], VK_TRUE, UINT64_MAX);
   }
@@ -100,8 +104,8 @@ VkResult MveSwapChain::submitCommandBuffers(
   submitInfo.pWaitSemaphores = waitSemaphores;
   submitInfo.pWaitDstStageMask = waitStages;
 
-  submitInfo.commandBufferCount = 1;
-  submitInfo.pCommandBuffers = buffers;
+  submitInfo.commandBufferCount = static_cast<uint32_t>(buffers->size());
+  submitInfo.pCommandBuffers = buffers->data();
 
   VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
   submitInfo.signalSemaphoreCount = 1;
@@ -273,7 +277,7 @@ void MveSwapChain::createRenderPass() {
   colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
   colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
   colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; // Main renderpass does not present, let imgui transition layout to present mode
+  colorAttachment.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL; // Main renderpass does not present, let imgui transition layout to present mode
 
   VkAttachmentReference colorAttachmentRef = {};
   colorAttachmentRef.attachment = 0;
@@ -334,18 +338,18 @@ void MveSwapChain::createRenderPass() {
   }
 }
 
-/*
+
 void MveSwapChain::createUIRenderPass() {
 
 	VkAttachmentDescription imGuiAttachment = {};
 	imGuiAttachment.format = getSwapChainImageFormat();
 	imGuiAttachment.samples = VK_SAMPLE_COUNT_1_BIT; // one sample is just fine
-	imGuiAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+	imGuiAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD; // Need UI to be drawn on top of main renderpass instead of clearing
 	imGuiAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 	imGuiAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 	imGuiAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 	imGuiAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-	imGuiAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	imGuiAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;	// UI should be last pass so we present after
 
 	VkAttachmentReference uiAttachmentRef = {};
 	uiAttachmentRef.attachment = 0;
@@ -359,12 +363,15 @@ void MveSwapChain::createUIRenderPass() {
 
 	std::array<VkSubpassDescription, 1> subpassDescriptions = { UISubpass };
 
+	// Create a subpass dependency to synchronize our main and UI render passes
+    // We want to render the UI after the geometry has been written to the framebuffer
+    // so we need to configure a subpass dependency as such
 	VkSubpassDependency UIdependency = {};
 	UIdependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-	UIdependency.dstSubpass = 0;
+	UIdependency.dstSubpass = 0; // Geometry subpass comes first
 	UIdependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 	UIdependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-	UIdependency.srcAccessMask = 0; // or VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	UIdependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT; // Wait on writes
 	UIdependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
 	std::array<VkSubpassDependency, 1> dependencies = { UIdependency };
@@ -384,7 +391,7 @@ void MveSwapChain::createUIRenderPass() {
 		throw std::runtime_error("failed to create render pass!");
 	}
 
-}*/
+}
 
 
 void MveSwapChain::createFramebuffers() {
@@ -414,27 +421,43 @@ void MveSwapChain::createFramebuffers() {
   }
 }
 
-//void MveSwapChain::createUIFrameBuffers() {
-//    std::cout << "CreateUIFrameBuffers called\n";
-//    UIFramebuffers.resize(uiImageCount());
-//    for (size_t i = 0; i < uiImageCount(); i++) {
-//        std::array<VkImageView, 1> attachments = { imguiImageViews[i] };
-//        VkExtent2D swapChainExtent = getSwapChainExtent();
-//        VkFramebufferCreateInfo framebufferInfo = {};
-//        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-//        framebufferInfo.renderPass = imguiRenderPass;
-//        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-//        framebufferInfo.pAttachments = attachments.data();
-//        framebufferInfo.width = swapChainExtent.width;
-//        framebufferInfo.height = swapChainExtent.height;
-//        framebufferInfo.layers = 1;
-//
-//        if (vkCreateFramebuffer(device.device(), &framebufferInfo, nullptr, &UIFramebuffers[i]) != VK_SUCCESS) {
-//            throw std::runtime_error("failed to create UI framebuffer!");
-//        }
-//
-//    }
-//}
+void MveSwapChain::createUIFrameBuffers() {
+    std::cout << "CreateUIFrameBuffers called\n";
+	UIFramebuffers.resize(swapChainImages.size());
+	VkImageView attachment[1];
+	VkFramebufferCreateInfo info={};
+	info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	info.renderPass = imguiRenderPass;
+	info.attachmentCount = 1;
+	info.pAttachments = attachment;
+	info.width = swapChainExtent.width;
+	info.height = swapChainExtent.height;
+	info.layers = 1;
+	for (uint32_t i = 0; i < swapChainImages.size(); ++i) {
+		attachment[0] = swapChainImageViews[i];
+		if (vkCreateFramebuffer(device.device(), &info, nullptr, &UIFramebuffers[i]) != VK_SUCCESS) {
+			throw std::runtime_error("Unable to create UI framebuffers!");
+		}
+	}
+
+   /* for (size_t i = 0; i < swapChainImages.size(); i++) {
+        std::array<VkImageView, 1> attachments = { imguiImageViews[i] };
+        VkExtent2D swapChainExtent = getSwapChainExtent();
+        VkFramebufferCreateInfo framebufferInfo = {};
+        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        framebufferInfo.renderPass = imguiRenderPass;
+        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        framebufferInfo.pAttachments = attachments.data();
+        framebufferInfo.width = swapChainExtent.width;
+        framebufferInfo.height = swapChainExtent.height;
+        framebufferInfo.layers = 1;
+
+        if (vkCreateFramebuffer(device.device(), &framebufferInfo, nullptr, &UIFramebuffers[i]) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create UI framebuffer!");
+        }
+
+    }*/
+}
 
 void MveSwapChain::createDepthResources() {
   VkFormat depthFormat = findDepthFormat();
