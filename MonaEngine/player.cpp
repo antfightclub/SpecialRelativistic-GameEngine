@@ -19,7 +19,8 @@ namespace mve {
 			<< "k_turn_up " << mveWindow.k_state.k_turn_up << '\n'
 			<< "k_turn_down " << mveWindow.k_state.k_turn_down << '\n'
 			<< "k_turn_priority_1 " << mveWindow.k_state.k_turn_priority_1 << '\n'
-			<< "k_turn_priority_2 " << mveWindow.k_state.k_turn_priority_2 << '\n';*/
+			<< "k_turn_priority_2 " << mveWindow.k_state.k_turn_priority_2 << '\n'
+			<< "k_brake " << mveWindow.k_state.k_brake << '\n';*/
 
 		changeDirection(window, deltaTime);
 
