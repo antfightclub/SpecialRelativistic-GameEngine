@@ -43,27 +43,33 @@ void main() {
 	//vec3 v = position - xp + xo;
 
 	
+	
+	//vec3 v = vec3(
+	//				position.x /* - xp.x + xo.x	*/,	
+	//				position.z /* - xp.y + xo.y	*/,	
+	//			  (-position.y)/* - xp.z + xo.z	*/	
+	//);
+	
+	vec3 v = vec3(position.x, position.y, position.z);
 
-	vec3 v = vec3(
-					position.x/* - xp.x + xo.x*/	,					 //	lol
-					position.z/* - xp.y + xo.z*/	,					 //	lol
-					position.y/* - xp.z + xo.y*/						 //	lol
-	);
 
-	mat4 L = latticeUbo.Lorentz;
-	vec4 col0 = L[0];
-	vec4 col1 = L[1];
-	vec4 col2 = L[2];
-	vec4 col3 = L[3];
 
-	mat4 Lorentz = mat4(
-		col0.x, col0.y, col0.z, col0.w,
-		col1.x, col1.y, col0.z, -col0.w,
-		col2.x, col2.y, col2.z, col2.w,
-		col3.x, -col3.y, col3.z, col3.w
-	);
+	//mat4 L = latticeUbo.Lorentz;
+	//vec4 col0 = L[0];
+	//vec4 col1 = L[1];
+	//vec4 col2 = L[2];
+	//vec4 col3 = L[3];
+	//
+	//mat4 Lorentz = mat4(
+	//	col0.x, col0.z, -col0.y, col0.w,
+	//	col1.x, col1.z, -col1.y, col1.w,
+	//	col2.x, col2.z, -col2.y, col2.w,
+	//	col3.x, -col3.y, col3.z, col3.w
+	//);
 
-	vec4 vertex =/* Lorentz * */vec4(v, -length(v));//vec4(v, -length(v));
+	//vec4 vertex = /*Lorentz*/  vec4(v, -length(vec3(v.x - xp.x, v.z - xp.y, v.y  -xp.z))) ;//vec4(v, -length(v));
+	vec4 vertex = vec4(v, -length(v));
+	
 	vertex.w = 1.0;
 	//vertex.y *= -1.0;
 	
@@ -72,7 +78,6 @@ void main() {
 	vec4 POS = MVP * (vertex);
 	//POS.w = 1.0;
 	gl_Position = vec4(POS.x, POS.y, POS.z, POS.w);//vec4(v, -length(v));//vec4(v, length(v));// * vertex;
-
 	
 	
 	//float factor = max(0.0, min(1.0, (200.0/(POS.w*POS.w))));
