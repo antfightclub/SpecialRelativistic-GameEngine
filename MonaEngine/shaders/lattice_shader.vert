@@ -26,16 +26,19 @@ layout(push_constant) uniform Push {
 } push;
 
 void main() {
-	vec4 v =   vec4(position, 1.0)  * ubo.view;
+	vec3 v = vec3(position - latticeUbo.Xp + latticeUbo.Xo);
+	//vec3 diff = v + latticeUbo.Xp;
 
-	vec4 vertex = latticeUbo.Lorentz * vec4(vec3(v.x, v.y, v.z), -length(v));
+	
+
+	vec4 vertex = latticeUbo.Lorentz * vec4(v, -length(v));
 	vertex.w = 1.0;
 	
-	mat4 MVP = (ubo.projection  * push.modelMatrix);
+	mat4 MVP = (ubo.projection * ubo.view * push.modelMatrix);
 
 	vec4 pos = MVP * vertex;
 
-	gl_Position = pos;
+	gl_Position = pos ;
 	
 	
 	float factor = max(0.0, min(1.0, (400.0/(pos.w*pos.w))));
