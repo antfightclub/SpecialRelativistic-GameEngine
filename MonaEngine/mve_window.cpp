@@ -97,6 +97,11 @@ namespace mve {
 			k_state.k_turn_priority_2 = 1;
 		}
 
+		// brake?
+		else if (key == keyboardController.keys.brake && action == GLFW_PRESS) {
+			k_state.k_brake = true;
+		}
+
 
 		// ****** Key release action ******
 		// Acceleration state
@@ -150,6 +155,12 @@ namespace mve {
 		else if (key == keyboardController.keys.turn_down && action == GLFW_RELEASE) {
 			k_state.k_turn_down = false;
 		}
+
+		else if (key == keyboardController.keys.brake && action == GLFW_RELEASE) {
+			k_state.k_brake = false;
+		}
+
+
 	}
 
 

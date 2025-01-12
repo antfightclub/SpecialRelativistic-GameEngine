@@ -211,15 +211,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\simple_shader.vert" />
-    <None Include="shaders\simple_shader.frag" />
     <None Include="shaders\compile.bat">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="shaders\point_light.frag" />
-    <None Include="shaders\point_light.vert" />
     <None Include="shaders\lattice_shader.frag" />
     <None Include="shaders\lattice_shader.vert" />
-    <None Include="shaders\polygon_shader.vert" />
   </ItemGroup>
 </Project>

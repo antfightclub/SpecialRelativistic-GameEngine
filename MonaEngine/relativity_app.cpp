@@ -184,41 +184,58 @@ namespace mve {
 				glm::quat orientation = glm::quat{ (float)playerOrientation.t, (float)playerOrientation.x, (float)playerOrientation.y, (float)playerOrientation.z };				
 				glm::mat4 rotate = glm::toMat4(orientation); 
 				glm::mat4 translate = glm::mat4(1.0f);
-				translate = glm::translate(translate, playerPos);
-				cameraView = glm::inverse(translate*rotate);
+				//translate = glm::translate(translate, playerPos);
+				
+				// NOTE: Currently, we do *not* translate the camera view matrix.
+				// If we did, we would inadvertedly make sure the Lorentz trans-
+				// formation is centered in the origin of the grid.
+
+				cameraView = glm::inverse(/*translate */ rotate);
 				viewerObject.transform.translation = playerPos;
 				
 				camera.setView(cameraView); // Sets the camera view matrix
+
+				glm::mat4 invView = glm::inverse(cameraView);
 
 				// Update buffer holding GlobalUbo
 				GlobalUbo globalUbo{};
 				globalUbo.projection = camera.getProjection();
 				globalUbo.view = camera.getView();
-				globalUbo.inverseView = glm::mat4{ 1.0 };
+				globalUbo.inverseView = invView;
 				globalUbo.ambientLightColor = { 1.f, 1.f, 1.f, .02f };
 				globalUboBuffers[frameIndex]->writeToBuffer(&globalUbo);
 				globalUboBuffers[frameIndex]->flush();
 
-				// This is supposed to center the lattice wireframe grid on the player, but is unused currently since I have been struggling without established coord conventions
-				// TODO: Establish coordinate system conventions.
+				
+				// Centers the grid on the player
 				glm::vec3 Xp = glm::vec3{ player.P.X.getX(), player.P.X.getY(), player.P.X.getZ() };
 				int xo = int(int(Xp.x / (N / L)) * (N / L));
 				int yo = int(int(Xp.y / (N / L)) * (N / L));
 				int zo = int(int(Xp.z / (N / L)) * (N / L));
-				Math::Matrix44 U{};
 				
-				// I think Lorentz might need some sign flips... 
-				// TODO: Work on establishing coordinate system conventions and make sure to change Math namespace accordingly
-				// Actually: Make sure to flip the axes here so they correspond to the shader convention, or have a way to convert between MveModel conventions and shader conventions!
-				U = Math::Matrix44::Lorentz(player.P.U); // Does not work if you normalize U LOL
-				glm::mat4 lorentz = U.toGLM();
+
+				Math::Matrix44 L{};	
+				L = Math::Matrix44::Lorentz(player.P.U); // Does not work if you normalize U LOL
+				glm::mat4 lorentz = L.toGLM();
+				
+				//Math::Vector4D invdX = Math::Vector4D{ -dX.getT(), -dX.getX(), -dX.getY(), -dX.getZ() };
+
+				//Math::Vector4D xp = L.getTransform();
+
+
+
+				
+				L = Math::Matrix44::Lorentz(-player.P.U);
+				glm::mat4 invLorenz = L.toGLM();
+				
 
 				// TODO: update lattice ubo buffer with a lorentz matrix calculated in accordance with special relativity
 				// Update buffer holding LatticeUbo
 				LatticeUbo latticeUbo{};
-				latticeUbo.Xp = glm::vec3{ Xp.x, Xp.y, Xp.z };
+				latticeUbo.Xp = glm::vec3{ Xp.x, Xp.y, Xp.z};
 				latticeUbo.Xo = glm::vec3{ xo,   yo,   zo };
 				latticeUbo.Lorentz = lorentz;
+				latticeUbo.invLorentz = invLorenz;
 				latticeUboBuffers[frameIndex]->writeToBuffer(&latticeUbo);
 				latticeUboBuffers[frameIndex]->flush();
 				latticeUboBuffer.flushIndex(frameIndex);

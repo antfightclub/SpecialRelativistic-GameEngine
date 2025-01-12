@@ -223,7 +223,7 @@ namespace mve {
 			//std::cout << "Inside nested for loop!" << '\n';
 			Vertex vertex{};
 			vertex.position = vert;
-			vertex.color = { 1.f, 1.f, 1.f};
+			vertex.color = { .5f, .5f, .5f};
 			vertex.normal = {1.0f, 1.0f, 1.0f};
 			vertex.uv = {1.0f, 1.0f};
 
@@ -251,64 +251,81 @@ namespace mve {
 		Vertex base{};
 		base.position = { 0.0, 0.0, 0.0 };
 		base.color = { 1.f, 1.f, 1.f };
-		base.normal = { 1.f, 1.f, 1.f }; // unused
-		base.uv = { 1.f, 1.f };			 // unused
-
+		
 		Vertex up{};
 		up.position = { 0.0, 1.0, 0.0 }; // Y up system
 		up.color = { 0.f, 1.f, 0.f };	 // Green is up
-		up.normal = { 1.f, 1.f, 1.f };	 // unused
-		up.uv = { 1.f, 1.f };			 // unused
-		
+
+		Vertex upNudge{};
+		upNudge.position = { 0.1, 0.75, 0.1 };
+		upNudge.color = { 0.f, 1.f, 0.f };
+				
 		Vertex down{}; 
 		down.position = { 0.0, -1.0, 0.0 }; // Y up system
 		down.color = { 0.f, 1.f, 0.f };	 // Green is down
-		down.normal = { 1.f, 1.f, 1.f };	 // unused
-		down.uv = { 1.f, 1.f };			 // unused
-
+		
 		Vertex right{};
 		right.position = { 1.0, 0.0, 0.0 };  // right
 		right.color = { 1.f, 0.f, 0.f };	 // red is right
-		right.normal = { 1.f, 1.f, 1.f };	 // unused
-		right.uv = { 1.f, 1.f };			 // unused
-
+		
+		Vertex rightNudge{};
+		rightNudge.position = { .75, .1, .1 };
+		rightNudge.color = { 1.f, 0.f, 0.f };
 
 		Vertex left{};
 		left.position = { -1.0, 0.0, 0.0 };  // right
 		left.color = { 1.f, 0.f, 0.f };	 // red is left
-		left.normal = { 1.f, 1.f, 1.f };	 // unused
-		left.uv = { 1.f, 1.f };			 // unused
 
 		Vertex forward{}; 
 		forward.position = { 0.0, 0.0, 1.0 };  // forward
 		forward.color = { 0.f, 0.f, 1.f };	 // blue is forwad
-		forward.normal = { 1.f, 1.f, 1.f };	 // unused
-		forward.uv = { 1.f, 1.f };			 // unused
 
+		Vertex forwardNudge{};
+		forwardNudge.position = { .1, .1, .75 };
+		forwardNudge.color = { 0.f, 0.f, 1.f };
+	
 		Vertex backward{};
 		backward.position = { 0.0, 0.0, -1.0 };  // forward
 		backward.color = { 0.f, 0.f, 1.f };	 // blue is backward
-		backward.normal = { 1.f, 1.f, 1.f };	 // unused
-		backward.uv = { 1.f, 1.f };			 // unused
+		
+		vertices.push_back(base);			// 0
+		vertices.push_back(up);				// 1
+		vertices.push_back(down);			// 2
+		vertices.push_back(right);			// 3
+		vertices.push_back(left);			// 4
+		vertices.push_back(forward);		// 5
+		vertices.push_back(backward);		// 6
+		vertices.push_back(upNudge);		// 7
+		vertices.push_back(rightNudge);		// 8
+		vertices.push_back(forwardNudge);	// 9
 
-		vertices.push_back(base);		// 0
-		vertices.push_back(up);			// 1
-		vertices.push_back(down);		// 2
-		vertices.push_back(right);		// 3
-		vertices.push_back(left);		// 4
-		vertices.push_back(forward);	// 5
-		vertices.push_back(backward);	// 6
-
+		// Up + up nudge
 		indices.push_back(0);
 		indices.push_back(1);
+		indices.push_back(1);
+		indices.push_back(7);
+
+		// Down
 		indices.push_back(0);
 		indices.push_back(2);
+		
+		// Right + right nudge
 		indices.push_back(0);
 		indices.push_back(3);
+		indices.push_back(3);
+		indices.push_back(8);
+
+		// Left
 		indices.push_back(0);
 		indices.push_back(4);
+		
+		// Forward + forward nudge
 		indices.push_back(0);
 		indices.push_back(5);
+		indices.push_back(5);
+		indices.push_back(9);
+
+		// Backward
 		indices.push_back(0);
 		indices.push_back(6);
 	}

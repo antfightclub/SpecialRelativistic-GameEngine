@@ -51,12 +51,13 @@ namespace mve {
 		
 		PipelineConfigInfo pipelineConfig{ };
 		MvePipeline::wireframePipelineConfigInfo(pipelineConfig);
+		MvePipeline::enableAlphaBlending(pipelineConfig);
 		pipelineConfig.renderPass = renderPass;
 		pipelineConfig.pipelineLayout = pipelineLayout;
 		mvePipeline = std::make_unique<MvePipeline>(
 			mveDevice,
-			"shaders/lattice_shader.vert.spv",
-			"shaders/lattice_shader.frag.spv",
+			"./shaders/lattice_shader.vert.spv",
+			"./shaders/lattice_shader.frag.spv",
 			pipelineConfig);
 		mvePipeline->enableAlphaBlending(pipelineConfig);
 

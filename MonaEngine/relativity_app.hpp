@@ -53,7 +53,7 @@ namespace mve {
 
 	private:
 
-		int N = 100;
+		int N = 50;
 		int L = 5;
 
 		void setupDearImgui();
