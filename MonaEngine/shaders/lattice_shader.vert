@@ -68,7 +68,7 @@ void main() {
 	//);
 
 	//vec4 vertex = /*Lorentz*/  vec4(v, -length(vec3(v.x - xp.x, v.z - xp.y, v.y  -xp.z))) ;//vec4(v, -length(v));
-	vec4 vertex = vec4(v, -length(v));
+	vec4 vertex = latticeUbo.Lorentz * vec4(v, -length(v));
 	
 	vertex.w = 1.0;
 	//vertex.y *= -1.0;
