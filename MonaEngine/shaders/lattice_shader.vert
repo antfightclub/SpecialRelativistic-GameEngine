@@ -18,6 +18,7 @@ layout(set = 0, binding = 1) uniform LatticeUbo {
 	vec3 Xp;
 	vec3 Xo;
 	mat4 Lorentz;
+	vec4 U;
 } latticeUbo;
 
 layout(push_constant) uniform Push {
@@ -26,49 +27,27 @@ layout(push_constant) uniform Push {
 
 void main() {
 	//vec4 positionWorld = push.modelMatrix  * vec4(position, 1.0);
-	vec3 xp = latticeUbo.Xp;
-	vec3 xo = latticeUbo.Xo;
-
-	//xp.x *= -1.0;
-	//xp.y *= -1.0;
-	//xp.z *= -1.0;
-	
-	//xo.x *= -1.0;
-	//xo.y *= -1.0;
-	//xo.z *= -1.0;
-	
-	
-
-
-	//vec3 v = position - xp + xo;
-
-	
-	
-	//vec3 v = vec3(
-	//				position.x /* - xp.x + xo.x	*/,	
-	//				position.z /* - xp.y + xo.y	*/,	
-	//			  (-position.y)/* - xp.z + xo.z	*/	
-	//);
+	//vec3 xp = latticeUbo.Xp;
+	//vec3 xo = latticeUbo.Xo;
 	
 	vec3 v = vec3(position.x, position.y, position.z);
 
+	vec3 beta = vec3(0.5, 0.0, 0.0);
+	float b2 = (beta.x*beta.x + beta.y*beta.y+beta.z*beta.z)+1E-12;
+	float g = 1.0 / (sqrt(abs(1.0 - b2))+1E-12);
+	float q = (g - 1.0) / b2;
+
+	mat4 lorentzTransformation = mat4(
+	        1.0+beta.x*beta.x*q ,   beta.x*beta.y*q ,   beta.x*beta.z*q , beta.x*g ,
+            beta.y*beta.x*q , 1.0+beta.y*beta.y*q ,   beta.y*beta.z*q , beta.y*g ,
+            beta.z*beta.x*q ,   beta.z*beta.y*q , 1.0+beta.z*beta.z*q , beta.z*g ,
+            beta.x*g , beta.y*g , beta.z*g , g
+	);
 
 
-	//mat4 L = latticeUbo.Lorentz;
-	//vec4 col0 = L[0];
-	//vec4 col1 = L[1];
-	//vec4 col2 = L[2];
-	//vec4 col3 = L[3];
-	//
-	//mat4 Lorentz = mat4(
-	//	col0.x, col0.z, -col0.y, col0.w,
-	//	col1.x, col1.z, -col1.y, col1.w,
-	//	col2.x, col2.z, -col2.y, col2.w,
-	//	col3.x, -col3.y, col3.z, col3.w
-	//);
 
 	//vec4 vertex = /*Lorentz*/  vec4(v, -length(vec3(v.x - xp.x, v.z - xp.y, v.y  -xp.z))) ;//vec4(v, -length(v));
-	vec4 vertex = latticeUbo.Lorentz * vec4(v, -length(v));
+	vec4 vertex = lorentzTransformation * vec4(v, -length(v));
 	
 	vertex.w = 1.0;
 	//vertex.y *= -1.0;
