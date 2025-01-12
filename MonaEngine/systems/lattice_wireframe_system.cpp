@@ -51,6 +51,7 @@ namespace mve {
 		
 		PipelineConfigInfo pipelineConfig{ };
 		MvePipeline::wireframePipelineConfigInfo(pipelineConfig);
+		MvePipeline::enableAlphaBlending(pipelineConfig);
 		pipelineConfig.renderPass = renderPass;
 		pipelineConfig.pipelineLayout = pipelineLayout;
 		mvePipeline = std::make_unique<MvePipeline>(

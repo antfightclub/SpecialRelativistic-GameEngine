@@ -190,11 +190,13 @@ namespace mve {
 				
 				camera.setView(cameraView); // Sets the camera view matrix
 
+				glm::mat4 invView = glm::inverse(cameraView);
+
 				// Update buffer holding GlobalUbo
 				GlobalUbo globalUbo{};
 				globalUbo.projection = camera.getProjection();
 				globalUbo.view = camera.getView();
-				globalUbo.inverseView = glm::mat4{ 1.0 };
+				globalUbo.inverseView = invView;
 				globalUbo.ambientLightColor = { 1.f, 1.f, 1.f, .02f };
 				globalUboBuffers[frameIndex]->writeToBuffer(&globalUbo);
 				globalUboBuffers[frameIndex]->flush();
@@ -212,6 +214,8 @@ namespace mve {
 				// Actually: Make sure to flip the axes here so they correspond to the shader convention, or have a way to convert between MveModel conventions and shader conventions!
 				U = Math::Matrix44::Lorentz(player.P.U); // Does not work if you normalize U LOL
 				glm::mat4 lorentz = U.toGLM();
+				U = Math::Matrix44::Lorentz(-player.P.U);
+				glm::mat4 invLorenz = U.toGLM();
 
 				// TODO: update lattice ubo buffer with a lorentz matrix calculated in accordance with special relativity
 				// Update buffer holding LatticeUbo
@@ -219,6 +223,7 @@ namespace mve {
 				latticeUbo.Xp = glm::vec3{ Xp.x, Xp.y, Xp.z };
 				latticeUbo.Xo = glm::vec3{ xo,   yo,   zo };
 				latticeUbo.Lorentz = lorentz;
+				latticeUbo.invLorentz = invLorenz;
 				latticeUboBuffers[frameIndex]->writeToBuffer(&latticeUbo);
 				latticeUboBuffers[frameIndex]->flush();
 				latticeUboBuffer.flushIndex(frameIndex);
@@ -373,7 +378,7 @@ namespace mve {
 	void RelativityApp::loadGameObjects() {
 		// generate lattice
 
-		/*
+		
 		Lattice lattice{N, L, 20, 1, 1.0};
 		
 		//lattice.writeVerticesToFile();
@@ -405,7 +410,7 @@ namespace mve {
 		latticeGameObject.transform.translation = { 0.f, 0.f, 0.f };
 		latticeGameObject.transform.scale = glm::vec3{ 1.f, 1.f, 1.f };
 		gameObjects.emplace(latticeGameObject.getId(), std::move(latticeGameObject));
-		*/
+		
 
 
 		std::shared_ptr<MveModel> debugModel = MveModel::createDebuggingModel(mveDevice);

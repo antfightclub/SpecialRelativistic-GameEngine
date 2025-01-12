@@ -223,7 +223,7 @@ namespace mve {
 			//std::cout << "Inside nested for loop!" << '\n';
 			Vertex vertex{};
 			vertex.position = vert;
-			vertex.color = { 1.f, 1.f, 1.f};
+			vertex.color = { .5f, .5f, .5f};
 			vertex.normal = {1.0f, 1.0f, 1.0f};
 			vertex.uv = {1.0f, 1.0f};
 
