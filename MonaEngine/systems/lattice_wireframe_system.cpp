@@ -55,8 +55,8 @@ namespace mve {
 		pipelineConfig.pipelineLayout = pipelineLayout;
 		mvePipeline = std::make_unique<MvePipeline>(
 			mveDevice,
-			"shaders/lattice_shader.vert.spv",
-			"shaders/lattice_shader.frag.spv",
+			"./shaders/lattice_shader.vert.spv",
+			"./shaders/lattice_shader.frag.spv",
 			pipelineConfig);
 		mvePipeline->enableAlphaBlending(pipelineConfig);
 
