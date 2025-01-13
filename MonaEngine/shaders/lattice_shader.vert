@@ -38,7 +38,7 @@ void main() {
 	gl_Position = pos;
 	
 	
-	float factor = max(0.0, min(1.0, (400.0/(pos.w*pos.w))));
+	float factor = max(0.0, min(1.0, (40.0/(pos.w*pos.w))));
 	vec4 col = vec4(color, 1.0);
 	col.w *= factor;
 	fragColor = col;
