@@ -17,14 +17,11 @@
 #include <vector>
 #include <iostream>
 
-// I think I need to take inspiration from LSBattle/model/polygon.py instead of 
-// LSBattle/entity/wireframe.py! I can worry about a lattice later, but right now
-// it's just most important that I get a single object working in relativity...
-// I may also need to work it up a bit more from the ground up with more thoughts
-// put into handling coordinate systems and such! 
-// So I should probably take some time to analyze how game update logic works and 
-// try to implement some game logic handling in a class like SpecialRelativityHandler 
-// or smth like that, to keep track of gameobjects and their worldlines and such.
+// TODO: Create another object and render it according to its own velocity
+// I think this is probably the best path:
+// - See how world.py performs Action, creating L and LL.
+// - Go to Solar.py and see how its draw method works, it calculates something new
+// - Go to Polygon.py and see how polygons are rendered (here will be the shaders)
 
 namespace mve {
 	// Application class
