@@ -159,9 +159,5 @@ namespace mve {
 		else if (key == keyboardController.keys.brake && action == GLFW_RELEASE) {
 			k_state.k_brake = false;
 		}
-
-
 	}
-
-
 }

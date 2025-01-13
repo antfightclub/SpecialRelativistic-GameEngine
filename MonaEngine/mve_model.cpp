@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <iostream>
 
+// Use an unordeered map of gameobjects; game object ID's are pretty much just sequential
 namespace std {
 	template<>
 	struct hash<mve::MveModel::Vertex> {
@@ -27,7 +28,6 @@ namespace mve {
 	MveModel::MveModel(MveDevice &device, const MveModel::Builder &builder) : mveDevice{ device } {
 		createVertexBuffers(builder.vertices);
 		createIndexBuffers(builder.indices);
-
 	}
 
 	MveModel::~MveModel() {}
@@ -83,8 +83,6 @@ namespace mve {
 		indexCount = static_cast<uint32_t>(indices.size());
 		hasIndexBuffer = indexCount > 0;
 
-		//std::cout << "index count = " << indexCount << ", hasIndexBuffer = " << hasIndexBuffer << "\n";
-
 		if (!hasIndexBuffer) {
 			return;
 		}
@@ -102,7 +100,6 @@ namespace mve {
 
 		stagingBuffer.map();
 		stagingBuffer.writeToBuffer((void*)indices.data());
-
 
 		indexBuffer = std::make_unique<MveBuffer>(
 			mveDevice,
@@ -145,13 +142,14 @@ namespace mve {
 	std::vector<VkVertexInputAttributeDescription> MveModel::Vertex::getAttributeDescriptions() {
 		std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 		
-		attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT , offsetof(Vertex, position) });
-		attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color) });
-		attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal) });
-		attributeDescriptions.push_back({ 3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) });
+		attributeDescriptions.push_back({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position) });
+		attributeDescriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color)    });
+		attributeDescriptions.push_back({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal)   });
+		attributeDescriptions.push_back({ 3, 0, VK_FORMAT_R32G32_SFLOAT,    offsetof(Vertex, uv)       });
 		return attributeDescriptions;
 	}
 
+	// Loads .obj files from a given file-path.
 	void MveModel::Builder::loadModelFromFile(const std::string& filepath) {
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
@@ -205,37 +203,29 @@ namespace mve {
 					vertices.push_back(vertex);
 				}
 				indices.push_back(uniqueVertices[vertex]);
-
 			}
 		}
-
 	}
 
+	// Provided vertices and indices, make game object with those vertices
+	// Currently used by the lattice line renderer, but supposing that the 
+	// given std::vectors are valid given a primitive type, it should work
 	void MveModel::Builder::loadModelFromStdVector(std::vector<glm::vec3>& verts, std::vector<uint32_t>& indcs) {
 		vertices.clear();
 		indices.clear();
-		std::cout << "Amount of vertices in lattice: " << verts.size() << '\n';
 
-		//std::unordered_map<Vertex, uint32_t> uniqueVertices{};
-
+		// This method is used mainly for the lattice, and it provides its own index vector
+		// Therefore this method does not check for unique vertices
 		for (const auto& vert : verts) {
-		
-			//std::cout << "Inside nested for loop!" << '\n';
+
 			Vertex vertex{};
 			vertex.position = vert;
 			vertex.color = { .5f, .5f, .5f};
+			// For the lattice, the normals and uv's are unused, since it's a line-renderer
 			vertex.normal = {1.0f, 1.0f, 1.0f};
 			vertex.uv = {1.0f, 1.0f};
 
-			//std::cout << "Pushing back..." << '\n';
-			//vertices.push_back(vertex);
-			
-			//if (uniqueVertices.count(vertex) == 0) {
-				//uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
 			vertices.push_back(vertex);
-			//}
-			//indices.push_back(uniqueVertices[vertex]);
-
 		}
 
 		for (const auto& indc : indcs) {
@@ -243,25 +233,27 @@ namespace mve {
 		}
 	}
 
+	// Create a simple axis object with some defined colors for what points in what axis.
 	void MveModel::Builder::loadDebugModel() {
-		// I create a simple axis object with some defined colors for what points in what axis.
 		vertices.clear();
 		indices.clear();
 		
+		// Origin: white color
 		Vertex base{};
 		base.position = { 0.0, 0.0, 0.0 };
 		base.color = { 1.f, 1.f, 1.f };
 		
 		Vertex up{};
-		up.position = { 0.0, 1.0, 0.0 }; // Y up system
+		up.position = { 0.0, 1.0, 0.0 }; // Y is up, but this is flipped in Vulkan due to its conventions
 		up.color = { 0.f, 1.f, 0.f };	 // Green is up
 
+		// Nudges show which vector is a basis vector
 		Vertex upNudge{};
 		upNudge.position = { 0.1, 0.75, 0.1 };
 		upNudge.color = { 0.f, 1.f, 0.f };
 				
 		Vertex down{}; 
-		down.position = { 0.0, -1.0, 0.0 }; // Y up system
+		down.position = { 0.0, -1.0, 0.0 }; // Y up system, but this is flipped in Vulkan due to its conventions
 		down.color = { 0.f, 1.f, 0.f };	 // Green is down
 		
 		Vertex right{};
@@ -329,5 +321,4 @@ namespace mve {
 		indices.push_back(0);
 		indices.push_back(6);
 	}
-
 }

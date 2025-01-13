@@ -11,7 +11,7 @@ namespace mve {
 # define MAX_LIGHTS 10
 
 	struct PointLight {
-		glm::vec4 position{};  // ignore w
+		glm::vec4 position{};  // ignore w in shader
 		glm::vec4 color{}; // w is intensity
 	};
 
@@ -46,11 +46,9 @@ namespace mve {
 	struct FrameInfo {
 		int frameIndex;
 		float frameTime;
-		//VkCommandBuffer commandBuffer;
 		FrameCommandBuffers frameCommandBuffers;
 		MveCamera& camera;
 		VkDescriptorSet descriptorSet;
-		//VkDescriptorSet latticeDescriptorSet;
 		MveGameObject::Map& gameObjects;
 	};
 

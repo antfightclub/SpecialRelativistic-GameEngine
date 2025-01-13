@@ -39,9 +39,6 @@
     <ClCompile Include="mve_camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="keyboard_movement_controller.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="mve_game_object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -137,7 +134,7 @@
     <ClInclude Include="mve_camera.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="keyboard_movement_controller.hpp">
+    <ClInclude Include="keyboard_input_controller.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mve_utils.hpp">

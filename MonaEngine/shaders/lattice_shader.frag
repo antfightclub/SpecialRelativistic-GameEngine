@@ -15,6 +15,7 @@ layout(set = 0, binding = 1) uniform LatticeUbo {
 	vec3 Xp;
 	vec3 Xo;
 	mat4 Lorentz;
+	mat4 invLorentz;
 } latticeUbo;
 
 layout(push_constant) uniform Push {

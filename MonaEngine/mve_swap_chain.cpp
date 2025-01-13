@@ -25,7 +25,6 @@ MveSwapChain::MveSwapChain(MveDevice& deviceRef, VkExtent2D extent, std::shared_
 void MveSwapChain::init() {
 	createSwapChain();
 	createImageViews();
-	//createUIResources();
 	createRenderPass();
 	createUIRenderPass();
 	createDepthResources();
@@ -89,7 +88,7 @@ VkResult MveSwapChain::acquireNextImage(uint32_t *imageIndex) {
 }
 
 VkResult MveSwapChain::submitCommandBuffers(
-	const std::array<VkCommandBuffer, 2> *buffers, uint32_t *imageIndex) {
+	const std::array<VkCommandBuffer, 2> *buffers, uint32_t *imageIndex) { // Note: currently hardcoded to accept two commandbuffers, one for main and one for UI
   if (imagesInFlight[*imageIndex] != VK_NULL_HANDLE) {
 	vkWaitForFences(device.device(), 1, &imagesInFlight[*imageIndex], VK_TRUE, UINT64_MAX);
   }
@@ -218,43 +217,7 @@ void MveSwapChain::createImageViews() {
   }
 }
 
-//void MveSwapChain::createUIResources() {
-//    imguiImageViews.resize(imguiImages.size());
-//    for (size_t i = 0; i < imguiImages.size(); i++) {
-//        VkImageViewCreateInfo viewInfo = {};
-//        viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-//        viewInfo.image = imguiImages[i];
-//        viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-//        viewInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
-//        viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-//        viewInfo.subresourceRange.baseMipLevel = 0;
-//        viewInfo.subresourceRange.levelCount = 1;
-//        viewInfo.subresourceRange.baseArrayLayer = 0;
-//        viewInfo.subresourceRange.layerCount = 1;
-//
-//        if (vkCreateImageView(device.device(), &viewInfo, nullptr, &imguiImageViews[i]) != VK_SUCCESS) {
-//            throw std::runtime_error("failed to create UI resource!: texture image view!");
-//        }
-//
-//    }
-//}
-
 void MveSwapChain::createRenderPass() {
-	//VkAttachmentDescription imguiAttachment{};
-	//imguiAttachment.format = getSwapChainImageFormat();
-	//imguiAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-	//imguiAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-	//imguiAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-	//imguiAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-	//imguiAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	//imguiAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-	//imguiAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-	//VkAttachmentReference imguiAttachmentRef{};
-	//imguiAttachmentRef.attachment = 2;
-	//imguiAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-
   VkAttachmentDescription depthAttachment{};
   depthAttachment.format = findDepthFormat();
   depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -284,21 +247,15 @@ void MveSwapChain::createRenderPass() {
   colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 
-  VkAttachmentReference colorAttachmentRefs[1] = {colorAttachmentRef/*, imguiAttachmentRef*/};
+  VkAttachmentReference colorAttachmentRefs[1] = {colorAttachmentRef};
 
   VkSubpassDescription mainSubpass = {};
   mainSubpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
   mainSubpass.colorAttachmentCount = 1;
   mainSubpass.pColorAttachments = &colorAttachmentRef;
   mainSubpass.pDepthStencilAttachment = &depthAttachmentRef;
-
-  //VkSubpassDescription imguiSubpass = {};
-  //imguiSubpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-  //imguiSubpass.colorAttachmentCount = 1;
-  //imguiSubpass.pColorAttachments = &imguiAttachmentRef;
   
-  
-  std::array<VkSubpassDescription, 1> subpassDescriptions = { mainSubpass /*, imguiSubpass */};
+  std::array<VkSubpassDescription, 1> subpassDescriptions = { mainSubpass };
 
   VkSubpassDependency dependency = {};
   dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -311,19 +268,9 @@ void MveSwapChain::createRenderPass() {
   dependency.dstAccessMask =
 	  VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
-  //VkSubpassDependency imguiDependency = {};
-  //imguiDependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-  //imguiDependency.srcAccessMask = 0;
-  //imguiDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-  //imguiDependency.dstSubpass = 1;
-  //imguiDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-  //imguiDependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+  std::array<VkSubpassDependency, 1> dependencies = {dependency};
 
-
-
-  std::array<VkSubpassDependency, 1> dependencies = {dependency/*, imguiDependency*/};
-
-  std::array<VkAttachmentDescription, 2> attachments = {colorAttachment, depthAttachment/*, imguiAttachment*/};
+  std::array<VkAttachmentDescription, 2> attachments = {colorAttachment, depthAttachment};
   VkRenderPassCreateInfo renderPassInfo = {};
   renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
   renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
@@ -354,7 +301,6 @@ void MveSwapChain::createUIRenderPass() {
 	VkAttachmentReference uiAttachmentRef = {};
 	uiAttachmentRef.attachment = 0;
 	uiAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
 
 	VkSubpassDescription UISubpass = {};
 	UISubpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
@@ -390,15 +336,12 @@ void MveSwapChain::createUIRenderPass() {
 	if (vkCreateRenderPass(device.device(), &renderPassInfo, nullptr, &imguiRenderPass) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create render pass!");
 	}
-
 }
 
 
 void MveSwapChain::createFramebuffers() {
   swapChainFramebuffers.resize(imageCount());
   for (size_t i = 0; i < imageCount(); i++) {
-	  
-
 	std::array<VkImageView, 2> attachments = {swapChainImageViews[i], depthImageViews[i]};
 
 	VkExtent2D swapChainExtent = getSwapChainExtent();
@@ -422,7 +365,6 @@ void MveSwapChain::createFramebuffers() {
 }
 
 void MveSwapChain::createUIFrameBuffers() {
-    std::cout << "CreateUIFrameBuffers called\n";
 	UIFramebuffers.resize(swapChainImages.size());
 	VkImageView attachment[1];
 	VkFramebufferCreateInfo info={};
@@ -439,24 +381,6 @@ void MveSwapChain::createUIFrameBuffers() {
 			throw std::runtime_error("Unable to create UI framebuffers!");
 		}
 	}
-
-   /* for (size_t i = 0; i < swapChainImages.size(); i++) {
-        std::array<VkImageView, 1> attachments = { imguiImageViews[i] };
-        VkExtent2D swapChainExtent = getSwapChainExtent();
-        VkFramebufferCreateInfo framebufferInfo = {};
-        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass = imguiRenderPass;
-        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
-        framebufferInfo.pAttachments = attachments.data();
-        framebufferInfo.width = swapChainExtent.width;
-        framebufferInfo.height = swapChainExtent.height;
-        framebufferInfo.layers = 1;
-
-        if (vkCreateFramebuffer(device.device(), &framebufferInfo, nullptr, &UIFramebuffers[i]) != VK_SUCCESS) {
-            throw std::runtime_error("failed to create UI framebuffer!");
-        }
-
-    }*/
 }
 
 void MveSwapChain::createDepthResources() {
@@ -587,4 +511,4 @@ VkFormat MveSwapChain::findDepthFormat() {
 	  VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
 }
 
-}  // namespace lve
+}  // namespace mve

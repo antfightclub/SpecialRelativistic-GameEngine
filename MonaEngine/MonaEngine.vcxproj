@@ -142,7 +142,6 @@
     <ClCompile Include="external\imgui\imgui_impl_vulkan.cpp" />
     <ClCompile Include="external\imgui\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="keyboard_movement_controller.cpp" />
     <ClCompile Include="lattice.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mve_buffer.cpp" />
@@ -174,7 +173,7 @@
     <ClInclude Include="external\imgui\imgui_impl_glfw.h" />
     <ClInclude Include="external\imgui\imgui_impl_vulkan.h" />
     <ClInclude Include="external\imgui\imgui_internal.h" />
-    <ClInclude Include="keyboard_movement_controller.hpp" />
+    <ClInclude Include="keyboard_input_controller.hpp" />
     <ClInclude Include="lattice.hpp" />
     <ClInclude Include="mve_buffer.hpp" />
     <ClInclude Include="mve_camera.hpp" />

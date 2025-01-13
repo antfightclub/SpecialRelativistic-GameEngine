@@ -27,9 +27,6 @@ layout(push_constant) uniform Push {
 
 void main() {
 	vec3 v = vec3(position - latticeUbo.Xp + latticeUbo.Xo);
-	//vec3 diff = v + latticeUbo.Xp;
-
-	
 
 	vec4 vertex = latticeUbo.Lorentz * vec4(v, -length(v));
 	vertex.w = 1.0;
@@ -38,7 +35,7 @@ void main() {
 
 	vec4 pos = MVP * vertex;
 
-	gl_Position = pos ;
+	gl_Position = pos;
 	
 	
 	float factor = max(0.0, min(1.0, (400.0/(pos.w*pos.w))));

@@ -55,7 +55,6 @@ class MveSwapChain {
   void createSwapChain();
   void createImageViews();
   void createDepthResources();
- // void createUIResources();
   void createRenderPass();
   void createUIRenderPass();
   void createFramebuffers();
@@ -83,8 +82,6 @@ class MveSwapChain {
   std::vector<VkImageView> depthImageViews;
   std::vector<VkImage> swapChainImages;
   std::vector<VkImageView> swapChainImageViews;
-//  std::vector<VkImage> imguiImages;
-//  std::vector<VkImageView> imguiImageViews;
 
   MveDevice &device;
   VkExtent2D windowExtent;

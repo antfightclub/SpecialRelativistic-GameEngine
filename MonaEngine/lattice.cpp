@@ -24,11 +24,11 @@ namespace mve {
 		if (!this->vertices.empty() && !this->indices.empty()) {
 			throw std::runtime_error("MakeLattice: vertices or indices are not empty!");
 		}
-		//std::shared_ptr<MveModel> mveModel = MveModel::MveModel(mveDevice);
+
 		std::cout << "Start of makeLattice!" << "\n";
 		this->vertices.clear();
 		this->indices.clear();
-		//this->indices.push_back(static_cast<uint32_t>(0U));
+
 		//int n = 2 * N + 1;
 
 		double l = (double)L;
@@ -45,7 +45,6 @@ namespace mve {
 				}
 			}
 		}
-		//std::cout << "first for loop complete!" << "\n";
 
 		for (int i = -N; i < N + 1; i++) {
 			xx = ((double)i + 0.5) * l / n;
@@ -57,7 +56,6 @@ namespace mve {
 				}
 			}
 		}
-		////std::cout << "second for loop complete!" << "\n";
 
 		for (int i = -N; i < N + 1; i++) {
 			zz = ((double)i + 0.5) * l / n;
@@ -69,9 +67,8 @@ namespace mve {
 				}
 			}
 		}
-		//std::cout << "third for loop complete!" << "\n";
 
-		latticeUnit = L / N;
+		latticeUnit = (double)L / (double)N;
 	}
 
 	void Lattice::add(double xx, double yy, double zz, int a) {
@@ -105,6 +102,4 @@ namespace mve {
 		}
 		return;
 	}
-
-
 }

@@ -3,13 +3,9 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#include "keyboard_movement_controller.hpp"
+#include "keyboard_input_controller.hpp"
 
 #include <string>
-
-//#include "player.hpp"
-//using SRGame::Player;
-
 
 namespace mve {
 

@@ -12,11 +12,7 @@ namespace mve {
 		
 		
 		Lattice(int range, int div, int innerDiv, int lineWidth, double scale) : L{ range }, N{ div }, c{ innerDiv }, lineWidth{ lineWidth } {
-			//these are in the constructor above
 			this->L = int((double)range * scale);
-			//this->N = div;
-			//this->c = innerDiv
-			
 			makeLattice(this->N, this->L);
 		
 		};

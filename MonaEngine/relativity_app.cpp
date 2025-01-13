@@ -32,6 +32,7 @@
 namespace mve {
 
 	RelativityApp::RelativityApp() {
+		// Initialization: Allocate a descriptor pool for the main rendering system and one for DearImGui.
 		globalPool = MveDescriptorPool::Builder(mveDevice)
 			.setMaxSets(MveSwapChain::MAX_FRAMES_IN_FLIGHT * 2)
 			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MveSwapChain::MAX_FRAMES_IN_FLIGHT * 2) // times 2 due to usage of Global Ubo + Lattice Ubo 
@@ -43,12 +44,14 @@ namespace mve {
 			.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MveSwapChain::MAX_FRAMES_IN_FLIGHT)
 			.build();
 
+		// Load game objects into the world
 		loadGameObjects();
 
+		// Set up the state for Dear ImGui
 		setupDearImgui();
 	}
 
-	RelativityApp::~RelativityApp() {}
+	RelativityApp::~RelativityApp() {} // MveWindow, MveDevice, and MveRenderer, as well as MveGameObject map and MveDescriptorPool have their own mechanisms for cleanup
 	
 	void RelativityApp::run() {
 		// Create Uniform Buffer Object for LatticeUbo, which contains relativity stuff for the wireframe lattice
@@ -176,7 +179,7 @@ namespace mve {
 
 				player.Action(mveWindow.getGLFWwindow(), dt);
 
-				// Should get a GLM rotation matrix directly, but haven't gotten around to firmly establishing coordinate conventions yet
+				// Should get a GLM rotation matrix directly instead of this, but will require a rewrite of Math:: namespace
 				Math::Quaternion playerOrientation = player.quaternion;
 				
 				// Establish camera view matrix
@@ -195,7 +198,7 @@ namespace mve {
 				
 				camera.setView(cameraView); // Sets the camera view matrix
 
-				glm::mat4 invView = glm::inverse(cameraView);
+				glm::mat4 invView = glm::inverse(cameraView); // Inverse camera view matrix
 
 				// Update buffer holding GlobalUbo
 				GlobalUbo globalUbo{};
@@ -207,29 +210,22 @@ namespace mve {
 				globalUboBuffers[frameIndex]->flush();
 
 				
-				// Centers the grid on the player
+				// Xp = player's position in the background frame
 				glm::vec3 Xp = glm::vec3{ player.P.X.getX(), player.P.X.getY(), player.P.X.getZ() };
+
+				// Xo = displacement of lattice by Lattice Unit N/L to keep it centered on the player in the vertex shader
 				int xo = int(int(Xp.x / (N / L)) * (N / L));
 				int yo = int(int(Xp.y / (N / L)) * (N / L));
 				int zo = int(int(Xp.z / (N / L)) * (N / L));
 				
 
 				Math::Matrix44 L{};	
-				L = Math::Matrix44::Lorentz(player.P.U); // Does not work if you normalize U LOL
-				glm::mat4 lorentz = L.toGLM();
-				
-				//Math::Vector4D invdX = Math::Vector4D{ -dX.getT(), -dX.getX(), -dX.getY(), -dX.getZ() };
-
-				//Math::Vector4D xp = L.getTransform();
-
-
-
-				
-				L = Math::Matrix44::Lorentz(-player.P.U);
+				L = Math::Matrix44::Lorentz(player.P.U); // Lorentz boost matrix : Bg frame -> Player frame
+				glm::mat4 lorentz = L.toGLM();			 // .toGLM() transposes the matrix to conform to GLSL conventions
+								
+				L = Math::Matrix44::Lorentz(-player.P.U);	// Not sure how to use yet; but it transforms from the player's frame of reference to the background frame of reference.
 				glm::mat4 invLorenz = L.toGLM();
 				
-
-				// TODO: update lattice ubo buffer with a lorentz matrix calculated in accordance with special relativity
 				// Update buffer holding LatticeUbo
 				LatticeUbo latticeUbo{};
 				latticeUbo.Xp = glm::vec3{ Xp.x, Xp.y, Xp.z};
@@ -260,6 +256,7 @@ namespace mve {
 
 				ImGui::NewLine();
 
+				// Casting the desired values into a convenient format (as well as double->float)
 				std::array<float, 4> playerPosFloat = { (float)player.P.X.getT(), (float)player.P.X.getX(), (float)player.P.X.getY(), (float)player.P.X.getZ() };
 				std::array<float, 4> playerVelFloat = { (float)player.P.U.getT(), (float)player.P.U.getX(), (float)player.P.U.getY(), (float)player.P.U.getZ() };
 				std::array<float, 4> Xp_float = { 0.f, (float)Xp.x, (float)Xp.y, (float)Xp.z };
@@ -362,7 +359,7 @@ namespace mve {
 				latticeRenderSystem.renderWireframe(frameInfo);
 				mveRenderer.endSwapChainRenderPass(frameCommandBuffers.mainCommandBuffer);
 				
-				// UI rendering
+				// UI rendering happens *after* the ordinary render systems, and uses a separate command buffer
 				mveRenderer.beginUIRenderPass(frameCommandBuffers.UICommandBuffer);
 				ImGui::Render();
 				ImDrawData* draw_data = ImGui::GetDrawData();
@@ -372,7 +369,7 @@ namespace mve {
 				}
 				mveRenderer.endUIRenderPass(frameCommandBuffers.UICommandBuffer); // Ends renderpass
 				
-				// Ends command buffers.
+				// Ends both command buffers and submits framebuffer to presentation queue
 				mveRenderer.endFrame();	
 			}
 
@@ -393,26 +390,8 @@ namespace mve {
 		
 		Lattice lattice{N, L, 20, 1, 1.0};
 		
-		//lattice.writeVerticesToFile();
-		//lattice.writeIndicesToFile();
-		
-		//std::cout << "Writing vertices to file...\n";
 		auto vertices = lattice.getVertices();
-		//std::cout << "Writing indices to file...\n";
 		auto indices = lattice.getIndices();
-		//std::cout << "finished writing vertices in Vertices.txt and indices in Indices.txt\nvk
-
-		//std::cout << "printing out ALL lattice vertices!" << std::endl;
-		//
-		//// This takes a long time!
-		//for (auto& vert : vertices) {
-		//	std::cout << "{ " << vert.x << ", " << vert.y << ", " << vert.z << " }\n";
-		//}
-		//std::cout << "printing out ALL lattice indices!" << '\n';
-		//for (auto& indc : indices) {
-		//	std::cout << "index = " << indc << "\n";
-		//}
-
 
 		std::shared_ptr<MveModel> mveModel = MveModel::createModelFromStdVector(mveDevice, vertices, indices);
 
@@ -424,7 +403,8 @@ namespace mve {
 		gameObjects.emplace(latticeGameObject.getId(), std::move(latticeGameObject));
 		
 
-
+		// Debug model (plain axes) for debugging purposes
+		
 		//std::shared_ptr<MveModel> debugModel = MveModel::createDebuggingModel(mveDevice);
 		//auto dbgGameObject = MveGameObject::createGameObject();
 

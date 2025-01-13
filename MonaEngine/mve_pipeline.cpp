@@ -215,7 +215,7 @@ MvePipeline::~MvePipeline() {
 	void MvePipeline::wireframePipelineConfigInfo(PipelineConfigInfo& configInfo) {
 		// Input Assembly state create info default config
 		configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-		configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST; // not sure if line list or strip or with or without adjacency
+		configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST; // wireframe Lattice is a line list
 		configInfo.inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
 
 		// ViewportInfo
@@ -292,6 +292,7 @@ MvePipeline::~MvePipeline() {
 		configInfo.attributeDescriptions = MveModel::Vertex::getAttributeDescriptions();
 	}
 
+	// Provides a convenient method which can be called to enable alpha blending in a PipelineConfigInfo
 	void MvePipeline::enableAlphaBlending(PipelineConfigInfo& configInfo) {
 		configInfo.colorBlendAttachment.blendEnable = VK_TRUE;
 

@@ -35,8 +35,6 @@ namespace mve {
 				throw std::runtime_error("Swap chain image or depth format has changed!");
 			}
 		}
-				
-		// wawa
 	}
 
 	void MveRenderer::createCommandBuffers() {
@@ -94,8 +92,6 @@ namespace mve {
 
 		isFrameStarted = true;
 		return true;
-
-		
 	}
 
 	std::array<VkCommandBuffer, 2> MveRenderer::getCurrentFrameCommandBuffers() {
@@ -162,8 +158,7 @@ namespace mve {
 		{
 			renderPassInfo.renderPass = otherRenderPass;
 		}
-
-	
+			
 		renderPassInfo.framebuffer = mveSwapChain->getFrameBuffer(currentImageIndex);
 
 		renderPassInfo.renderArea.offset = { 0, 0 };
@@ -172,7 +167,6 @@ namespace mve {
 		std::array<VkClearValue, 2> clearValues{};
 		clearValues[0].color = { 0.01f, 0.01f, 0.01f, 1.0f };
 		clearValues[1].depthStencil = { 1.0f, 0 };
-		//clearValues[2].color = { 0.01f, 0.01f, 0.01f, 1.0f };
 		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 		renderPassInfo.pClearValues = clearValues.data();
 
@@ -221,36 +215,5 @@ namespace mve {
 
 		vkCmdEndRenderPass(commandBuffer);
 	}
-
-	//void MveRenderer::recordUICommands() {
-	//	VkCommandBufferBeginInfo cmdBufferBegin = {};
-	//	cmdBufferBegin.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	//	cmdBufferBegin.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-	//	if (vkBeginCommandBuffer(getCurrentUICommandBuffer(), &cmdBufferBegin) != VK_SUCCESS) {
-	//		throw std::runtime_error("Unable to start recording UI command buffer!");
-	//	}
-
-	//	VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-	//	VkRenderPassBeginInfo renderPassBeginInfo = {};
-	//	renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	//	renderPassBeginInfo.renderPass = mveSwapChain->getUIRenderPass();
-	//	renderPassBeginInfo.framebuffer = mveSwapChain->getUIFrameBuffer(currentImageIndex);
-	//	renderPassBeginInfo.renderArea.extent.width = mveSwapChain->getSwapChainExtent().width;
-	//	renderPassBeginInfo.renderArea.extent.height = mveSwapChain->getSwapChainExtent().height;
-	//	renderPassBeginInfo.clearValueCount = 1;
-	//	renderPassBeginInfo.pClearValues = &clearColor;
-
-	//	vkCmdBeginRenderPass(UICommandBuffers[currentImageIndex], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-	//	// IMGUI_IMPL_RENDERDRAWDATA ???
-
-	//	vkCmdEndRenderPass(UICommandBuffers[currentImageIndex]);
-	//	
-	//	if (vkEndCommandBuffer(UICommandBuffers[currentImageIndex]) != VK_SUCCESS) {
-	//		throw std::runtime_error("Failed to record UI command buffers!");
-	//	}
-
-	//}
 
 } // namespace mve

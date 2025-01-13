@@ -47,7 +47,6 @@ class MveDevice {
   VkQueue presentQueue() { return presentQueue_; }
   VkInstance getInstance() { return instance; }
   VkPhysicalDevice getPhysicalDevice() { return physicalDevice; }
-  //uint32_t getGraphicalQueueFamily();
 
   SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(physicalDevice); }
   uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
@@ -84,7 +83,6 @@ class MveDevice {
   void createLogicalDevice();
   void createCommandPool();
   void createUICommandPool();
-  //void createCommandPool(VkCommandPool* commandPool, VkCommandPoolCreateFlags flags);
   
   // helper functions
   bool isDeviceSuitable(VkPhysicalDevice device);
@@ -112,4 +110,4 @@ class MveDevice {
   const std::vector<const char *> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 };
 
-}  // namespace lve
+}  // namespace mve

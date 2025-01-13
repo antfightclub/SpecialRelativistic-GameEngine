@@ -41,16 +41,6 @@ namespace mve {
 
 		void run();
 		
-		void printGLMMat4(glm::mat4 temp) {
-			// mat4[row][col]
-			std::cout <<
-			 "col0 "	<< temp[0][0] << ", " << temp[0][1] << ", " << temp[0][2] << ", " << temp[0][3] << "\n" <<
-			 "col1 "	<< temp[1][0] << ", " << temp[1][1] << ", " << temp[1][2] << ", " << temp[1][3] << "\n" <<
-			 "col2 "	<< temp[2][0] << ", " << temp[2][1] << ", " << temp[2][2] << ", " << temp[2][3] << "\n" <<
-			 "col3 "	<< temp[3][0] << ", " << temp[3][1] << ", " << temp[3][2] << ", " << temp[3][3] << "\n"
-				<< std::endl;
-		}
-
 	private:
 
 		int N = 50;

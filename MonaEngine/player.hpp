@@ -20,8 +20,6 @@ namespace mve {
 	struct PlayerState {
 		// Empty for now. For example, guns. Maybe.
 	};
-	
-
 
 	class Player {
 	public:
@@ -30,7 +28,6 @@ namespace mve {
 
 		Math::PhaseSpace P;
 		Math::Quaternion quaternion{ 1.0, 0.0, 0.0, 0.0 };
-		//glm::quat quaternion{ 1.0, 0.0, 0.0, 0.0 };
 		double time = 0.0;
 		Math::WorldLine worldline;
 

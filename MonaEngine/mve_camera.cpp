@@ -26,7 +26,7 @@ namespace mve {
 		projectionMatrix[3][2] = -(far * near) / (far - near);
 	}
 
-	void MveCamera::setViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up) {
+	/*void MveCamera::setViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up) {
 		const glm::vec3 w{ glm::normalize(direction) };
 		const glm::vec3 u{ glm::normalize(glm::cross(w, up)) };
 		const glm::vec3 v{ glm::cross(w, u) };
@@ -65,17 +65,17 @@ namespace mve {
 		inverseViewMatrix[3][1] = position.y;
 		inverseViewMatrix[3][2] = position.z;
 
-	}
+	}*/
 
-	void MveCamera::setViewTarget(glm::vec3 position, glm::vec3 target, glm::vec3 up) {
+	/*void MveCamera::setViewTarget(glm::vec3 position, glm::vec3 target, glm::vec3 up) {
 		setViewDirection(position, target - position, up);
-	}
+	}*/
 
 	void MveCamera::setView(glm::mat4 view) {
 		this->viewMatrix = view;
 	}
 
-	void  MveCamera::setViewYXZ(glm::vec3 position, glm::vec3 rotation) {
+	/*void  MveCamera::setViewYXZ(glm::vec3 position, glm::vec3 rotation) {
 		const float c3 = glm::cos(rotation.z);
 		const float s3 = glm::sin(rotation.z);
 		const float c2 = glm::cos(rotation.x);
@@ -113,7 +113,5 @@ namespace mve {
 		inverseViewMatrix[3][0] = position.x;
 		inverseViewMatrix[3][1] = position.y;
 		inverseViewMatrix[3][2] = position.z;
-	}
-
-
+	}*/
 }

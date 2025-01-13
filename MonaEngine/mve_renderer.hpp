@@ -50,8 +50,6 @@ namespace mve {
 		void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
 		void beginUIRenderPass(VkCommandBuffer commandBuffer);
 		void endUIRenderPass(VkCommandBuffer commandBuffer);
-		//void recordUICommands();
-		//void endCommandBuffer(VkCommandBuffer commandBuffer);
 
 	private:
 		void createCommandBuffers();
