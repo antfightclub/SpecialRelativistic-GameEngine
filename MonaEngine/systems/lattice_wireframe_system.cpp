@@ -82,12 +82,6 @@ namespace mve {
 			SimplePushConstantData push{};
 			auto modelMatrix = obj.transform.mat4();
 			push.modelMatrix = modelMatrix;
-			/*std::cout << "model matrix: \n" << 
-				modelMatrix[0][0] << ", " << modelMatrix[0][1] << ", " << modelMatrix[0][2] << ", " << modelMatrix[0][3] << "\n" <<
-				modelMatrix[1][0] << ", " << modelMatrix[1][1] << ", " << modelMatrix[1][2] << ", " << modelMatrix[1][3] << "\n" <<
-				modelMatrix[2][0] << ", " << modelMatrix[2][1] << ", " << modelMatrix[2][2] << ", " << modelMatrix[2][3] << "\n" <<
-				modelMatrix[3][0] << ", " << modelMatrix[3][1] << ", " << modelMatrix[3][2] << ", " << modelMatrix[3][3] << "\n" 
-				<< std::endl;*/
 			
 			vkCmdPushConstants(
 				frameInfo.frameCommandBuffers.mainCommandBuffer,
