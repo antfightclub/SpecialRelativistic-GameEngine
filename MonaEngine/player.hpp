@@ -36,8 +36,8 @@ namespace mve {
 	private:
 		MveWindow& mveWindow;
 		MveGameObject::id_t id;
-		double acceleration = 1.8;
-		double resistivity = 2.0;
+		double acceleration = 0.18;
+		double resistivity = 0.20;
 		double turnAcceleration = 9.0;
 		double turnResistivity = 5.0;
 		double turnSpeed1 = 0.0;
