@@ -4,7 +4,6 @@
 #include "mve_camera.hpp"
 #include "systems/lattice_wireframe_system.hpp"
 #include "mve_buffer.hpp"
-#include "lattice.hpp"
 #include "player.hpp"
 
 // Math namespace
@@ -193,7 +192,7 @@ namespace mve {
 				// If we did, we would inadvertedly make sure the Lorentz trans-
 				// formation is centered in the origin of the grid.
 
-				cameraView = glm::inverse(/*translate */ rotate);
+				cameraView = glm::inverse(translate * rotate);
 				viewerObject.transform.translation = playerPos;
 				
 				camera.setView(cameraView); // Sets the camera view matrix
@@ -214,9 +213,9 @@ namespace mve {
 				glm::vec3 Xp = glm::vec3{ player.P.X.getX(), player.P.X.getY(), player.P.X.getZ() };
 
 				// Xo = displacement of lattice by Lattice Unit N/L to keep it centered on the player in the vertex shader
-				int xo = int(int(Xp.x / (N / L)) * (N / L));
-				int yo = int(int(Xp.y / (N / L)) * (N / L));
-				int zo = int(int(Xp.z / (N / L)) * (N / L));
+				int xo = int(int(Xp.x / (lattice.latticeUnit)) * (lattice.latticeUnit));
+				int yo = int(int(Xp.y / (lattice.latticeUnit)) * (lattice.latticeUnit));
+				int zo = int(int(Xp.z / (lattice.latticeUnit)) * (lattice.latticeUnit));
 				
 
 				Math::Matrix44 L{};	
@@ -280,16 +279,16 @@ namespace mve {
 					{
 						ImGui::TableSetColumnIndex(column);
 						if (column == 0) {
-							ImGui::Text("%.3f", playerPosFloat[row]);
+							ImGui::Text("%+.3f", playerPosFloat[row]);
 						}
 						else if (column == 1) {
-							ImGui::Text("%.3f", playerVelFloat[row]);
+							ImGui::Text("%+.3f", playerVelFloat[row]);
 						}
 						else if (column == 2) {
-							ImGui::Text("%.3f", Xp_float[row]);
+							ImGui::Text("%+.3f", Xp_float[row]);
 						}
 						else if (column == 3) {
-							ImGui::Text("%.3f", Xo_float[row]);
+							ImGui::Text("%+.3f", Xo_float[row]);
 						}
 					}
 				}
@@ -387,9 +386,6 @@ namespace mve {
 	void RelativityApp::loadGameObjects() {
 		// generate lattice
 
-		
-		Lattice lattice{N, L, 20, 1, 1.0};
-		
 		auto vertices = lattice.getVertices();
 		auto indices = lattice.getIndices();
 
@@ -401,17 +397,36 @@ namespace mve {
 		latticeGameObject.transform.translation = { 0.f, 0.f, 0.f };
 		latticeGameObject.transform.scale = glm::vec3{ 1.f, 1.f, 1.f };
 		gameObjects.emplace(latticeGameObject.getId(), std::move(latticeGameObject));
-		
+
 
 		// Debug model (plain axes) for debugging purposes
-		
-		//std::shared_ptr<MveModel> debugModel = MveModel::createDebuggingModel(mveDevice);
-		//auto dbgGameObject = MveGameObject::createGameObject();
 
-		//dbgGameObject.model = debugModel;
-		//dbgGameObject.transform.translation = { 0.f, 0.f, 0.f };
-		//dbgGameObject.transform.scale = glm::vec3{ 1.f,1.f,1.f };
-		//gameObjects.emplace(dbgGameObject.getId(), std::move(dbgGameObject));
+		std::shared_ptr<MveModel> debugModel = MveModel::createDebuggingModel(mveDevice);
+		auto dbgGameObject = MveGameObject::createGameObject();
+
+		dbgGameObject.model = debugModel;
+		dbgGameObject.transform.translation = { 0.f, 0.f, 0.f };
+		dbgGameObject.transform.scale = glm::vec3{ 1.f,1.f,1.f };
+		gameObjects.emplace(dbgGameObject.getId(), std::move(dbgGameObject));
+
+		// earth
+		std::shared_ptr<MveModel> earthModel = MveModel::createModelFromFile(mveDevice, "models/earth_ls.obj");
+		auto earthGameObject = MveGameObject::createGameObject();
+
+		earthGameObject.model = earthModel;
+		earthGameObject.transform.translation = { 0.f, 0.f, 0.f };
+		earthGameObject.transform.scale = { 1.f, 1.f, 1.f };
+		gameObjects.emplace(earthGameObject.getId(), std::move(earthGameObject));
+
+		// moon
+		std::shared_ptr<MveModel> moonModel = MveModel::createModelFromFile(mveDevice, "models/moon_ls.obj");
+		auto moonGameObject = MveGameObject::createGameObject();
+		
+		moonGameObject.model = moonModel;
+		moonGameObject.transform.translation = {1.284f, 0.f, 0.f};
+		moonGameObject.transform.scale = { 1.f, 1.f, 1.f };
+		gameObjects.emplace(moonGameObject.getId(), std::move(moonGameObject));
+
 	}
 
 	
