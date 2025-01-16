@@ -28,13 +28,15 @@ namespace mve {
 		
 		void writeVerticesToFile();
 		void writeIndicesToFile();
-	
+		
+		double latticeUnit;
+
 	private:
 		int L;	// range 
 		int N;	// div
 		int lineWidth = 1;
 		int c = 5;	// innerDiv
-		double latticeUnit;
+		
 
 		std::vector<glm::vec3> vertices{};
 		std::vector<uint32_t> indices{};
