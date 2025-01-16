@@ -7,6 +7,8 @@
 #include "mve_device.hpp"
 #include "mve_renderer.hpp"
 
+#include "lattice.hpp"
+
 // Dear ImGui 
 #include "external/imgui/imgui.h"
 #include "external/imgui/imgui_impl_glfw.h"
@@ -40,12 +42,10 @@ namespace mve {
 		
 	private:
 
-		int N = 50;
-		int L = 5;
-
 		void setupDearImgui();
 		void loadGameObjects();
 		
+		Lattice lattice{ 50, 5, 20, 1, 1.0 };
 
 		MveWindow mveWindow{ WIDTH, HEIGHT, "Monativity.exe" };
 		MveDevice mveDevice{ mveWindow };
