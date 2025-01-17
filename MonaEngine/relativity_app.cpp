@@ -392,7 +392,6 @@ namespace mve {
 		auto indices = lattice.getIndices();
 
 		std::shared_ptr<MveModel> mveModel = MveModel::createModelFromStdVector(mveDevice, vertices, indices);
-
 		auto latticeGameObject = MveGameObject::createGameObject();
 
 		latticeGameObject.model = mveModel;
@@ -400,38 +399,19 @@ namespace mve {
 		latticeGameObject.transform.scale = glm::vec3{ 1.f, 1.f, 1.f };
 		
 		latticeGameObjectID = latticeGameObject.getId();
+		gameObjects.emplace(latticeGameObject.getId(), std::move(latticeGameObject)); // latticeGameObject no longer owned by that handle
 
-		gameObjects.emplace(latticeGameObject.getId(), std::move(latticeGameObject));
 
-
+		// Note: these do not work any more when using the "LatticeWireframeSystem". 
+		// Perhaps I should make a new system for line rendering which is not the lattice one.
 		// Debug model (plain axes) for debugging purposes
+		//std::shared_ptr<MveModel> debugModel = MveModel::createDebuggingModel(mveDevice);
+		//auto dbgGameObject = MveGameObject::createGameObject();
 
-		std::shared_ptr<MveModel> debugModel = MveModel::createDebuggingModel(mveDevice);
-		auto dbgGameObject = MveGameObject::createGameObject();
-
-		dbgGameObject.model = debugModel;
-		dbgGameObject.transform.translation = { 0.f, 0.f, 0.f };
-		dbgGameObject.transform.scale = glm::vec3{ 1.f,1.f,1.f };
-		gameObjects.emplace(dbgGameObject.getId(), std::move(dbgGameObject));
-
-		// earth
-		std::shared_ptr<MveModel> earthModel = MveModel::createModelFromFile(mveDevice, "models/earth_ls.obj");
-		auto earthGameObject = MveGameObject::createGameObject();
-
-		earthGameObject.model = earthModel;
-		earthGameObject.transform.translation = { 0.f, 0.f, 0.f };
-		earthGameObject.transform.scale = { 1.f, 1.f, 1.f };
-		gameObjects.emplace(earthGameObject.getId(), std::move(earthGameObject));
-
-		// moon
-		std::shared_ptr<MveModel> moonModel = MveModel::createModelFromFile(mveDevice, "models/moon_ls.obj");
-		auto moonGameObject = MveGameObject::createGameObject();
-		
-		moonGameObject.model = moonModel;
-		moonGameObject.transform.translation = {1.284f, 0.f, 0.f};
-		moonGameObject.transform.scale = { 1.f, 1.f, 1.f };
-		gameObjects.emplace(moonGameObject.getId(), std::move(moonGameObject));
-
+		//dbgGameObject.model = debugModel;
+		//dbgGameObject.transform.translation = { 0.f, 0.f, 0.f };
+		//dbgGameObject.transform.scale = glm::vec3{ 1.f,1.f,1.f };
+		//gameObjects.emplace(dbgGameObject.getId(), std::move(dbgGameObject));
 	}
 
 	
