@@ -241,6 +241,8 @@ namespace mve {
 				// As it stands it is pretty messy code. But if it is its own class I will have to implement some way
 				// For it to get all the states I want. Could be done with a struct later on.
 
+				bool renderLattice; // whether to render the lattice
+
 				ImGui_ImplVulkan_NewFrame();
 				ImGui_ImplGlfw_NewFrame();
 				ImGui::NewFrame();
@@ -308,6 +310,10 @@ namespace mve {
 				ImGui::Text("World  Time: %.3f [s]", player.P.X.getT());
 				
 				ImGui::NewLine();
+				ImGui::Checkbox("show/hide lattice", &renderLattice);
+
+
+				ImGui::NewLine();
 				// View matrix 
 				ImGui::Text("View matrix");
 				ImGui::BeginTable("View Matrix", 4, flags);
@@ -357,7 +363,11 @@ namespace mve {
 				// Ordinary render systems go here!
 				mveRenderer.beginSwapChainRenderPass(frameCommandBuffers.mainCommandBuffer);
 				// order matters (if semitransparency is involved)
-				latticeRenderSystem.renderWireframe(frameInfo, latticeGameObjectID);
+
+				if (renderLattice) {
+					latticeRenderSystem.renderWireframe(frameInfo, latticeGameObjectID);
+				}
+				
 				mveRenderer.endSwapChainRenderPass(frameCommandBuffers.mainCommandBuffer);
 				
 				// UI rendering happens *after* the ordinary render systems, and uses a separate command buffer
