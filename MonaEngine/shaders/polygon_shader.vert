@@ -1,3 +1,4 @@
+#version 450
 // vec4 coor
 // mat4 Lorentz
 // mat4 Lorentz_p2e
@@ -6,3 +7,7 @@
 // vec4 xp			player X in background frame
 
 // https://github.com/sogebu/LSBattle/blob/fbde754c5aee3250e42ac3f9ab5a5e4a4379ce92/model/polygon.py
+
+void main() {
+
+}
