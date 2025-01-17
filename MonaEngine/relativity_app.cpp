@@ -303,8 +303,10 @@ namespace mve {
 				ImGui::Text("speed: %f [m/s]", v);
 				ImGui::Text("c = %f", u);
 				ImGui::Text("Lorentz factor: %.3f", g);
+				ImGui::NewLine();
+				ImGui::Text("Proper Time: %.3f [s]", frameTime);
+				ImGui::Text("World  Time: %.3f [s]", player.P.X.getT());
 				
-
 				ImGui::NewLine();
 				// View matrix 
 				ImGui::Text("View matrix");

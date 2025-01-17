@@ -76,6 +76,10 @@ namespace mve {
 			0,
 			nullptr);
 		
+		// If I only want to use this to render the wireframe game object, 
+		// then I should probably just pass the lattice game object's ID
+		// instead of looping through all gameobjects.
+		// In truth this pattern is wholly inefficient, but at this stage, it works.
 		for (auto& kv : frameInfo.gameObjects) {
 			auto& obj = kv.second;
 			if (obj.model == nullptr) continue; // Skip gameobject if it has no model (e.g. camera)
