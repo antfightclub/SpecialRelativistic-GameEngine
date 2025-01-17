@@ -17,8 +17,8 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 layout(set = 0, binding = 1) uniform LatticeUbo {
 	vec3 Xp;
 	vec3 Xo;
-	mat4 Lorentz;
-	mat4 invLorentz;
+	mat4 L;
+	mat4 LL;
 } latticeUbo;
 
 layout(push_constant) uniform Push {
@@ -28,7 +28,7 @@ layout(push_constant) uniform Push {
 void main() {
 	vec3 v = vec3(position - latticeUbo.Xp + latticeUbo.Xo);
 
-	vec4 vertex = latticeUbo.Lorentz * vec4(v, -length(v));
+	vec4 vertex = latticeUbo.L * vec4(v, -length(v));
 	vertex.w = 1.0;
 	
 	mat4 MVP = (ubo.projection * ubo.view * push.modelMatrix);
