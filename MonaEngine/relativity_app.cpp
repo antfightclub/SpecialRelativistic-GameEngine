@@ -357,7 +357,7 @@ namespace mve {
 				// Ordinary render systems go here!
 				mveRenderer.beginSwapChainRenderPass(frameCommandBuffers.mainCommandBuffer);
 				// order matters (if semitransparency is involved)
-				latticeRenderSystem.renderWireframe(frameInfo);
+				latticeRenderSystem.renderWireframe(frameInfo, latticeGameObjectID);
 				mveRenderer.endSwapChainRenderPass(frameCommandBuffers.mainCommandBuffer);
 				
 				// UI rendering happens *after* the ordinary render systems, and uses a separate command buffer
@@ -398,6 +398,9 @@ namespace mve {
 		latticeGameObject.model = mveModel;
 		latticeGameObject.transform.translation = { 0.f, 0.f, 0.f };
 		latticeGameObject.transform.scale = glm::vec3{ 1.f, 1.f, 1.f };
+		
+		latticeGameObjectID = latticeGameObject.getId();
+
 		gameObjects.emplace(latticeGameObject.getId(), std::move(latticeGameObject));
 
 

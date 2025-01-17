@@ -46,6 +46,7 @@ namespace mve {
 		void loadGameObjects();
 		
 		Lattice lattice{ 50, 5, 20, 1, 1.0 };
+		unsigned int latticeGameObjectID = -1;
 
 		MveWindow mveWindow{ WIDTH, HEIGHT, "Monativity.exe" };
 		MveDevice mveDevice{ mveWindow };
