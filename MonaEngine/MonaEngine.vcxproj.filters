@@ -108,6 +108,9 @@
     <ClCompile Include="systems\imgui_render_system.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="systems\sr_render_system.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mve_window.hpp">
@@ -206,6 +209,9 @@
     <ClInclude Include="systems\imgui_render_system.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="systems\sr_render_system.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\compile.bat">
@@ -213,5 +219,7 @@
     </None>
     <None Include="shaders\lattice_shader.frag" />
     <None Include="shaders\lattice_shader.vert" />
+    <None Include="shaders\polygon_shader.frag" />
+    <None Include="shaders\polygon_shader.vert" />
   </ItemGroup>
 </Project>
