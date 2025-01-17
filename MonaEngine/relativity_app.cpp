@@ -377,6 +377,7 @@ namespace mve {
 				mveRenderer.endSwapChainRenderPass(frameCommandBuffers.mainCommandBuffer);
 				
 				// UI rendering happens *after* the ordinary render systems, and uses a separate command buffer
+				// Important that it is after, since the ui renderpass transitions the framebuffer for presentation
 				mveRenderer.beginUIRenderPass(frameCommandBuffers.UICommandBuffer);
 				ImGui::Render();
 				ImDrawData* draw_data = ImGui::GetDrawData();
