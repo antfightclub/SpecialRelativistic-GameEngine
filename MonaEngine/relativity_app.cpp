@@ -3,6 +3,7 @@
 // Application
 #include "mve_camera.hpp"
 #include "systems/lattice_wireframe_system.hpp"
+#include "systems/sr_render_system.hpp"
 #include "mve_buffer.hpp"
 #include "player.hpp"
 
@@ -117,8 +118,11 @@ namespace mve {
 				.build(descriptorSets[i]);
 		}
 
-		// Wireframe Lattice around player
+		// Set up render systems
 		LatticeWireframeSystem latticeRenderSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()};
+		SRRenderSystem srRenderSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
+
+
 		MveCamera camera{};		
 		glm::mat4 cameraView{ 1.0 }; // This will be updated later in the update loop
 		
@@ -360,6 +364,8 @@ namespace mve {
 							
 				// ********** Rendering **********
 
+				//std::cout << "******* RENDER *******" << "\n";
+
 				// Ordinary render systems go here!
 				mveRenderer.beginSwapChainRenderPass(frameCommandBuffers.mainCommandBuffer);
 				// order matters (if semitransparency is involved)
@@ -367,7 +373,7 @@ namespace mve {
 				if (renderLattice) {
 					latticeRenderSystem.renderWireframe(frameInfo, latticeGameObjectID);
 				}
-				
+				srRenderSystem.render(frameInfo, latticeGameObjectID);
 				mveRenderer.endSwapChainRenderPass(frameCommandBuffers.mainCommandBuffer);
 				
 				// UI rendering happens *after* the ordinary render systems, and uses a separate command buffer
@@ -422,6 +428,15 @@ namespace mve {
 		//dbgGameObject.transform.translation = { 0.f, 0.f, 0.f };
 		//dbgGameObject.transform.scale = glm::vec3{ 1.f,1.f,1.f };
 		//gameObjects.emplace(dbgGameObject.getId(), std::move(dbgGameObject));
+
+
+		std::shared_ptr<MveModel> sphere = MveModel::createModelFromFile(mveDevice, "./models/earth_ls.obj");
+		auto earthGameObject = MveGameObject::createGameObject();
+
+		earthGameObject.model = sphere;
+		earthGameObject.transform.translation = { 1.f, 1.f, 1.f };
+		earthGameObject.transform.scale = glm::vec3{ 1.f,1.f,1.f };
+		gameObjects.emplace(earthGameObject.getId(), std::move(earthGameObject));
 	}
 
 	
