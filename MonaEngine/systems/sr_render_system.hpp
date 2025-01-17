@@ -20,7 +20,7 @@ namespace mve {
 		SRRenderSystem(const SRRenderSystem&) = delete;
 		SRRenderSystem& operator=(const SRRenderSystem&) = delete;
 
-		void render(FrameInfo& frameInfo);
+		void render(FrameInfo& frameInfo, unsigned int NOTid);
 
 	private:
 		void createPipelineLayout(VkDescriptorSetLayout globalDescriptorSetLayout);

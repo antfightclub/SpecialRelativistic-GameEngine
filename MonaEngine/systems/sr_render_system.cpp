@@ -57,7 +57,7 @@ namespace mve {
 		mvePipeline->enableAlphaBlending(pipelineConfig);
 	}
 
-	void SRRenderSystem::render(FrameInfo& frameInfo) {
+	void SRRenderSystem::render(FrameInfo& frameInfo, unsigned int NOTid) {
 		mvePipeline->bind(frameInfo.frameCommandBuffers.mainCommandBuffer);
 		vkCmdBindDescriptorSets(
 			frameInfo.frameCommandBuffers.mainCommandBuffer,
@@ -74,6 +74,7 @@ namespace mve {
 		// need a way to discern between game objects... Perhaps by passing a
 		// list of MveGameObject ID's to exclude.
 		for (auto& kv : frameInfo.gameObjects) {
+			if (kv.first == NOTid) continue;
 			auto& obj = kv.second;
 			if (obj.model == nullptr) continue; // Skip gameobject if it has no model (e.g. camera)
 			PushConstantData push{};
