@@ -20,7 +20,7 @@ namespace mve {
 		LatticeWireframeSystem(const LatticeWireframeSystem&) = delete;
 		LatticeWireframeSystem& operator=(const LatticeWireframeSystem&) = delete;
 
-		void renderWireframe(FrameInfo& frameInfo);
+		void renderWireframe(FrameInfo& frameInfo, unsigned int id); // MveGameObject id
 
 	private:
 		// "global" here refers to the "GlobalUbo" defined in mve::FrameInfo::GlobalUbo
