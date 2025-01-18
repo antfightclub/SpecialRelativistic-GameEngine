@@ -233,7 +233,6 @@ namespace mve {
 				latticeUbo.Xp = glm::vec3{ Xp.x, Xp.y, Xp.z};
 				latticeUbo.Xo = glm::vec3{ xo,   yo,   zo };
 				latticeUbo.Lorentz = lorentz;
-				latticeUbo.invLorentz = invLorenz;
 				latticeUboBuffers[frameIndex]->writeToBuffer(&latticeUbo);
 				latticeUboBuffers[frameIndex]->flush();
 				latticeUboBuffer.flushIndex(frameIndex);

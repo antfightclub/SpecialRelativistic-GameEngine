@@ -35,8 +35,11 @@ namespace mve {
 		alignas(16) glm::vec3 Xp{0.f}; 
 		alignas(16) glm::vec3 Xo{0.f};
 		alignas(16) glm::mat4 Lorentz{1.f};
-		alignas(16) glm::mat4 invLorentz{ 1.f };
 	};			   
+
+	//struct SpecialRelativityUBO {
+	//	alignas(16) glm::
+	//};
 	
 	struct FrameCommandBuffers {
 		VkCommandBuffer mainCommandBuffer;
