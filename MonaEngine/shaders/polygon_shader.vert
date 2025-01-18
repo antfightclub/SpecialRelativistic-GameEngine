@@ -14,6 +14,7 @@ layout(location = 2) in vec3 normal;
 layout(location = 3) in vec2 uv;
 
 layout(location = 0) out vec4 fragColor;
+layout(location = 1) out float ratio;
 
 layout(set = 0, binding = 0) uniform GlobalUbo {
 	mat4 projection;
@@ -26,8 +27,15 @@ layout(set = 0, binding = 1) uniform LatticeUbo {
 	vec3 Xp;
 	vec3 Xo;
 	mat4 L;
-	mat4 LL;
 } latticeUbo;
+
+layout(set = 0, binding = 2) uniform SRUbo {
+	mat4 L;
+	mat4 L_p2e;
+	mat4 Rotate;
+	vec4 dX;
+	vec4 xp;
+} srUbo;
 
 layout(push_constant) uniform Push {
 	mat4 modelMatrix;
@@ -36,20 +44,35 @@ layout(push_constant) uniform Push {
 
 void main() {
 
-vec3 v = vec3(position - latticeUbo.Xp);
+	vec4 xi = srUbo.Rotate * vec4(position, 1.0);
+	xi.w = srUbo.xp.w - distance(srUbo.xp.xyz, xi.xyz);
+	xi = srUbo.dX + srUbo.L * xi;
+	xi.w = -length(xi.xyz);
+	vec4 tmp = srUbo.L_p2e * xi;
+	ratio = xi.w / tmp.w;
+	xi.w = 1.0;
 
-	vec4 vertex = latticeUbo.L * vec4(v, -length(v));
-	vertex.w = 1.0;
-	
 	mat4 MVP = (ubo.projection * ubo.view * push.modelMatrix);
 
-	vec4 pos = MVP * vertex;
+	gl_Position = MVP * xi;
 
-	gl_Position = pos;
-	
-	//float factor = max(0.0, min(1.0, (40.0/(pos.w*pos.w))));
-	vec4 col = vec4(color, 1.0);
-	//col.w *= factor;
-	fragColor = col;
+	fragColor = vec4(color, 1.0);
+
+
+//	vec3 v = vec3(position - latticeUbo.Xp);
+//
+//	vec4 vertex = latticeUbo.L * vec4(v, -length(v));
+//	vertex.w = 1.0;
+//	
+//	mat4 MVP = (ubo.projection * ubo.view * push.modelMatrix);
+//
+//	vec4 pos = MVP * vertex;
+//
+//	gl_Position = pos;
+//	
+//	//float factor = max(0.0, min(1.0, (40.0/(pos.w*pos.w))));
+//	vec4 col = vec4(color, 1.0);
+//	//col.w *= factor;
+//	fragColor = col;
 
 }

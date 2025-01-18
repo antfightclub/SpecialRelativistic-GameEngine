@@ -6,6 +6,7 @@
 #include "systems/sr_render_system.hpp"
 #include "mve_buffer.hpp"
 #include "player.hpp"
+#include "enemy.hpp"
 
 // Math namespace
 #include "relativity/math/Matrix44.hpp"
@@ -70,6 +71,7 @@ namespace mve {
 		MveBuffer specialRelativityUboBuffer{
 			mveDevice,
 			sizeof(SpecialRelativityUbo),
+			MveSwapChain::MAX_FRAMES_IN_FLIGHT,
 			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
 			mveDevice.properties.limits.minUniformBufferOffsetAlignment,
@@ -153,8 +155,16 @@ namespace mve {
 		glm::mat4 cameraView{ 1.0 }; // This will be updated later in the update loop
 		
 		auto viewerObject = MveGameObject::createGameObject(); // Game object to hold camera position
-		
 		Player player{ mveWindow , viewerObject, Math::Vector4D{}, Math::EntityState{} }; // Game player
+
+
+		std::shared_ptr<MveModel> sphereModel = MveModel::createModelFromFile(mveDevice, "./models/gay_cube.obj");
+
+		auto enemyObject = MveGameObject::createGameObject(); // The enemy's game object
+		enemyObject.model = sphereModel;
+		Enemy enemy{ mveWindow, enemyObject, Math::Vector4D{0.0, 3.0, 0.0, 4.0}, Math::EntityState{} };
+		enemyObject.transform.translation = { 3.0f, 0.0f, 4.0f };
+		gameObjects.emplace(enemyObject.getId(), std::move(enemyObject));
 
 		// Used to have the keyboard input controller defined here
 		// But the functionality has since been moved to MveWindow
@@ -178,7 +188,7 @@ namespace mve {
 				
 			float aspect = mveRenderer.getAspectRatio();
 
-			camera.setPerspectiveProjection(glm::radians(100.f), aspect, 0.01f, 1000.0f);
+			camera.setPerspectiveProjection(glm::radians(70.0f), aspect, 0.01f, 1000.0f);
 
 			// poll this every update loop, but only actaully begin new frame if one is ready from the swap chain. 
 			// MveRenderer (and by extension MveSwapChain) is responsible for acquiring next image for rendering
@@ -207,6 +217,7 @@ namespace mve {
 				// ********** Update game **********
 
 				player.Action(mveWindow.getGLFWwindow(), dt);
+				enemy.Action(mveWindow.getGLFWwindow(), dt);
 
 				// Should get a GLM rotation matrix directly instead of this, but will require a rewrite of Math:: namespace
 				Math::Quaternion playerOrientation = player.quaternion;
@@ -251,9 +262,10 @@ namespace mve {
 				Math::Matrix44 L{};	
 				L = Math::Matrix44::Lorentz(player.P.U); // Lorentz boost matrix : Bg frame -> Player frame
 				glm::mat4 lorentz = L.toGLM();			 // .toGLM() transposes the matrix to conform to GLSL conventions
-								
-				L = Math::Matrix44::Lorentz(-player.P.U);	// Not sure how to use yet; but it transforms from the player's frame of reference to the background frame of reference.
-				glm::mat4 invLorenz = L.toGLM();
+				
+				Math::Matrix44 LL{};
+				LL = Math::Matrix44::Lorentz(-player.P.U);	// Not sure how to use yet; but it transforms from the player's frame of reference to the background frame of reference.
+				glm::mat4 invLorenz = LL.toGLM();
 				
 				// Update buffer holding LatticeUbo
 				LatticeUbo latticeUbo{};
@@ -263,6 +275,41 @@ namespace mve {
 				latticeUboBuffers[frameIndex]->writeToBuffer(&latticeUbo);
 				latticeUboBuffers[frameIndex]->flush();
 				latticeUboBuffer.flushIndex(frameIndex);
+
+
+
+				EnemyDrawData eDrawData = enemy.getDrawData(player.P.X, L, LL);
+
+				Math::Vector4D dX = eDrawData.X - player.P.X;
+				dX.setT(-dX.length()); // spacetime interval
+				Math::Vector4D negdX = -dX;
+				Math::Vector4D x_p = Math::Matrix44::Lorentz(eDrawData.U).getTransform(negdX);
+				
+				glm::vec4 xp = glm::vec4{ (float)x_p.getX(), (float)x_p.getY(), (float)x_p.getZ(), (float)x_p.getT() };
+
+				Math::Vector4D dee_X = L.getTransform(dX);
+				glm::vec4 dX_playerframe = glm::vec4{ (float)dee_X.getX(), (float)dee_X.getY(), (float)dee_X.getZ(), 0.f };
+
+				// LL   -    player frame to background frame, then background frame to enemy frame
+				glm::mat4 L_p2b_b2e = (Math::Matrix44::Lorentz(eDrawData.U) * LL).toGLM();
+
+				// L    -    enemy to player frame
+				glm::mat4 L_e2p = (L * Math::Matrix44::Lorentz(-eDrawData.U)).toGLM();
+
+				glm::quat enemyOrientation = glm::quat{ (float)eDrawData.quaternion.t, (float)eDrawData.quaternion.x, (float)eDrawData.quaternion.y, (float)eDrawData.quaternion.z };
+
+				SpecialRelativityUbo srUbo{};
+				srUbo.Lorentz = L_e2p;
+				srUbo.Lorentz_p2e = L_p2b_b2e;
+				srUbo.Rotate = glm::toMat4(enemyOrientation);
+				srUbo.dX = dX_playerframe;
+				srUbo.xp = xp;
+				specialRelativityUboBuffers[frameIndex]->writeToBuffer(&srUbo);
+				specialRelativityUboBuffers[frameIndex]->flush();
+				specialRelativityUboBuffer.flushIndex(frameIndex);
+
+
+
 
 
 				// ********** Update Dear ImGui state **********
@@ -456,23 +503,23 @@ namespace mve {
 		//gameObjects.emplace(dbgGameObject.getId(), std::move(dbgGameObject));
 
 
-		std::shared_ptr<MveModel> sphere = MveModel::createModelFromFile(mveDevice, "./models/colored_sphere.obj");
-		auto sphereGameObject = MveGameObject::createGameObject();
+		//std::shared_ptr<MveModel> sphere = MveModel::createModelFromFile(mveDevice, "./models/colored_sphere.obj");
+		//auto sphereGameObject = MveGameObject::createGameObject();
 
-		sphereGameObject.model = sphere;
-		sphereGameObject.transform.translation = { 1.f, 1.f, 1.f };
-		sphereGameObject.transform.scale = glm::vec3{ 1.f,1.f,1.f };
-		
-		gameObjects.emplace(sphereGameObject.getId(), std::move(sphereGameObject));
+		//sphereGameObject.model = sphere;
+		//sphereGameObject.transform.translation = { 1.f, 1.f, 1.f };
+		//sphereGameObject.transform.scale = glm::vec3{ 1.f,1.f,1.f };
+		//
+		//gameObjects.emplace(sphereGameObject.getId(), std::move(sphereGameObject));
 
-		std::shared_ptr<MveModel> cube = MveModel::createModelFromFile(mveDevice, "./models/colored_cube.obj");
-		auto cubeGameObject = MveGameObject::createGameObject();
+		//std::shared_ptr<MveModel> cube = MveModel::createModelFromFile(mveDevice, "./models/colored_cube.obj");
+		//auto cubeGameObject = MveGameObject::createGameObject();
 
-		cubeGameObject.model = cube;
-		cubeGameObject.transform.translation = { -1.f, -1.f, -1.f };
-		cubeGameObject.transform.scale = glm::vec3{ 1.f,1.f,1.f };
+		//cubeGameObject.model = cube;
+		//cubeGameObject.transform.translation = { -1.f, -1.f, -1.f };
+		//cubeGameObject.transform.scale = glm::vec3{ 1.f,1.f,1.f };
 	
-		gameObjects.emplace(cubeGameObject.getId(), std::move(cubeGameObject));
+		//gameObjects.emplace(cubeGameObject.getId(), std::move(cubeGameObject));
 	}
 
 	
