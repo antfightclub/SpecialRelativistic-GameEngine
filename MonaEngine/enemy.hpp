@@ -18,7 +18,7 @@ namespace mve {
 	struct EnemyDrawData {
 		Math::Vector4D X;
 		Math::Vector4D U;
-		Math::Matrix44 R;
+		Math::Quaternion quaternion;
 	};
 
 
@@ -48,7 +48,7 @@ namespace mve {
 		double resistivity = 0.20;
 		double turnAcceleration = 9.0;
 		double turnResistivity = 5.0;
-		double turnSpeed1 = 0.0;
+		double turnSpeed1 = 5.0;
 		double turnSpeed2 = 0.0;
 
 		void init(GLFWwindow* window, mve::MveGameObject& gameObject) { this->id = gameObject.getId(); }
