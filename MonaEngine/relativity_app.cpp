@@ -53,6 +53,30 @@ namespace mve {
 	RelativityApp::~RelativityApp() {} // MveWindow, MveDevice, and MveRenderer, as well as MveGameObject map and MveDescriptorPool have their own mechanisms for cleanup
 	
 	void RelativityApp::run() {
+
+		// Create Uniform Buffer Object for SpecialRelativityUbo, contains relativity stuff between other entities and player
+		std::vector<std::unique_ptr<MveBuffer>> specialRelativityUboBuffers(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < specialRelativityUboBuffers.size(); i++) {
+			specialRelativityUboBuffers[i] = std::make_unique<MveBuffer>(
+				mveDevice,
+				sizeof(SpecialRelativityUbo),
+				1,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+			);
+			specialRelativityUboBuffers[i]->map();
+		}
+
+		MveBuffer specialRelativityUboBuffer{
+			mveDevice,
+			sizeof(SpecialRelativityUbo),
+			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+			mveDevice.properties.limits.minUniformBufferOffsetAlignment,
+		};
+		specialRelativityUboBuffer.map();
+
+
 		// Create Uniform Buffer Object for LatticeUbo, which contains relativity stuff for the wireframe lattice
 		std::vector<std::unique_ptr<MveBuffer>> latticeUboBuffers(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (int i = 0; i < latticeUboBuffers.size(); i++) {
@@ -104,6 +128,7 @@ namespace mve {
 		auto globalSetLayout = MveDescriptorSetLayout::Builder(mveDevice)
 			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U) // GlobalUbo 
 			.addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U) // LatticeUBo
+			.addBinding(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U) // SpecialRelativityUbo
 			.build();
 		
 		// Write the descriptor sets to buffers
@@ -111,9 +136,11 @@ namespace mve {
 		for (int i = 0; i < descriptorSets.size(); i++) {	
 			auto globalBufferInfo = globalUboBuffers[i]->descriptorInfo();
 			auto latticeBufferInfo = latticeUboBuffers[i]->descriptorInfo();
+			auto srBufferInfo = specialRelativityUboBuffers[i]->descriptorInfo();
 			MveDescriptorWriter(*globalSetLayout, *globalPool)
 				.writeBuffer(0, &globalBufferInfo)
 				.writeBuffer(1, &latticeBufferInfo)
+				.writeBuffer(2, &srBufferInfo)
 				.build(descriptorSets[i]);
 		}
 
