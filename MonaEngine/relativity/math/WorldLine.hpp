@@ -16,7 +16,7 @@ namespace Math {
 
 	// Represents a state of an entity, usually after interpolation between worldline entries.
 	struct EntityState {
-		Quaternion quaternion{ 1.0, 0.0, 0.0, 0.0 };
+		Quaternion quaternion{};
 	};
 
 	struct StateOnPLC {
@@ -69,7 +69,7 @@ namespace Math {
 	private:
 		int n;
 		int last;
-		PLCInterpolateInfo plcInterpolateInfo;
+		PLCInterpolateInfo plcInterpolateInfo{};
 		std::vector<Vector4D> Line;
 		std::vector<EntityState> State;
 		id_t mveGameObjectID;		

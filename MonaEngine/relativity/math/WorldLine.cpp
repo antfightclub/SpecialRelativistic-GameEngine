@@ -58,7 +58,7 @@ namespace Math {
 		// of the PLC. Then linearly interpolate between the points on either side of PLC.
 		int i = searchPositionOnPLC(Xp);
 		if (i == -1) {
-			return PhaseSpace{ Vector4D{0.0}, Vector4D{0.0} }; // if no position is found, return a zero-initialized PhaseSpace.
+			return PhaseSpace{ Vector4D{0.0, 0.0, 0.0, 0.0}, Vector4D{0.0, 0.0, 0.0, 0.0} }; // if no position is found, return a zero-initialized PhaseSpace.
 		}
 		// See https://arxiv.org/abs/1703.07063 page 19 and 20, section 3.3. for a description of this
 		// Linearly interpolate between the two points 
@@ -70,7 +70,7 @@ namespace Math {
 		double beta = dX.lorentzianInnerProduct(dY);
 		double gamma = dY.lorentzianSquaredNorm();
 		double sigma = (beta + std::sqrt(beta * beta - alpha * gamma)) / alpha; // Should be a value between 0 and 1
-
+		this->plcInterpolateInfo.index = i;
 		this->plcInterpolateInfo.sigma = sigma;
 		dX /= std::sqrt(-alpha);
 
