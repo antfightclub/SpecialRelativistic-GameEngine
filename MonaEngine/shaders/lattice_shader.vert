@@ -18,7 +18,6 @@ layout(set = 0, binding = 1) uniform LatticeUbo {
 	vec3 Xp;
 	vec3 Xo;
 	mat4 L;
-	mat4 LL;
 } latticeUbo;
 
 layout(push_constant) uniform Push {
