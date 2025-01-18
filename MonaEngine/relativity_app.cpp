@@ -35,8 +35,7 @@ namespace mve {
 		// Initialization: Allocate a descriptor pool for the main rendering system and one for DearImGui.
 		globalPool = MveDescriptorPool::Builder(mveDevice)
 			.setMaxSets(MveSwapChain::MAX_FRAMES_IN_FLIGHT * 2)
-			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MveSwapChain::MAX_FRAMES_IN_FLIGHT * 2) // times 2 due to usage of Global Ubo + Lattice Ubo 
-			.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MveSwapChain::MAX_FRAMES_IN_FLIGHT)
+			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MveSwapChain::MAX_FRAMES_IN_FLIGHT * 3) // times 3 due to usage of Global Ubo + Lattice Ubo + specialrelativityUBO
 			.build();
 		UIDescriptorPool = MveDescriptorPool::Builder(mveDevice)
 			.setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
