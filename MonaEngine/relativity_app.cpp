@@ -431,16 +431,16 @@ namespace mve {
 		//gameObjects.emplace(dbgGameObject.getId(), std::move(dbgGameObject));
 
 
-		std::shared_ptr<MveModel> sphere = MveModel::createModelFromFile(mveDevice, "./models/pinksphere.obj");
-		auto earthGameObject = MveGameObject::createGameObject();
+		std::shared_ptr<MveModel> sphere = MveModel::createModelFromFile(mveDevice, "./models/colored_sphere.obj");
+		auto sphereGameObject = MveGameObject::createGameObject();
 
-		earthGameObject.model = sphere;
-		earthGameObject.transform.translation = { 1.f, 1.f, 1.f };
-		earthGameObject.transform.scale = glm::vec3{ 1.f,1.f,1.f };
+		sphereGameObject.model = sphere;
+		sphereGameObject.transform.translation = { 1.f, 1.f, 1.f };
+		sphereGameObject.transform.scale = glm::vec3{ 1.f,1.f,1.f };
 		
-		gameObjects.emplace(earthGameObject.getId(), std::move(earthGameObject));
+		gameObjects.emplace(sphereGameObject.getId(), std::move(sphereGameObject));
 
-		std::shared_ptr<MveModel> cube = MveModel::createModelFromFile(mveDevice, "./models/bluecube.obj");
+		std::shared_ptr<MveModel> cube = MveModel::createModelFromFile(mveDevice, "./models/colored_cube.obj");
 		auto cubeGameObject = MveGameObject::createGameObject();
 
 		cubeGameObject.model = cube;
