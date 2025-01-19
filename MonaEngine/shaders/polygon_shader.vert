@@ -57,22 +57,4 @@ void main() {
 	gl_Position = MVP * xi;
 
 	fragColor = vec4(color, 1.0);
-
-
-//	vec3 v = vec3(position - latticeUbo.Xp);
-//
-//	vec4 vertex = latticeUbo.L * vec4(v, -length(v));
-//	vertex.w = 1.0;
-//	
-//	mat4 MVP = (ubo.projection * ubo.view * push.modelMatrix);
-//
-//	vec4 pos = MVP * vertex;
-//
-//	gl_Position = pos;
-//	
-//	//float factor = max(0.0, min(1.0, (40.0/(pos.w*pos.w))));
-//	vec4 col = vec4(color, 1.0);
-//	//col.w *= factor;
-//	fragColor = col;
-
 }
