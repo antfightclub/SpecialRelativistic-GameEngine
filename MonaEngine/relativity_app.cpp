@@ -174,6 +174,7 @@ namespace mve {
 		// Set up time related variables
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float timeSince = 0.f; // used to count time between frames!
+		bool renderLattice = true; // whether to render lattice - set in imgui ui
 
 		// Main application update loop
 		while (!mveWindow.shouldClose()) { 
@@ -316,120 +317,125 @@ namespace mve {
 				// This could perhaps be separated into its own function, or perhaps be implemented in a render system.
 				// As it stands it is pretty messy code. But if it is its own class I will have to implement some way
 				// For it to get all the states I want. Could be done with a struct later on.
-
-				bool renderLattice; // whether to render the lattice
+				
+				bool p_open = true;
+				 // whether to render the lattice
 
 				ImGui_ImplVulkan_NewFrame();
 				ImGui_ImplGlfw_NewFrame();
 				ImGui::NewFrame();
 
-				ImGui::Begin("Debug UI");
-				
-				float framerate = ImGui::GetIO().Framerate; // Rolling average of last 60 frames
+		
+				if (ImGui::Begin("Debug UI", &p_open)) {
 
-				ImGui::Text("Total frame time = %.3f [s]", frameTime);
-				ImGui::Text("deltaTime = %.3f [ms]", dt*1000);
-				ImGui::Text("FPS = %.0f", framerate);
+					float framerate = ImGui::GetIO().Framerate; // Rolling average of last 60 frames
 
-				ImGui::NewLine();
+					ImGui::Text("Total frame time = %.3f [s]", frameTime);
+					ImGui::Text("deltaTime = %.3f [ms]", dt * 1000);
+					ImGui::Text("FPS = %.0f", framerate);
 
-				// Casting the desired values into a convenient format (as well as double->float)
-				std::array<float, 4> playerPosFloat = { (float)player.P.X.getT(), (float)player.P.X.getX(), (float)player.P.X.getY(), (float)player.P.X.getZ() };
-				std::array<float, 4> playerVelFloat = { (float)player.P.U.getT(), (float)player.P.U.getX(), (float)player.P.U.getY(), (float)player.P.U.getZ() };
-				std::array<float, 4> Xp_float = { 0.f, (float)Xp.x, (float)Xp.y, (float)Xp.z };
-				std::array<float, 4> Xo_float = { 0.f, (float)xo, (float)yo, (float)zo };
+					ImGui::NewLine();
 
-				enum ContentsType { CT_Text, CT_FillButton };
-				static ImGuiTableFlags flags = ImGuiTableFlags_Borders;
-				static bool display_headers = true;
-				static int contents_type = CT_Text;
-				// Player info table
-				ImGui::BeginTable("Player", 4, flags);
-				ImGui::TableSetupColumn("Pos"); // Position
-				ImGui::TableSetupColumn("Vel"); // Velocity
-				ImGui::TableSetupColumn("Xp");	// Currently the player position
-				ImGui::TableSetupColumn("Xo");  // Currently corresponds to a lattice index, sorta
-				ImGui::TableHeadersRow();
+					// Casting the desired values into a convenient format (as well as double->float)
+					std::array<float, 4> playerPosFloat = { (float)player.P.X.getT(), (float)player.P.X.getX(), (float)player.P.X.getY(), (float)player.P.X.getZ() };
+					std::array<float, 4> playerVelFloat = { (float)player.P.U.getT(), (float)player.P.U.getX(), (float)player.P.U.getY(), (float)player.P.U.getZ() };
+					std::array<float, 4> Xp_float = { 0.f, (float)Xp.x, (float)Xp.y, (float)Xp.z };
+					std::array<float, 4> Xo_float = { 0.f, (float)xo, (float)yo, (float)zo };
 
-				for (int row = 0; row < 4; row++) {
-					ImGui::TableNextRow();
-					for (int column = 0; column < 4; column++)
-					{
-						ImGui::TableSetColumnIndex(column);
-						if (column == 0) {
-							ImGui::Text("%+.3f", playerPosFloat[row]);
-						}
-						else if (column == 1) {
-							ImGui::Text("%+.3f", playerVelFloat[row]);
-						}
-						else if (column == 2) {
-							ImGui::Text("%+.3f", Xp_float[row]);
-						}
-						else if (column == 3) {
-							ImGui::Text("%+.3f", Xo_float[row]);
+					enum ContentsType { CT_Text, CT_FillButton };
+					static ImGuiTableFlags flags = ImGuiTableFlags_Borders;
+					static bool display_headers = true;
+					static int contents_type = CT_Text;
+					// Player info table
+					ImGui::BeginTable("Player", 4, flags);
+					ImGui::TableSetupColumn("Pos"); // Position
+					ImGui::TableSetupColumn("Vel"); // Velocity
+					ImGui::TableSetupColumn("Xp");	// Currently the player position
+					ImGui::TableSetupColumn("Xo");  // Currently corresponds to a lattice index, sorta
+					ImGui::TableHeadersRow();
+
+					for (int row = 0; row < 4; row++) {
+						ImGui::TableNextRow();
+						for (int column = 0; column < 4; column++)
+						{
+							ImGui::TableSetColumnIndex(column);
+							if (column == 0) {
+								ImGui::Text("%+.3f", playerPosFloat[row]);
+							}
+							else if (column == 1) {
+								ImGui::Text("%+.3f", playerVelFloat[row]);
+							}
+							else if (column == 2) {
+								ImGui::Text("%+.3f", Xp_float[row]);
+							}
+							else if (column == 3) {
+								ImGui::Text("%+.3f", Xo_float[row]);
+							}
 						}
 					}
-				}
-				ImGui::EndTable();
+					ImGui::EndTable();
 
-				// Lorentz 
-				double g = player.P.U.getGamma(); // Lorentz Factor
-				double u = std::sqrt(1.0 - (1.0 /(g*g))); // Fraction of c
-				double v = Math::c * u;
-				
-				ImGui::NewLine();
-				ImGui::Text("speed: %f [m/s]", v);
-				ImGui::Text("c = %f", u);
-				ImGui::Text("Lorentz factor: %.3f", g);
-				ImGui::NewLine();
-				ImGui::Text("Proper Time: %.3f [s]", frameTime);
-				ImGui::Text("World  Time: %.3f [s]", player.P.X.getT());
-				
-				ImGui::NewLine();
-				ImGui::Checkbox("show/hide lattice", &renderLattice);
+					// Lorentz 
+					double g = player.P.U.getGamma(); // Lorentz Factor
+					double u = std::sqrt(1.0 - (1.0 / (g * g))); // Fraction of c
+					double v = Math::c * u;
+
+					ImGui::NewLine();
+					ImGui::Text("speed: %f [m/s]", v);
+					ImGui::Text("c = %f", u);
+					ImGui::Text("Lorentz factor: %.3f", g);
+					ImGui::NewLine();
+					ImGui::Text("Proper Time: %.3f [s]", frameTime);
+					ImGui::Text("World  Time: %.3f [s]", player.P.X.getT());
+
+					ImGui::NewLine();
+					ImGui::Checkbox("show/hide lattice", &renderLattice);
 
 
-				ImGui::NewLine();
-				// View matrix 
-				ImGui::Text("View matrix");
-				ImGui::BeginTable("View Matrix", 4, flags);
-				ImGui::TableSetupColumn("col0");
-				ImGui::TableSetupColumn("col1");
-				ImGui::TableSetupColumn("col2");
-				ImGui::TableSetupColumn("col3");
-				ImGui::TableHeadersRow();
+					ImGui::NewLine();
+					// View matrix 
+					ImGui::Text("View matrix");
+					ImGui::BeginTable("View Matrix", 4, flags);
+					ImGui::TableSetupColumn("col0");
+					ImGui::TableSetupColumn("col1");
+					ImGui::TableSetupColumn("col2");
+					ImGui::TableSetupColumn("col3");
+					ImGui::TableHeadersRow();
 
-				for (int row = 0; row < 4; row++) {
-					ImGui::TableNextRow();
-					for (int column = 0; column < 4; column++)
-					{
-						ImGui::TableSetColumnIndex(column);
-						ImGui::Text("%+.3f", (float)cameraView[column][row]);
+					for (int row = 0; row < 4; row++) {
+						ImGui::TableNextRow();
+						for (int column = 0; column < 4; column++)
+						{
+							ImGui::TableSetColumnIndex(column);
+							ImGui::Text("%+.3f", (float)cameraView[column][row]);
+						}
 					}
-				}
-				ImGui::EndTable();
+					ImGui::EndTable();
 
-				ImGui::NewLine();
-				// Lorentz matrix 
-				ImGui::Text("Lorentz matrix");
-				ImGui::BeginTable("Lorentz matrix", 4, flags);
-				ImGui::TableSetupColumn("col0");
-				ImGui::TableSetupColumn("col1");
-				ImGui::TableSetupColumn("col2");
-				ImGui::TableSetupColumn("col3");
-				ImGui::TableHeadersRow();
+					ImGui::NewLine();
+					// Lorentz matrix 
+					ImGui::Text("Lorentz matrix");
+					ImGui::BeginTable("Lorentz matrix", 4, flags);
+					ImGui::TableSetupColumn("col0");
+					ImGui::TableSetupColumn("col1");
+					ImGui::TableSetupColumn("col2");
+					ImGui::TableSetupColumn("col3");
+					ImGui::TableHeadersRow();
 
-				for (int row = 0; row < 4; row++) {
-					ImGui::TableNextRow();
-					for (int column = 0; column < 4; column++)
-					{
-						ImGui::TableSetColumnIndex(column);
-						ImGui::Text("%+.3f", (float)lorentz[column][row]);
+					for (int row = 0; row < 4; row++) {
+						ImGui::TableNextRow();
+						for (int column = 0; column < 4; column++)
+						{
+							ImGui::TableSetColumnIndex(column);
+							ImGui::Text("%+.3f", (float)lorentz[column][row]);
+						}
+
 					}
-				
+					ImGui::EndTable();
+					
 				}
-				ImGui::EndTable();
 				ImGui::End();
+				
 
 				// ********** End Dear ImGui **********
 
