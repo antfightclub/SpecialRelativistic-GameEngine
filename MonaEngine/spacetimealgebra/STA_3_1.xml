@@ -34,8 +34,8 @@
 	name4="g3"
 	/>
 
-<metric name="default">g0.g0 = 1</metric>
-<metric name="default">g1.g1 = g2.g2 = g3.g3 = -1</metric>
+<metric name="default">g0.g0 = -1</metric>
+<metric name="default">g1.g1 = g2.g2 = g3.g3 = 1</metric>
 
 <mv name="mv" compress="byGrade" coordinateOrder="custom" memAlloc="dynamic">
 	scalar

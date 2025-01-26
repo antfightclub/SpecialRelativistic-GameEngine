@@ -600,7 +600,7 @@ int test_metric_default_mv(int NB_TESTS_SCALER)
 	double arr[4], dif;
 	mv A, bv[4];
 	double M[16+1] = {
-		1.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0	}; // metric matrix
+		-1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0	}; // metric matrix
 
 	// get all basis vectors
 
@@ -744,7 +744,7 @@ int test_genrand_double(int NB_TESTS_SCALER)
 	return 1; // success
 }
 
-int test_add_dont_mangle_44(int NB_TESTS_SCALER) 
+int test_add_dont_mangle_40(int NB_TESTS_SCALER) 
 {
 	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 16;
 	mv A, B, C;
@@ -772,7 +772,7 @@ int test_add_dont_mangle_44(int NB_TESTS_SCALER)
 	return 1; // success
 }
 
-int test_subtract_dont_mangle_42(int NB_TESTS_SCALER) 
+int test_subtract_dont_mangle_44(int NB_TESTS_SCALER) 
 {
 	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 16;
 	mv A, B, C;
@@ -799,7 +799,7 @@ int test_subtract_dont_mangle_42(int NB_TESTS_SCALER)
 	return 1; // success
 }
 
-int test_div_dont_mangle_40(int NB_TESTS_SCALER) {
+int test_div_dont_mangle_41(int NB_TESTS_SCALER) {
 	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 16;
 	int i;
 	mv A, B, C, dif;
@@ -828,7 +828,7 @@ int test_div_dont_mangle_40(int NB_TESTS_SCALER) {
 	return 1; // success
 }
 
-int test_dual_dont_mangle_41(int NB_TESTS_SCALER) 
+int test_dual_dont_mangle_43(int NB_TESTS_SCALER) 
 {
 	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 16;
 	mv A, B, C, dif;
@@ -853,7 +853,7 @@ int test_dual_dont_mangle_41(int NB_TESTS_SCALER)
 	return 1; // success
 }
 
-int test_undual_dont_mangle_43(int NB_TESTS_SCALER) 
+int test_undual_dont_mangle_42(int NB_TESTS_SCALER) 
 {
 	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 16;
 	mv A, B, C, dif;
@@ -1224,7 +1224,7 @@ int test_gradeBitmap_dont_mangle_55(int NB_TESTS_SCALER)
 	return 1; // success
 }
 
-int test_increment_dont_mangle_56(int NB_TESTS_SCALER) 
+int test_increment_dont_mangle_57(int NB_TESTS_SCALER) 
 {
 	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 16;
 	mv A, B, C, D, one;
@@ -1255,7 +1255,7 @@ int test_increment_dont_mangle_56(int NB_TESTS_SCALER)
 	return 1; // success
 }
 
-int test_decrement_dont_mangle_57(int NB_TESTS_SCALER) 
+int test_decrement_dont_mangle_58(int NB_TESTS_SCALER) 
 {
 	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 16;
 	mv A, B, C, D, one;
@@ -1286,7 +1286,7 @@ int test_decrement_dont_mangle_57(int NB_TESTS_SCALER)
 	return 1; // success
 }
 
-int test_sp_dont_mangle_58(int NB_TESTS_SCALER) 
+int test_sp_dont_mangle_56(int NB_TESTS_SCALER) 
 {
 	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 16;
 	mv A, B, C, D, E, dif;
@@ -1321,7 +1321,7 @@ int test_sp_dont_mangle_58(int NB_TESTS_SCALER)
 	return 1; // success
 }
 
-int test_lc_dont_mangle_59(int NB_TESTS_SCALER) 
+int test_lc_dont_mangle_61(int NB_TESTS_SCALER) 
 {
 	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 16;
 	mv A, B, C, D, E, dif;
@@ -1357,7 +1357,7 @@ int test_lc_dont_mangle_59(int NB_TESTS_SCALER)
 	return 1; // success
 }
 
-int test_rc_dont_mangle_60(int NB_TESTS_SCALER) 
+int test_rc_dont_mangle_59(int NB_TESTS_SCALER) 
 {
 	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 16;
 	mv A, B, C, D, E, dif;
@@ -1393,7 +1393,7 @@ int test_rc_dont_mangle_60(int NB_TESTS_SCALER)
 	return 1; // success
 }
 
-int test_hip_dont_mangle_61(int NB_TESTS_SCALER) 
+int test_hip_dont_mangle_60(int NB_TESTS_SCALER) 
 {
 	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 16;
 	mv A, B, C, D, E, dif;
@@ -1884,7 +1884,7 @@ int test_gradeInvolution_dont_mangle_74(int NB_TESTS_SCALER)
 	return 1; // success
 }
 
-int test_unit_dont_mangle_75(int NB_TESTS_SCALER) 
+int test_unit_dont_mangle_77(int NB_TESTS_SCALER) 
 {
 	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 16;
 	mv A, UA, RUA;
@@ -1909,7 +1909,7 @@ int test_unit_dont_mangle_75(int NB_TESTS_SCALER)
 	return 1; // success
 }
 
-int test_versorInverse_dont_mangle_77(int NB_TESTS_SCALER) 
+int test_versorInverse_dont_mangle_75(int NB_TESTS_SCALER) 
 {
 	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 16;
 	mv V, VI, VVI, VIV, X, Y;
@@ -2013,11 +2013,11 @@ int main(int argc, char *argv[]) {
 	if (!m4sta::test_metric__internal_euclidean_metric__mv(NB_TESTS_SCALER)) retVal = -1;
 	if (!m4sta::test_parse_mv(NB_TESTS_SCALER)) retVal = -1;
 	if (!m4sta::test_genrand_double(NB_TESTS_SCALER)) retVal = -1;
-	if (!m4sta::test_add_dont_mangle_44(NB_TESTS_SCALER)) retVal = -1;
-	if (!m4sta::test_subtract_dont_mangle_42(NB_TESTS_SCALER)) retVal = -1;
-	if (!m4sta::test_div_dont_mangle_40(NB_TESTS_SCALER)) retVal = -1;
-	if (!m4sta::test_dual_dont_mangle_41(NB_TESTS_SCALER)) retVal = -1;
-	if (!m4sta::test_undual_dont_mangle_43(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_add_dont_mangle_40(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_subtract_dont_mangle_44(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_div_dont_mangle_41(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_dual_dont_mangle_43(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_undual_dont_mangle_42(NB_TESTS_SCALER)) retVal = -1;
 	if (!m4sta::test_equals_dont_mangle_45(NB_TESTS_SCALER)) retVal = -1;
 	if (!m4sta::test_extractGrade_dont_mangle_46(NB_TESTS_SCALER)) retVal = -1;
 	if (!m4sta::test_extractGrade0_dont_mangle_47(NB_TESTS_SCALER)) retVal = -1;
@@ -2028,12 +2028,12 @@ int main(int argc, char *argv[]) {
 	if (!m4sta::test_gp_dont_mangle_52(NB_TESTS_SCALER)) retVal = -1;
 	if (!m4sta::test_igp_dont_mangle_54(NB_TESTS_SCALER)) retVal = -1;
 	if (!m4sta::test_gradeBitmap_dont_mangle_55(NB_TESTS_SCALER)) retVal = -1;
-	if (!m4sta::test_increment_dont_mangle_56(NB_TESTS_SCALER)) retVal = -1;
-	if (!m4sta::test_decrement_dont_mangle_57(NB_TESTS_SCALER)) retVal = -1;
-	if (!m4sta::test_sp_dont_mangle_58(NB_TESTS_SCALER)) retVal = -1;
-	if (!m4sta::test_lc_dont_mangle_59(NB_TESTS_SCALER)) retVal = -1;
-	if (!m4sta::test_rc_dont_mangle_60(NB_TESTS_SCALER)) retVal = -1;
-	if (!m4sta::test_hip_dont_mangle_61(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_increment_dont_mangle_57(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_decrement_dont_mangle_58(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_sp_dont_mangle_56(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_lc_dont_mangle_61(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_rc_dont_mangle_59(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_hip_dont_mangle_60(NB_TESTS_SCALER)) retVal = -1;
 	if (!m4sta::test_mhip_dont_mangle_62(NB_TESTS_SCALER)) retVal = -1;
 	if (!m4sta::test_norm_dont_mangle_63(NB_TESTS_SCALER)) retVal = -1;
 	if (!m4sta::test_norm2_dont_mangle_64(NB_TESTS_SCALER)) retVal = -1;
@@ -2046,8 +2046,8 @@ int main(int argc, char *argv[]) {
 	if (!m4sta::test_reverse_dont_mangle_72(NB_TESTS_SCALER)) retVal = -1;
 	if (!m4sta::test_cliffordConjugate_dont_mangle_73(NB_TESTS_SCALER)) retVal = -1;
 	if (!m4sta::test_gradeInvolution_dont_mangle_74(NB_TESTS_SCALER)) retVal = -1;
-	if (!m4sta::test_unit_dont_mangle_75(NB_TESTS_SCALER)) retVal = -1;
-	if (!m4sta::test_versorInverse_dont_mangle_77(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_unit_dont_mangle_77(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_versorInverse_dont_mangle_75(NB_TESTS_SCALER)) retVal = -1;
 	if (!m4sta::test_zero_dont_mangle_76(NB_TESTS_SCALER)) retVal = -1;
 
 	if (retVal != 0) printf("Test failed.\n");
