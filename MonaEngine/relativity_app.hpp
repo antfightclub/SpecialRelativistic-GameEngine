@@ -44,7 +44,7 @@ namespace mve {
 		void run();
 		
 	private:
-
+		glm::mat4 m4sta_to_glm_Lorentz(m4sta::mv PlayerU);
 		void setupDearImgui();
 		void loadGameObjects();
 		

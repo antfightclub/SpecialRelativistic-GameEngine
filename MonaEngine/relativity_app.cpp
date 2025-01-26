@@ -158,10 +158,10 @@ namespace mve {
 		Player player{ mveWindow , viewerObject, Math::Vector4D{}, Math::EntityState{} }; // Game player
 
 
-		std::shared_ptr<MveModel> sphereModel = MveModel::createModelFromFile(mveDevice, "./models/gay_cube.obj");
+		std::shared_ptr<MveModel> cubeModel = MveModel::createModelFromFile(mveDevice, "./models/gay_cube.obj");
 
 		auto enemyObject = MveGameObject::createGameObject(); // The enemy's game object
-		enemyObject.model = sphereModel;
+		enemyObject.model = cubeModel;
 		Enemy enemy{ mveWindow, enemyObject, Math::Vector4D{0.0, 3.0, 0.0, 4.0}, Math::EntityState{} };
 		enemyObject.transform.translation = { 3.0f, 0.0f, 4.0f };
 		gameObjects.emplace(enemyObject.getId(), std::move(enemyObject));
@@ -175,6 +175,8 @@ namespace mve {
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float timeSince = 0.f; // used to count time between frames!
 		bool renderLattice = true; // whether to render lattice - set in imgui ui
+
+		//float sta_vel[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 		// Main application update loop
 		while (!mveWindow.shouldClose()) { 
@@ -260,6 +262,13 @@ namespace mve {
 				int zo = int(int(Xp.z / (lattice.latticeUnit)) * (lattice.latticeUnit));
 				
 
+				double PlayerU[4] = { player.P.U.getT(), player.P.U.getX(), player.P.U.getY(), player.P.U.getZ() };
+				//STA testing
+				m4sta::mv spacetimeVelocity = m4sta::vector(m4sta::vector::coord_g0_g1_g2_g3, PlayerU);
+				glm::mat4 lorentz_sta = m4sta_to_glm_Lorentz(spacetimeVelocity);
+				m4sta::mv negativeSpacetimeVelocity = m4sta::vector(m4sta::vector::coord_g0_g1_g2_g3, -PlayerU[0], -PlayerU[1], -PlayerU[2], -PlayerU[3]);
+				glm::mat4 lorentz_sta_inv = m4sta_to_glm_Lorentz(negativeSpacetimeVelocity);
+
 				Math::Matrix44 L{};	
 				L = Math::Matrix44::Lorentz(player.P.U); // Lorentz boost matrix : Bg frame -> Player frame
 				glm::mat4 lorentz = L.toGLM();			 // .toGLM() transposes the matrix to conform to GLSL conventions
@@ -272,7 +281,7 @@ namespace mve {
 				LatticeUbo latticeUbo{};
 				latticeUbo.Xp = glm::vec3{ Xp.x, Xp.y, Xp.z};
 				latticeUbo.Xo = glm::vec3{ xo,   yo,   zo };
-				latticeUbo.Lorentz = lorentz;
+				latticeUbo.Lorentz = lorentz_sta;
 				latticeUboBuffers[frameIndex]->writeToBuffer(&latticeUbo);
 				latticeUboBuffers[frameIndex]->flush();
 				latticeUboBuffer.flushIndex(frameIndex);
@@ -318,7 +327,8 @@ namespace mve {
 				// As it stands it is pretty messy code. But if it is its own class I will have to implement some way
 				// For it to get all the states I want. Could be done with a struct later on.
 				
-				bool p_open = true;
+				bool debug_open = true;
+				bool sta_open = true;
 				 // whether to render the lattice
 
 				ImGui_ImplVulkan_NewFrame();
@@ -326,7 +336,7 @@ namespace mve {
 				ImGui::NewFrame();
 
 		
-				if (ImGui::Begin("Debug UI", &p_open)) {
+				if (ImGui::Begin("Debug UI", &debug_open)) {
 
 					float framerate = ImGui::GetIO().Framerate; // Rolling average of last 60 frames
 
@@ -432,6 +442,12 @@ namespace mve {
 
 					}
 					ImGui::EndTable();
+					
+				}
+				ImGui::End();
+				if (ImGui::Begin("Spacetime Algebra", &sta_open)) {
+					
+					//ImGui::SliderFloat3("vel", sta_vel, 0.0f, 0.9999f);
 					
 				}
 				ImGui::End();
@@ -567,5 +583,63 @@ namespace mve {
 		ImGui_ImplVulkan_Init(&init_info);
 		
 		ImGui_ImplVulkan_CreateFontsTexture();
+	}
+
+
+	glm::mat4 RelativityApp::m4sta_to_glm_Lorentz(m4sta::mv PlayerU) {
+		//double lorentzfactor = _double(PlayerU * m4sta::g0); // Spacetime split gives a relative scalar and three 
+		//std::cout << "scalar part of PlayerU = " << lorentzfactor << "\n";
+		//std::cout << "PlayerU raw            = " << (PlayerU*m4sta::g0).toString() << "\n";
+		
+		glm::mat4 m{ 1.0f };
+
+		double x, y, z, x2, y2, z2, r, g, xy, yz, zx;
+		// Spacetime split: geometric product between player velocity and timelike direction
+		// The metrics currently clash; monaengine has been using (+---) and m4sta uses (-+++).
+		// It would be most convenient to make sure they line up, but to fix the discrepancy,
+		// you can just negate the result of the spacetime split or you can use -m4sta::g0
+		x = (PlayerU * (-m4sta::g0)).get_g0_g1();
+		y = (PlayerU * (-m4sta::g0)).get_g0_g2();
+		z = (PlayerU * (-m4sta::g0)).get_g0_g3();
+	
+		x2 = x * x;
+		y2 = y * y;
+		z2 = z * z;
+		r = x2 + y2 + z2;
+		if (r > 0.0) {
+			g = std::sqrt(1.0 + r);
+			r = 1.0 / r;
+			xy = (g - 1.0) * x * y * r;
+			yz = (g - 1.0) * y * z * r;
+			zx = (g - 1.0) * z * x * r;
+			//[col][row]
+			m[0][0] = (g * x2 + y2 + z2) * r;
+			m[0].y = xy;
+			m[0].z = zx;
+			m[0].w = -x;
+
+			m[1].x = xy;
+			m[1].y = (x2 + g * y2  + z2) *r;
+			m[1].z = yz; 
+			m[1].w = -y;
+
+			m[2].x = zx;
+			m[2].y = yz;
+			m[2].z = (x2 + y2 + g* z2)*r;
+			m[2].w = -z;
+
+			m[3].x = -x;
+			m[3].y = -y;
+			m[3].z = -z;
+			m[3].w = g;
+
+			return m;
+		}
+		else {
+			return m;
+		}
+
+		
+
 	}
 }
