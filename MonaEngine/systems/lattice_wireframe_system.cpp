@@ -64,7 +64,7 @@ namespace mve {
 	}
 
 	
-	void LatticeWireframeSystem::renderWireframe(FrameInfo& frameInfo) {
+	void LatticeWireframeSystem::renderWireframe(FrameInfo& frameInfo, unsigned int id) {
 		mvePipeline->bind(frameInfo.frameCommandBuffers.mainCommandBuffer);
 		vkCmdBindDescriptorSets(
 			frameInfo.frameCommandBuffers.mainCommandBuffer,
@@ -75,30 +75,21 @@ namespace mve {
 			&frameInfo.descriptorSet,
 			0,
 			nullptr);
-		
-		// If I only want to use this to render the wireframe game object, 
-		// then I should probably just pass the lattice game object's ID
-		// instead of looping through all gameobjects.
-		// In truth this pattern is wholly inefficient, but at this stage, it works.
-		for (auto& kv : frameInfo.gameObjects) {
-			auto& obj = kv.second;
-			if (obj.model == nullptr) continue; // Skip gameobject if it has no model (e.g. camera)
-			SimplePushConstantData push{};
-			auto modelMatrix = obj.transform.mat4();
-			push.modelMatrix = modelMatrix;
-			
-			vkCmdPushConstants(
-				frameInfo.frameCommandBuffers.mainCommandBuffer,
-				pipelineLayout,
-				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-				0,
-				sizeof(SimplePushConstantData),
-				&push);
-			obj.model->bind(frameInfo.frameCommandBuffers.mainCommandBuffer);
-			obj.model->draw(frameInfo.frameCommandBuffers.mainCommandBuffer);
 
-		}
-
+		auto& obj = frameInfo.gameObjects.at(id);
+		SimplePushConstantData push{};
+		auto modelMatrix = obj.transform.mat4();
+		push.modelMatrix = modelMatrix;
+	
+		vkCmdPushConstants(
+			frameInfo.frameCommandBuffers.mainCommandBuffer,
+			pipelineLayout,
+			VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+			0,
+			sizeof(SimplePushConstantData),
+			&push);
+		obj.model->bind(frameInfo.frameCommandBuffers.mainCommandBuffer);
+		obj.model->draw(frameInfo.frameCommandBuffers.mainCommandBuffer);
 	}
 
 }

@@ -2,29 +2,27 @@
 
 #include "Vector4D.hpp"
 #include "Quaternion.hpp"
+#include "PhaseSpace.hpp"
 
 #include <vector>
 #include <iostream>
 
 namespace Math {
 
-	struct indexands {
-		int index;
-		double s;
+	struct PLCInterpolateInfo {
+		int index;		// index of worldline
+		double sigma;	// between 0 and 1
 	};
 
-
-
-	// 
+	// Represents a state of an entity, usually after interpolation between worldline entries.
 	struct EntityState {
-		//Quaternion quaternion{ 0.0 };
-		//???
+		Quaternion quaternion{};
 	};
 
 	struct StateOnPLC {
 		EntityState state0{};
 		EntityState state1{};
-		double s;
+		double sigma;
 	};
 
 	class WorldLine {
@@ -42,11 +40,11 @@ namespace Math {
 			State.push_back(state);
 			this->n = 1;
 			this->last = -1;
-			ix_s.index = 1;
-			ix_s.s = 0.0;
+			plcInterpolateInfo.index = 1;
+			plcInterpolateInfo.sigma = 0.0;
 		}
 
-		void add(Vector4D line, EntityState state);
+		void add(Vector4D lineEntry, EntityState stateEntry);
 		
 		void cut();
 
@@ -55,11 +53,10 @@ namespace Math {
 		Vector4D getX_FP(Vector4D Xp_py, double w = 0.5);
 
 		// Get X (spacetime position) and U (velocity)
-		std::vector<Vector4D> getXU_OnPLC(Vector4D Xp_py);
+		PhaseSpace getXU_OnPLC(Vector4D Xp_py);
 
-		// Return StateOnPLC which contains two state objects as well as a double for time.
-		// Get i by searchPositionOnPLC
-		StateOnPLC getStateOnPLC(int i);
+		// Only call this after getXU_OnPLC!
+		StateOnPLC getStateOnPLC();
 
 		// Python syntax would be to Line[-1] but not sure if std::vector allows that!
 		Vector4D getLast();
@@ -72,12 +69,9 @@ namespace Math {
 	private:
 		int n;
 		int last;
-		indexands ix_s;
+		PLCInterpolateInfo plcInterpolateInfo{};
 		std::vector<Vector4D> Line;
 		std::vector<EntityState> State;
-		id_t mveGameObjectID;
-
-	
-		
+		id_t mveGameObjectID;		
 	};
 }

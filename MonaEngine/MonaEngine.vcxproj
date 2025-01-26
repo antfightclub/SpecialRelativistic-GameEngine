@@ -135,6 +135,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="enemy.cpp" />
     <ClCompile Include="external\imgui\imgui.cpp" />
     <ClCompile Include="external\imgui\imgui_demo.cpp" />
     <ClCompile Include="external\imgui\imgui_draw.cpp" />
@@ -166,8 +167,10 @@
     <ClCompile Include="systems\imgui_render_system.cpp" />
     <ClCompile Include="systems\lattice_wireframe_system.cpp" />
     <ClCompile Include="systems\simple_render_system.cpp" />
+    <ClCompile Include="systems\sr_render_system.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="enemy.hpp" />
     <ClInclude Include="external\imgui\imconfig.h" />
     <ClInclude Include="external\imgui\imgui.h" />
     <ClInclude Include="external\imgui\imgui_impl_glfw.h" />
@@ -200,11 +203,14 @@
     <ClInclude Include="systems\imgui_render_system.hpp" />
     <ClInclude Include="systems\lattice_wireframe_system.hpp" />
     <ClInclude Include="systems\simple_render_system.hpp" />
+    <ClInclude Include="systems\sr_render_system.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\compile.bat" />
     <None Include="shaders\lattice_shader.frag" />
     <None Include="shaders\lattice_shader.vert" />
+    <None Include="shaders\polygon_shader.frag" />
+    <None Include="shaders\polygon_shader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

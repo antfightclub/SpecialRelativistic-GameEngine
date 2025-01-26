@@ -35,7 +35,7 @@ namespace mve {
 		this->P.transform(acceleration, deltaTime);
 
 		this->time += deltaTime;
-		Math::EntityState entityState{}; // EntityState is an empty struct so far, still not sure on how to use; but it's here for the future.
+		Math::EntityState entityState{this->quaternion}; // EntityState is defined in WorldLine.hpp, it only contains the orientation quaternion for now. Later it could include other things.
 		this->worldline.add(P.X, entityState);
 	}
 

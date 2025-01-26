@@ -399,3 +399,5 @@ FodyWeavers.xsd
 
 # Compiled SPIR-V shader binaries
 *.spv
+*.vert.spv
+*.frag.spv

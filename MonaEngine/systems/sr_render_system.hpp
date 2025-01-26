@@ -11,19 +11,18 @@
 #include <vector>
 
 namespace mve {
-	class LatticeWireframeSystem {
+	class SRRenderSystem {
 	public:
 
-		LatticeWireframeSystem(MveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout descriptorSetLayout);
-		~LatticeWireframeSystem();
+		SRRenderSystem(MveDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout descriptorSetLayout);
+		~SRRenderSystem();
 
-		LatticeWireframeSystem(const LatticeWireframeSystem&) = delete;
-		LatticeWireframeSystem& operator=(const LatticeWireframeSystem&) = delete;
+		SRRenderSystem(const SRRenderSystem&) = delete;
+		SRRenderSystem& operator=(const SRRenderSystem&) = delete;
 
-		void renderWireframe(FrameInfo& frameInfo, unsigned int id); // MveGameObject id
+		void render(FrameInfo& frameInfo, unsigned int NOTid);
 
 	private:
-		// "global" here refers to the "GlobalUbo" defined in mve::FrameInfo::GlobalUbo
 		void createPipelineLayout(VkDescriptorSetLayout globalDescriptorSetLayout);
 		void createPipeline(VkRenderPass renderPass);
 

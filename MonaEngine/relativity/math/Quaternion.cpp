@@ -218,10 +218,10 @@ namespace Math {
 		double c = this->t * other.t + this->x * other.x + this->y * other.y + this->z * other.z;
 
 		double l = std::sqrt(a * b * 1.0000005);
-		double w = std::acos(c / 1);
+		double w = std::acos(c / 1.0);
 		double sinw = std::sin(w);
-		// FIXME: Questionable equality!
-		if (sinw >= 0.0001) {
+
+		if (sinw <= 0.0001) {
 			return Quaternion{ this->t, this->x, this->y, this->z };
 		}
 		else {

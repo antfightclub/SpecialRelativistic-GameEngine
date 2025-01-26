@@ -3,8 +3,10 @@
 // Application
 #include "mve_camera.hpp"
 #include "systems/lattice_wireframe_system.hpp"
+#include "systems/sr_render_system.hpp"
 #include "mve_buffer.hpp"
 #include "player.hpp"
+#include "enemy.hpp"
 
 // Math namespace
 #include "relativity/math/Matrix44.hpp"
@@ -34,8 +36,7 @@ namespace mve {
 		// Initialization: Allocate a descriptor pool for the main rendering system and one for DearImGui.
 		globalPool = MveDescriptorPool::Builder(mveDevice)
 			.setMaxSets(MveSwapChain::MAX_FRAMES_IN_FLIGHT * 2)
-			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MveSwapChain::MAX_FRAMES_IN_FLIGHT * 2) // times 2 due to usage of Global Ubo + Lattice Ubo 
-			.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MveSwapChain::MAX_FRAMES_IN_FLIGHT)
+			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MveSwapChain::MAX_FRAMES_IN_FLIGHT * 3) // times 3 due to usage of Global Ubo + Lattice Ubo + specialrelativityUBO
 			.build();
 		UIDescriptorPool = MveDescriptorPool::Builder(mveDevice)
 			.setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
@@ -53,6 +54,31 @@ namespace mve {
 	RelativityApp::~RelativityApp() {} // MveWindow, MveDevice, and MveRenderer, as well as MveGameObject map and MveDescriptorPool have their own mechanisms for cleanup
 	
 	void RelativityApp::run() {
+
+		// Create Uniform Buffer Object for SpecialRelativityUbo, contains relativity stuff between other entities and player
+		std::vector<std::unique_ptr<MveBuffer>> specialRelativityUboBuffers(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < specialRelativityUboBuffers.size(); i++) {
+			specialRelativityUboBuffers[i] = std::make_unique<MveBuffer>(
+				mveDevice,
+				sizeof(SpecialRelativityUbo),
+				1,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+			);
+			specialRelativityUboBuffers[i]->map();
+		}
+
+		MveBuffer specialRelativityUboBuffer{
+			mveDevice,
+			sizeof(SpecialRelativityUbo),
+			MveSwapChain::MAX_FRAMES_IN_FLIGHT,
+			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+			mveDevice.properties.limits.minUniformBufferOffsetAlignment,
+		};
+		specialRelativityUboBuffer.map();
+
+
 		// Create Uniform Buffer Object for LatticeUbo, which contains relativity stuff for the wireframe lattice
 		std::vector<std::unique_ptr<MveBuffer>> latticeUboBuffers(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (int i = 0; i < latticeUboBuffers.size(); i++) {
@@ -104,6 +130,7 @@ namespace mve {
 		auto globalSetLayout = MveDescriptorSetLayout::Builder(mveDevice)
 			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U) // GlobalUbo 
 			.addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U) // LatticeUBo
+			.addBinding(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U) // SpecialRelativityUbo
 			.build();
 		
 		// Write the descriptor sets to buffers
@@ -111,20 +138,33 @@ namespace mve {
 		for (int i = 0; i < descriptorSets.size(); i++) {	
 			auto globalBufferInfo = globalUboBuffers[i]->descriptorInfo();
 			auto latticeBufferInfo = latticeUboBuffers[i]->descriptorInfo();
+			auto srBufferInfo = specialRelativityUboBuffers[i]->descriptorInfo();
 			MveDescriptorWriter(*globalSetLayout, *globalPool)
 				.writeBuffer(0, &globalBufferInfo)
 				.writeBuffer(1, &latticeBufferInfo)
+				.writeBuffer(2, &srBufferInfo)
 				.build(descriptorSets[i]);
 		}
 
-		// Wireframe Lattice around player
+		// Set up render systems
 		LatticeWireframeSystem latticeRenderSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()};
+		SRRenderSystem srRenderSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
+
+
 		MveCamera camera{};		
 		glm::mat4 cameraView{ 1.0 }; // This will be updated later in the update loop
 		
 		auto viewerObject = MveGameObject::createGameObject(); // Game object to hold camera position
-		
 		Player player{ mveWindow , viewerObject, Math::Vector4D{}, Math::EntityState{} }; // Game player
+
+
+		std::shared_ptr<MveModel> sphereModel = MveModel::createModelFromFile(mveDevice, "./models/gay_cube.obj");
+
+		auto enemyObject = MveGameObject::createGameObject(); // The enemy's game object
+		enemyObject.model = sphereModel;
+		Enemy enemy{ mveWindow, enemyObject, Math::Vector4D{0.0, 3.0, 0.0, 4.0}, Math::EntityState{} };
+		enemyObject.transform.translation = { 3.0f, 0.0f, 4.0f };
+		gameObjects.emplace(enemyObject.getId(), std::move(enemyObject));
 
 		// Used to have the keyboard input controller defined here
 		// But the functionality has since been moved to MveWindow
@@ -134,6 +174,7 @@ namespace mve {
 		// Set up time related variables
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float timeSince = 0.f; // used to count time between frames!
+		bool renderLattice = true; // whether to render lattice - set in imgui ui
 
 		// Main application update loop
 		while (!mveWindow.shouldClose()) { 
@@ -148,7 +189,7 @@ namespace mve {
 				
 			float aspect = mveRenderer.getAspectRatio();
 
-			camera.setPerspectiveProjection(glm::radians(100.f), aspect, 0.01f, 1000.0f);
+			camera.setPerspectiveProjection(glm::radians(70.0f), aspect, 0.01f, 1000.0f);
 
 			// poll this every update loop, but only actaully begin new frame if one is ready from the swap chain. 
 			// MveRenderer (and by extension MveSwapChain) is responsible for acquiring next image for rendering
@@ -177,6 +218,7 @@ namespace mve {
 				// ********** Update game **********
 
 				player.Action(mveWindow.getGLFWwindow(), dt);
+				enemy.Action(mveWindow.getGLFWwindow(), dt);
 
 				// Should get a GLM rotation matrix directly instead of this, but will require a rewrite of Math:: namespace
 				Math::Quaternion playerOrientation = player.quaternion;
@@ -221,146 +263,199 @@ namespace mve {
 				Math::Matrix44 L{};	
 				L = Math::Matrix44::Lorentz(player.P.U); // Lorentz boost matrix : Bg frame -> Player frame
 				glm::mat4 lorentz = L.toGLM();			 // .toGLM() transposes the matrix to conform to GLSL conventions
-								
-				L = Math::Matrix44::Lorentz(-player.P.U);	// Not sure how to use yet; but it transforms from the player's frame of reference to the background frame of reference.
-				glm::mat4 invLorenz = L.toGLM();
+				
+				Math::Matrix44 LL{};
+				LL = Math::Matrix44::Lorentz(-player.P.U);	// Not sure how to use yet; but it transforms from the player's frame of reference to the background frame of reference.
+				glm::mat4 invLorenz = LL.toGLM();
 				
 				// Update buffer holding LatticeUbo
 				LatticeUbo latticeUbo{};
 				latticeUbo.Xp = glm::vec3{ Xp.x, Xp.y, Xp.z};
 				latticeUbo.Xo = glm::vec3{ xo,   yo,   zo };
 				latticeUbo.Lorentz = lorentz;
-				latticeUbo.invLorentz = invLorenz;
 				latticeUboBuffers[frameIndex]->writeToBuffer(&latticeUbo);
 				latticeUboBuffers[frameIndex]->flush();
 				latticeUboBuffer.flushIndex(frameIndex);
+
+
+
+				EnemyDrawData eDrawData = enemy.getDrawData(player.P.X, L, LL);
+
+				Math::Vector4D dX = eDrawData.X - player.P.X;
+				dX.setT(-dX.length()); // spacetime interval
+				Math::Vector4D negdX = -dX;
+				Math::Vector4D x_p = Math::Matrix44::Lorentz(eDrawData.U).getTransform(negdX);
+				
+				glm::vec4 xp = glm::vec4{ (float)x_p.getX(), (float)x_p.getY(), (float)x_p.getZ(), (float)x_p.getT() };
+
+				Math::Vector4D dee_X = L.getTransform(dX);
+				glm::vec4 dX_playerframe = glm::vec4{ (float)dee_X.getX(), (float)dee_X.getY(), (float)dee_X.getZ(), 0.f };
+
+				// LL   -    player frame to background frame, then background frame to enemy frame
+				glm::mat4 L_p2b_b2e = (Math::Matrix44::Lorentz(eDrawData.U) * LL).toGLM();
+
+				// L    -    enemy to player frame
+				glm::mat4 L_e2p = (L * Math::Matrix44::Lorentz(-eDrawData.U)).toGLM();
+
+				glm::quat enemyOrientation = glm::quat{ (float)eDrawData.quaternion.t, (float)eDrawData.quaternion.x, (float)eDrawData.quaternion.y, (float)eDrawData.quaternion.z };
+
+				SpecialRelativityUbo srUbo{};
+				srUbo.Lorentz = L_e2p;
+				srUbo.Lorentz_p2e = L_p2b_b2e;
+				srUbo.Rotate = glm::toMat4(enemyOrientation);
+				srUbo.dX = dX_playerframe;
+				srUbo.xp = xp;
+				specialRelativityUboBuffers[frameIndex]->writeToBuffer(&srUbo);
+				specialRelativityUboBuffers[frameIndex]->flush();
+				specialRelativityUboBuffer.flushIndex(frameIndex);
+
+
+
 
 
 				// ********** Update Dear ImGui state **********
 				// This could perhaps be separated into its own function, or perhaps be implemented in a render system.
 				// As it stands it is pretty messy code. But if it is its own class I will have to implement some way
 				// For it to get all the states I want. Could be done with a struct later on.
+				
+				bool p_open = true;
+				 // whether to render the lattice
 
 				ImGui_ImplVulkan_NewFrame();
 				ImGui_ImplGlfw_NewFrame();
 				ImGui::NewFrame();
 
-				ImGui::Begin("Debug UI");
-				
-				float framerate = ImGui::GetIO().Framerate; // Rolling average of last 60 frames
+		
+				if (ImGui::Begin("Debug UI", &p_open)) {
 
-				ImGui::Text("Total frame time = %.3f [s]", frameTime);
-				ImGui::Text("deltaTime = %.3f [ms]", dt*1000);
-				ImGui::Text("FPS = %.0f", framerate);
+					float framerate = ImGui::GetIO().Framerate; // Rolling average of last 60 frames
 
-				ImGui::NewLine();
+					ImGui::Text("Total frame time = %.3f [s]", frameTime);
+					ImGui::Text("deltaTime = %.3f [ms]", dt * 1000);
+					ImGui::Text("FPS = %.0f", framerate);
 
-				// Casting the desired values into a convenient format (as well as double->float)
-				std::array<float, 4> playerPosFloat = { (float)player.P.X.getT(), (float)player.P.X.getX(), (float)player.P.X.getY(), (float)player.P.X.getZ() };
-				std::array<float, 4> playerVelFloat = { (float)player.P.U.getT(), (float)player.P.U.getX(), (float)player.P.U.getY(), (float)player.P.U.getZ() };
-				std::array<float, 4> Xp_float = { 0.f, (float)Xp.x, (float)Xp.y, (float)Xp.z };
-				std::array<float, 4> Xo_float = { 0.f, (float)xo, (float)yo, (float)zo };
+					ImGui::NewLine();
 
-				enum ContentsType { CT_Text, CT_FillButton };
-				static ImGuiTableFlags flags = ImGuiTableFlags_Borders;
-				static bool display_headers = true;
-				static int contents_type = CT_Text;
-				// Player info table
-				ImGui::BeginTable("Player", 4, flags);
-				ImGui::TableSetupColumn("Pos"); // Position
-				ImGui::TableSetupColumn("Vel"); // Velocity
-				ImGui::TableSetupColumn("Xp");	// Currently the player position
-				ImGui::TableSetupColumn("Xo");  // Currently corresponds to a lattice index, sorta
-				ImGui::TableHeadersRow();
+					// Casting the desired values into a convenient format (as well as double->float)
+					std::array<float, 4> playerPosFloat = { (float)player.P.X.getT(), (float)player.P.X.getX(), (float)player.P.X.getY(), (float)player.P.X.getZ() };
+					std::array<float, 4> playerVelFloat = { (float)player.P.U.getT(), (float)player.P.U.getX(), (float)player.P.U.getY(), (float)player.P.U.getZ() };
+					std::array<float, 4> Xp_float = { 0.f, (float)Xp.x, (float)Xp.y, (float)Xp.z };
+					std::array<float, 4> Xo_float = { 0.f, (float)xo, (float)yo, (float)zo };
 
-				for (int row = 0; row < 4; row++) {
-					ImGui::TableNextRow();
-					for (int column = 0; column < 4; column++)
-					{
-						ImGui::TableSetColumnIndex(column);
-						if (column == 0) {
-							ImGui::Text("%+.3f", playerPosFloat[row]);
-						}
-						else if (column == 1) {
-							ImGui::Text("%+.3f", playerVelFloat[row]);
-						}
-						else if (column == 2) {
-							ImGui::Text("%+.3f", Xp_float[row]);
-						}
-						else if (column == 3) {
-							ImGui::Text("%+.3f", Xo_float[row]);
+					enum ContentsType { CT_Text, CT_FillButton };
+					static ImGuiTableFlags flags = ImGuiTableFlags_Borders;
+					static bool display_headers = true;
+					static int contents_type = CT_Text;
+					// Player info table
+					ImGui::BeginTable("Player", 4, flags);
+					ImGui::TableSetupColumn("Pos"); // Position
+					ImGui::TableSetupColumn("Vel"); // Velocity
+					ImGui::TableSetupColumn("Xp");	// Currently the player position
+					ImGui::TableSetupColumn("Xo");  // Currently corresponds to a lattice index, sorta
+					ImGui::TableHeadersRow();
+
+					for (int row = 0; row < 4; row++) {
+						ImGui::TableNextRow();
+						for (int column = 0; column < 4; column++)
+						{
+							ImGui::TableSetColumnIndex(column);
+							if (column == 0) {
+								ImGui::Text("%+.3f", playerPosFloat[row]);
+							}
+							else if (column == 1) {
+								ImGui::Text("%+.3f", playerVelFloat[row]);
+							}
+							else if (column == 2) {
+								ImGui::Text("%+.3f", Xp_float[row]);
+							}
+							else if (column == 3) {
+								ImGui::Text("%+.3f", Xo_float[row]);
+							}
 						}
 					}
-				}
-				ImGui::EndTable();
+					ImGui::EndTable();
 
-				// Lorentz 
-				double g = player.P.U.getGamma(); // Lorentz Factor
-				double u = std::sqrt(1.0 - (1.0 /(g*g))); // Fraction of c
-				double v = Math::c * u;
-				
-				ImGui::NewLine();
-				ImGui::Text("speed: %f [m/s]", v);
-				ImGui::Text("c = %f", u);
-				ImGui::Text("Lorentz factor: %.3f", g);
-				ImGui::NewLine();
-				ImGui::Text("Proper Time: %.3f [s]", frameTime);
-				ImGui::Text("World  Time: %.3f [s]", player.P.X.getT());
-				
-				ImGui::NewLine();
-				// View matrix 
-				ImGui::Text("View matrix");
-				ImGui::BeginTable("View Matrix", 4, flags);
-				ImGui::TableSetupColumn("col0");
-				ImGui::TableSetupColumn("col1");
-				ImGui::TableSetupColumn("col2");
-				ImGui::TableSetupColumn("col3");
-				ImGui::TableHeadersRow();
+					// Lorentz 
+					double g = player.P.U.getGamma(); // Lorentz Factor
+					double u = std::sqrt(1.0 - (1.0 / (g * g))); // Fraction of c
+					double v = Math::c * u;
 
-				for (int row = 0; row < 4; row++) {
-					ImGui::TableNextRow();
-					for (int column = 0; column < 4; column++)
-					{
-						ImGui::TableSetColumnIndex(column);
-						ImGui::Text("%+.3f", (float)cameraView[column][row]);
+					ImGui::NewLine();
+					ImGui::Text("speed: %f [m/s]", v);
+					ImGui::Text("c = %f", u);
+					ImGui::Text("Lorentz factor: %.3f", g);
+					ImGui::NewLine();
+					ImGui::Text("Proper Time: %.3f [s]", frameTime);
+					ImGui::Text("World  Time: %.3f [s]", player.P.X.getT());
+
+					ImGui::NewLine();
+					ImGui::Checkbox("show/hide lattice", &renderLattice);
+
+
+					ImGui::NewLine();
+					// View matrix 
+					ImGui::Text("View matrix");
+					ImGui::BeginTable("View Matrix", 4, flags);
+					ImGui::TableSetupColumn("col0");
+					ImGui::TableSetupColumn("col1");
+					ImGui::TableSetupColumn("col2");
+					ImGui::TableSetupColumn("col3");
+					ImGui::TableHeadersRow();
+
+					for (int row = 0; row < 4; row++) {
+						ImGui::TableNextRow();
+						for (int column = 0; column < 4; column++)
+						{
+							ImGui::TableSetColumnIndex(column);
+							ImGui::Text("%+.3f", (float)cameraView[column][row]);
+						}
 					}
-				}
-				ImGui::EndTable();
+					ImGui::EndTable();
 
-				ImGui::NewLine();
-				// Lorentz matrix 
-				ImGui::Text("Lorentz matrix");
-				ImGui::BeginTable("Lorentz matrix", 4, flags);
-				ImGui::TableSetupColumn("col0");
-				ImGui::TableSetupColumn("col1");
-				ImGui::TableSetupColumn("col2");
-				ImGui::TableSetupColumn("col3");
-				ImGui::TableHeadersRow();
+					ImGui::NewLine();
+					// Lorentz matrix 
+					ImGui::Text("Lorentz matrix");
+					ImGui::BeginTable("Lorentz matrix", 4, flags);
+					ImGui::TableSetupColumn("col0");
+					ImGui::TableSetupColumn("col1");
+					ImGui::TableSetupColumn("col2");
+					ImGui::TableSetupColumn("col3");
+					ImGui::TableHeadersRow();
 
-				for (int row = 0; row < 4; row++) {
-					ImGui::TableNextRow();
-					for (int column = 0; column < 4; column++)
-					{
-						ImGui::TableSetColumnIndex(column);
-						ImGui::Text("%+.3f", (float)lorentz[column][row]);
+					for (int row = 0; row < 4; row++) {
+						ImGui::TableNextRow();
+						for (int column = 0; column < 4; column++)
+						{
+							ImGui::TableSetColumnIndex(column);
+							ImGui::Text("%+.3f", (float)lorentz[column][row]);
+						}
+
 					}
-				
+					ImGui::EndTable();
+					
 				}
-				ImGui::EndTable();
 				ImGui::End();
+				
 
 				// ********** End Dear ImGui **********
 
 							
 				// ********** Rendering **********
 
+				//std::cout << "******* RENDER *******" << "\n";
+
 				// Ordinary render systems go here!
 				mveRenderer.beginSwapChainRenderPass(frameCommandBuffers.mainCommandBuffer);
 				// order matters (if semitransparency is involved)
-				latticeRenderSystem.renderWireframe(frameInfo);
+
+				if (renderLattice) {
+					latticeRenderSystem.renderWireframe(frameInfo, latticeGameObjectID);
+				}
+				srRenderSystem.render(frameInfo, latticeGameObjectID);
 				mveRenderer.endSwapChainRenderPass(frameCommandBuffers.mainCommandBuffer);
 				
 				// UI rendering happens *after* the ordinary render systems, and uses a separate command buffer
+				// Important that it is after, since the ui renderpass transitions the framebuffer for presentation
 				mveRenderer.beginUIRenderPass(frameCommandBuffers.UICommandBuffer);
 				ImGui::Render();
 				ImDrawData* draw_data = ImGui::GetDrawData();
@@ -392,43 +487,45 @@ namespace mve {
 		auto indices = lattice.getIndices();
 
 		std::shared_ptr<MveModel> mveModel = MveModel::createModelFromStdVector(mveDevice, vertices, indices);
-
 		auto latticeGameObject = MveGameObject::createGameObject();
 
 		latticeGameObject.model = mveModel;
 		latticeGameObject.transform.translation = { 0.f, 0.f, 0.f };
 		latticeGameObject.transform.scale = glm::vec3{ 1.f, 1.f, 1.f };
-		gameObjects.emplace(latticeGameObject.getId(), std::move(latticeGameObject));
-
-
-		// Debug model (plain axes) for debugging purposes
-
-		std::shared_ptr<MveModel> debugModel = MveModel::createDebuggingModel(mveDevice);
-		auto dbgGameObject = MveGameObject::createGameObject();
-
-		dbgGameObject.model = debugModel;
-		dbgGameObject.transform.translation = { 0.f, 0.f, 0.f };
-		dbgGameObject.transform.scale = glm::vec3{ 1.f,1.f,1.f };
-		gameObjects.emplace(dbgGameObject.getId(), std::move(dbgGameObject));
-
-		// earth
-		std::shared_ptr<MveModel> earthModel = MveModel::createModelFromFile(mveDevice, "models/earth_ls.obj");
-		auto earthGameObject = MveGameObject::createGameObject();
-
-		earthGameObject.model = earthModel;
-		earthGameObject.transform.translation = { 0.f, 0.f, 0.f };
-		earthGameObject.transform.scale = { 1.f, 1.f, 1.f };
-		gameObjects.emplace(earthGameObject.getId(), std::move(earthGameObject));
-
-		// moon
-		std::shared_ptr<MveModel> moonModel = MveModel::createModelFromFile(mveDevice, "models/moon_ls.obj");
-		auto moonGameObject = MveGameObject::createGameObject();
 		
-		moonGameObject.model = moonModel;
-		moonGameObject.transform.translation = {1.284f, 0.f, 0.f};
-		moonGameObject.transform.scale = { 1.f, 1.f, 1.f };
-		gameObjects.emplace(moonGameObject.getId(), std::move(moonGameObject));
+		latticeGameObjectID = latticeGameObject.getId();
+		gameObjects.emplace(latticeGameObject.getId(), std::move(latticeGameObject)); // latticeGameObject no longer owned by that handle
 
+
+		// Note: these do not work any more when using the "LatticeWireframeSystem". 
+		// Perhaps I should make a new system for line rendering which is not the lattice one.
+		// Debug model (plain axes) for debugging purposes
+		//std::shared_ptr<MveModel> debugModel = MveModel::createDebuggingModel(mveDevice);
+		//auto dbgGameObject = MveGameObject::createGameObject();
+
+		//dbgGameObject.model = debugModel;
+		//dbgGameObject.transform.translation = { 0.f, 0.f, 0.f };
+		//dbgGameObject.transform.scale = glm::vec3{ 1.f,1.f,1.f };
+		//gameObjects.emplace(dbgGameObject.getId(), std::move(dbgGameObject));
+
+
+		//std::shared_ptr<MveModel> sphere = MveModel::createModelFromFile(mveDevice, "./models/colored_sphere.obj");
+		//auto sphereGameObject = MveGameObject::createGameObject();
+
+		//sphereGameObject.model = sphere;
+		//sphereGameObject.transform.translation = { 1.f, 1.f, 1.f };
+		//sphereGameObject.transform.scale = glm::vec3{ 1.f,1.f,1.f };
+		//
+		//gameObjects.emplace(sphereGameObject.getId(), std::move(sphereGameObject));
+
+		//std::shared_ptr<MveModel> cube = MveModel::createModelFromFile(mveDevice, "./models/colored_cube.obj");
+		//auto cubeGameObject = MveGameObject::createGameObject();
+
+		//cubeGameObject.model = cube;
+		//cubeGameObject.transform.translation = { -1.f, -1.f, -1.f };
+		//cubeGameObject.transform.scale = glm::vec3{ 1.f,1.f,1.f };
+	
+		//gameObjects.emplace(cubeGameObject.getId(), std::move(cubeGameObject));
 	}
 
 	

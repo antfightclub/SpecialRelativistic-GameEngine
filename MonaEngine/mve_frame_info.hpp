@@ -35,8 +35,15 @@ namespace mve {
 		alignas(16) glm::vec3 Xp{0.f}; 
 		alignas(16) glm::vec3 Xo{0.f};
 		alignas(16) glm::mat4 Lorentz{1.f};
-		alignas(16) glm::mat4 invLorentz{ 1.f };
 	};			   
+
+	struct SpecialRelativityUbo {
+		alignas(16) glm::mat4 Lorentz{ 0.f };
+		alignas(16) glm::mat4 Lorentz_p2e{ 0.f }; // transform from "player to enemy" framë
+		alignas(16) glm::mat4 Rotate{ 0.f };
+		alignas(16) glm::vec4 dX{ 0.f };
+		alignas(16) glm::vec4 xp{ 0.f };
+	};
 	
 	struct FrameCommandBuffers {
 		VkCommandBuffer mainCommandBuffer;
