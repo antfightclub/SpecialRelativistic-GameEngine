@@ -9,6 +9,9 @@
 
 #include "lattice.hpp"
 
+// Spacetime Algebra
+#include "spacetimealgebra/m4sta.h"
+
 // Dear ImGui 
 #include "external/imgui/imgui.h"
 #include "external/imgui/imgui_impl_glfw.h"
