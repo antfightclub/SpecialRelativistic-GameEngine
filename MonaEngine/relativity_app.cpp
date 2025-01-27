@@ -587,10 +587,24 @@ namespace mve {
 
 
 	glm::mat4 RelativityApp::m4sta_to_glm_Lorentz(m4sta::mv PlayerU) {
-		//double lorentzfactor = _double(PlayerU * m4sta::g0); // Spacetime split gives a relative scalar and three 
-		//std::cout << "scalar part of PlayerU = " << lorentzfactor << "\n";
-		//std::cout << "PlayerU raw            = " << (PlayerU*m4sta::g0).toString() << "\n";
-		
+		double lorentzfactor = _double(PlayerU * m4sta::g0); // Spacetime split gives a relative scalar and three 
+		std::cout << "scalar part of PlayerU    = " << lorentzfactor << "\n";
+		std::cout << "PlayerU spacetime split   = " << (PlayerU*m4sta::g0).toString() << "\n";
+		std::cout << "getg0g1                   = " << (PlayerU * m4sta::g0).get_g0_g1() << "\n";
+ 		
+		// reminder to write a specification that handles rotors
+		// I think if I were to define a quaternion using a specialized multivector, it would just be 
+		// m4sta::spacetimesplit split = (PlayerU * m4sta::g0);
+		// glm::quat orientation = glm::quat(_double(split), split.get_g0_g1(), split.get_g0_g2(), split.get_g0_g3());
+		// not applicable here because PlayerU is not a rotation
+		// But it strikes me how elegant it is! Reminder again to write a new specification that handles objects I need
+		// First I should look at Hestenes' literatture to identify the specific objects needed, and write them as specialized multivectors, and map them in the gaigen spec
+		// (follow the gaigen 2 paper and manual)
+		//		- Rotors (https://marctenbosch.com/quaternions/code.htm and https://marctenbosch.com/quaternions/#h_16) in Pauli 3-space
+		//		- Spacetime splits and their usefulness
+		//		- 
+		//		- 
+
 		glm::mat4 m{ 1.0f };
 
 		double x, y, z, x2, y2, z2, r, g, xy, yz, zx;
