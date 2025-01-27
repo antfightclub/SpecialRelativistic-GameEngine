@@ -124,12 +124,12 @@ extern const int m4sta_basisElementGradeByBitmap[16];
 /// Use it to answer: 'what is the group of basis element bitmap [x]'?
 extern const int m4sta_basisElementGroupByBitmap[16];
 class mv;
-class vector;
 class g0_t;
 class g1_t;
 class g2_t;
 class g3_t;
 class I_t;
+class vector;
 class om;
 
 /**
@@ -200,8 +200,6 @@ public:
 	/// \param coordinates compressed coordinates.
 	inline mv(int gu, const double *coordinates)  : m_c(NULL), m_gu(0) {set(gu, coordinates);}
 
-	/// Converts a vector to a mv.
-	inline mv(const vector&A)  : m_c(NULL), m_gu(0) {set(A);}
 	/// Converts a g0_t to a mv.
 	inline mv(const g0_t&A)  : m_c(NULL), m_gu(0) {set(A);}
 	/// Converts a g1_t to a mv.
@@ -212,6 +210,8 @@ public:
 	inline mv(const g3_t&A)  : m_c(NULL), m_gu(0) {set(A);}
 	/// Converts a I_t to a mv.
 	inline mv(const I_t&A)  : m_c(NULL), m_gu(0) {set(A);}
+	/// Converts a vector to a mv.
+	inline mv(const vector&A)  : m_c(NULL), m_gu(0) {set(A);}
 
 	/// Destructor (frees dynamically allocated memory).
 	~mv() {if (m_c != NULL) free(m_c);}
@@ -223,8 +223,6 @@ public:
 	
 	
 	/// Assignment operator (mv).
-	inline mv &operator=(const vector &A) {set(A); return *this;}
-	/// Assignment operator (mv).
 	inline mv &operator=(const g0_t &A) {set(A); return *this;}
 	/// Assignment operator (mv).
 	inline mv &operator=(const g1_t &A) {set(A); return *this;}
@@ -234,6 +232,8 @@ public:
 	inline mv &operator=(const g3_t &A) {set(A); return *this;}
 	/// Assignment operator (mv).
 	inline mv &operator=(const I_t &A) {set(A); return *this;}
+	/// Assignment operator (mv).
+	inline mv &operator=(const vector &A) {set(A); return *this;}
 
 	/// Sets this mv to 0.
 	void set();
@@ -250,8 +250,6 @@ public:
 	/// \param coordinates compressed coordinates.
 	void set(int gu, const double *coordinates);
 	
-	/// Sets this mv to the value of vector A
-	void set(const vector &A);
 	/// Sets this mv to the value of g0_t A
 	void set(const g0_t &A);
 	/// Sets this mv to the value of g1_t A
@@ -262,6 +260,8 @@ public:
 	void set(const g3_t &A);
 	/// Sets this mv to the value of I_t A
 	void set(const I_t &A);
+	/// Sets this mv to the value of vector A
+	void set(const vector &A);
 	/// Returns the scalar coordinate of this mv.
 	inline double get_scalar() const {
 		return (m_gu & 1) ? m_c[m4sta_mvSize[m_gu & 0] + 0] : 0.0;
@@ -594,152 +594,6 @@ public:
 		}
 	}
 }; // end of class mv
-
-/// This class can hold a specialized multivector of type vector.
-/// 
-/// The coordinates are stored in type double.
-/// 
-/// The variable non-zero coordinates are:
-///   - coordinate g0  (array index: G0 = 0)
-///   - coordinate g1  (array index: G1 = 1)
-///   - coordinate g2  (array index: G2 = 2)
-///   - coordinate g3  (array index: G3 = 3)
-/// 
-/// The type has no constant coordinates.
-/// 
-/// 
-class vector
-{
-public:
-	/// The coordinates (stored in an array).
-	double m_c[4]; // g0, g1, g2, g3
-public:
-
-	/// Floating point type used by vector 
-	typedef double Float;
-	/// Array indices of vector coordinates.
-	typedef enum {
-		/// index of coordinate for g0 in vector
-		G0 = 0, 
-		/// index of coordinate for g1 in vector
-		G1 = 1, 
-		/// index of coordinate for g2 in vector
-		G2 = 2, 
-		/// index of coordinate for g3 in vector
-		G3 = 3, 
-	} ArrayIndex;
-	typedef enum {
-		/// the order of coordinates (this is the type of the first argument of coordinate-handling functions)
-		coord_g0_g1_g2_g3
-	} CoordinateOrder;
-
-	/// Constructs a new vector with variable coordinates set to 0.
-	inline vector() {set();}
-
-	/// Copy constructor.
-	inline vector(const vector &A) {set(A);}
-
-
-
-	/// Constructs a new vector from mv.
-	/// \param A The value to copy. Coordinates that cannot be represented
-	/// are silently dropped.
-	/// \param filler This argument can have any value; it's role
-	/// is only to prevent the compiler from using this constructor as a converter.
-	inline vector(mv &A, int filler) {set(A);}
-
-	/// Constructs a new vector. Coordinate values come from 'A'.
-	inline vector(const CoordinateOrder co, const double A[4]) {set(co, A);}
-	
-	/// Constructs a new vector with each coordinate specified.
-	inline vector(const CoordinateOrder co,  double g0, double g1, double g2, double g3) {
-		set(co, g0, g1, g2, g3);
-	}
-
-	/// Assignment operator (vector).
-	inline vector &operator=(const vector &A) {if (this != &A) {set(A);} return *this;}
-	
-		
-
-	/// Assignment operator (mv).
-	inline vector &operator=(const mv &A) {set(A); return *this;}
-
-
-	/// Sets variable coordinates of 'this' to 0.
-	void set();
-	/// Sets this to 'A'.
-	void set(const vector &A);
-
-
-	/// Sets this to 'A'.
-	/// \param A The value to copy. Coordinates that cannot be represented
-	/// are silently dropped.
-	void set(const mv &A);
-
-
-	/// Sets this to 'A'.
-	void set(const CoordinateOrder, const double A[4]);
-	
-	/// Sets this to coordinates specified.
-	void set(const CoordinateOrder,  double g0, double g1, double g2, double g3);
-
-	/// returns the absolute largest coordinate.
-	double largestCoordinate() const;
-	/// returns the absolute largest coordinate, and the corresponding basis blade bitmap.
-	double largestBasisBlade(unsigned int &bm) const;
-	
-
-	/// Returns a string representation (const char*) of this multivector.
-	/// Not multi-threading safe.
-	/// \param fp how floats are printed (e.g., "%f");
-	inline const char * c_str(const char *fp = NULL) const {
-		static char buf[2048]; // not MT-safe
-		return ::m4sta::c_str(*this, buf, 2048, fp);
-	}
-	
-	/// Returns a string representation (const char*) of this multivector using %f.
-	/// Not multi-threading safe.
-	inline const char * c_str_f() const {return c_str("%f");}
-	/// Returns a string representation (const char*) of this multivector using %e
-	/// Not multi-threading safe.
-	inline const char * c_str_e() const {return c_str("%e");}
-	/// Returns a string representation (const char*) of this multivector using %e20 (which is lossless for doubles)
-	/// Not multi-threading safe.
-	inline const char * c_str_e20() const {return c_str("%2.20e");}
-
-	/// Returns a string representation (const char*) of this multivector.
-	inline std::string toString(const char *fp = NULL) const {
-		return ::m4sta::toString(*this, fp);
-	}
-	
-	/// Returns a string representation (const char*) of this multivector using %f.
-	inline std::string toString_f() const {return toString("%f");}
-	/// Returns a string representation (const char*) of this multivector using %e.
-	inline std::string toString_e() const {return toString("%e");}
-	/// Returns a string representation (const char*) of this multivector using %e20.
-	inline std::string toString_e20() const {return toString("%2.20e");}
-
-	/// Returns the g0 coordinate.
-	inline double get_g0() const { return m_c[0];}
-	/// Sets the g0 coordinate.
-	inline void set_g0(double g0) { m_c[0] = g0;}
-	/// Returns the g1 coordinate.
-	inline double get_g1() const { return m_c[1];}
-	/// Sets the g1 coordinate.
-	inline void set_g1(double g1) { m_c[1] = g1;}
-	/// Returns the g2 coordinate.
-	inline double get_g2() const { return m_c[2];}
-	/// Sets the g2 coordinate.
-	inline void set_g2(double g2) { m_c[2] = g2;}
-	/// Returns the g3 coordinate.
-	inline double get_g3() const { return m_c[3];}
-	/// Sets the g3 coordinate.
-	inline void set_g3(double g3) { m_c[3] = g3;}
-	/// Returns the scalar coordinate (which is always 0).
-	inline double get_scalar() const { return 0.0;}
-	/// Returns array of coordinates.
-	inline const double *getC(CoordinateOrder) const { return m_c;}
-}; // end of class vector
 
 /// This class can hold a specialized multivector of type g0_t.
 /// 
@@ -1266,6 +1120,152 @@ public:
 	inline double get_scalar() const { return 0.0;}
 }; // end of class I_t
 
+/// This class can hold a specialized multivector of type vector.
+/// 
+/// The coordinates are stored in type double.
+/// 
+/// The variable non-zero coordinates are:
+///   - coordinate g0  (array index: G0 = 0)
+///   - coordinate g1  (array index: G1 = 1)
+///   - coordinate g2  (array index: G2 = 2)
+///   - coordinate g3  (array index: G3 = 3)
+/// 
+/// The type has no constant coordinates.
+/// 
+/// 
+class vector
+{
+public:
+	/// The coordinates (stored in an array).
+	double m_c[4]; // g0, g1, g2, g3
+public:
+
+	/// Floating point type used by vector 
+	typedef double Float;
+	/// Array indices of vector coordinates.
+	typedef enum {
+		/// index of coordinate for g0 in vector
+		G0 = 0, 
+		/// index of coordinate for g1 in vector
+		G1 = 1, 
+		/// index of coordinate for g2 in vector
+		G2 = 2, 
+		/// index of coordinate for g3 in vector
+		G3 = 3, 
+	} ArrayIndex;
+	typedef enum {
+		/// the order of coordinates (this is the type of the first argument of coordinate-handling functions)
+		coord_g0_g1_g2_g3
+	} CoordinateOrder;
+
+	/// Constructs a new vector with variable coordinates set to 0.
+	inline vector() {set();}
+
+	/// Copy constructor.
+	inline vector(const vector &A) {set(A);}
+
+
+
+	/// Constructs a new vector from mv.
+	/// \param A The value to copy. Coordinates that cannot be represented
+	/// are silently dropped.
+	/// \param filler This argument can have any value; it's role
+	/// is only to prevent the compiler from using this constructor as a converter.
+	inline vector(mv &A, int filler) {set(A);}
+
+	/// Constructs a new vector. Coordinate values come from 'A'.
+	inline vector(const CoordinateOrder co, const double A[4]) {set(co, A);}
+	
+	/// Constructs a new vector with each coordinate specified.
+	inline vector(const CoordinateOrder co,  double g0, double g1, double g2, double g3) {
+		set(co, g0, g1, g2, g3);
+	}
+
+	/// Assignment operator (vector).
+	inline vector &operator=(const vector &A) {if (this != &A) {set(A);} return *this;}
+	
+		
+
+	/// Assignment operator (mv).
+	inline vector &operator=(const mv &A) {set(A); return *this;}
+
+
+	/// Sets variable coordinates of 'this' to 0.
+	void set();
+	/// Sets this to 'A'.
+	void set(const vector &A);
+
+
+	/// Sets this to 'A'.
+	/// \param A The value to copy. Coordinates that cannot be represented
+	/// are silently dropped.
+	void set(const mv &A);
+
+
+	/// Sets this to 'A'.
+	void set(const CoordinateOrder, const double A[4]);
+	
+	/// Sets this to coordinates specified.
+	void set(const CoordinateOrder,  double g0, double g1, double g2, double g3);
+
+	/// returns the absolute largest coordinate.
+	double largestCoordinate() const;
+	/// returns the absolute largest coordinate, and the corresponding basis blade bitmap.
+	double largestBasisBlade(unsigned int &bm) const;
+	
+
+	/// Returns a string representation (const char*) of this multivector.
+	/// Not multi-threading safe.
+	/// \param fp how floats are printed (e.g., "%f");
+	inline const char * c_str(const char *fp = NULL) const {
+		static char buf[2048]; // not MT-safe
+		return ::m4sta::c_str(*this, buf, 2048, fp);
+	}
+	
+	/// Returns a string representation (const char*) of this multivector using %f.
+	/// Not multi-threading safe.
+	inline const char * c_str_f() const {return c_str("%f");}
+	/// Returns a string representation (const char*) of this multivector using %e
+	/// Not multi-threading safe.
+	inline const char * c_str_e() const {return c_str("%e");}
+	/// Returns a string representation (const char*) of this multivector using %e20 (which is lossless for doubles)
+	/// Not multi-threading safe.
+	inline const char * c_str_e20() const {return c_str("%2.20e");}
+
+	/// Returns a string representation (const char*) of this multivector.
+	inline std::string toString(const char *fp = NULL) const {
+		return ::m4sta::toString(*this, fp);
+	}
+	
+	/// Returns a string representation (const char*) of this multivector using %f.
+	inline std::string toString_f() const {return toString("%f");}
+	/// Returns a string representation (const char*) of this multivector using %e.
+	inline std::string toString_e() const {return toString("%e");}
+	/// Returns a string representation (const char*) of this multivector using %e20.
+	inline std::string toString_e20() const {return toString("%2.20e");}
+
+	/// Returns the g0 coordinate.
+	inline double get_g0() const { return m_c[0];}
+	/// Sets the g0 coordinate.
+	inline void set_g0(double g0) { m_c[0] = g0;}
+	/// Returns the g1 coordinate.
+	inline double get_g1() const { return m_c[1];}
+	/// Sets the g1 coordinate.
+	inline void set_g1(double g1) { m_c[1] = g1;}
+	/// Returns the g2 coordinate.
+	inline double get_g2() const { return m_c[2];}
+	/// Sets the g2 coordinate.
+	inline void set_g2(double g2) { m_c[2] = g2;}
+	/// Returns the g3 coordinate.
+	inline double get_g3() const { return m_c[3];}
+	/// Sets the g3 coordinate.
+	inline void set_g3(double g3) { m_c[3] = g3;}
+	/// Returns the scalar coordinate (which is always 0).
+	inline double get_scalar() const { return 0.0;}
+	/// Returns array of coordinates.
+	inline const double *getC(CoordinateOrder) const { return m_c;}
+}; // end of class vector
+
 /// This class can hold a general outermorphism.
 /// 
 /// The coordinates are stored in type double.
@@ -1449,10 +1449,6 @@ mv mv_compress(const double *c, double epsilon = 0.0, int gu = 31);
 mv mv_compress(int nbBlades, const unsigned int *bitmaps, const double *coords);
 
 
-/// Returns scalar part of  vector
-double _double(const vector &x);
-/// Returns scalar part of  vector
-inline double _Float(const vector &x) {return _double(x); };
 /// Returns scalar part of  g0_t
 double _double(const g0_t &x);
 /// Returns scalar part of  g0_t
@@ -1473,6 +1469,10 @@ inline double _Float(const g3_t &x) {return _double(x); };
 double _double(const I_t &x);
 /// Returns scalar part of  I_t
 inline double _Float(const I_t &x) {return _double(x); };
+/// Returns scalar part of  vector
+double _double(const vector &x);
+/// Returns scalar part of  vector
+inline double _Float(const vector &x) {return _double(x); };
 /// Generates a random double in [0.0 1.0) interval using the c library rand() function
 double genrand();
 /// Seeds the random number generator for  double

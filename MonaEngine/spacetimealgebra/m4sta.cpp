@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 */
+
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <utility> // for std::swap
 #include <time.h> /* used to seed random generator */
@@ -72,12 +74,12 @@ const char *g_m4staTypenames[] =
 {
 	"mv",
 	"double",
-	"vector",
 	"g0_t",
 	"g1_t",
 	"g2_t",
 	"g3_t",
-	"I_t"
+	"I_t",
+	"vector"
 };
 g0_t g0;
 g1_t g1;
@@ -1398,25 +1400,6 @@ void mv::set(const mv &src) {
 	m4sta::copy_N(m_c, srcC, m4sta_mvSize[src.gu()]);
 
 }
-void vector::set(const mv &src) {
-	const double *ptr = src.getC();
-
-	if (src.gu() & 1) {
-		ptr += 1;
-	}
-	if (src.gu() & 2) {
-		m_c[0] = ptr[0];
-		m_c[1] = ptr[1];
-		m_c[2] = ptr[2];
-		m_c[3] = ptr[3];
-	}
-	else {
-		m_c[0] = 0.0;
-		m_c[1] = 0.0;
-		m_c[2] = 0.0;
-		m_c[3] = 0.0;
-	}
-}
 void g0_t::set(const mv &src) {
 	const double *ptr = src.getC();
 
@@ -1481,13 +1464,24 @@ void I_t::set(const mv &src) {
 	else {
 	}
 }
-void mv::set(const vector &src) {
-	setGroupUsage(2);
-	double *ptr = m_c;
-	ptr[0] = src.m_c[0];
-	ptr[1] = src.m_c[1];
-	ptr[2] = src.m_c[2];
-	ptr[3] = src.m_c[3];
+void vector::set(const mv &src) {
+	const double *ptr = src.getC();
+
+	if (src.gu() & 1) {
+		ptr += 1;
+	}
+	if (src.gu() & 2) {
+		m_c[0] = ptr[0];
+		m_c[1] = ptr[1];
+		m_c[2] = ptr[2];
+		m_c[3] = ptr[3];
+	}
+	else {
+		m_c[0] = 0.0;
+		m_c[1] = 0.0;
+		m_c[2] = 0.0;
+		m_c[3] = 0.0;
+	}
 }
 void mv::set(const g0_t &src) {
 	setGroupUsage(2);
@@ -1517,6 +1511,14 @@ void mv::set(const I_t &src) {
 	setGroupUsage(16);
 	double *ptr = m_c;
 	ptr[0] = 1.0;
+}
+void mv::set(const vector &src) {
+	setGroupUsage(2);
+	double *ptr = m_c;
+	ptr[0] = src.m_c[0];
+	ptr[1] = src.m_c[1];
+	ptr[2] = src.m_c[2];
+	ptr[3] = src.m_c[3];
 }
 
 double mv::largestCoordinate() const {
@@ -1662,14 +1664,6 @@ void vector::set(const CoordinateOrder co, const double *A)
 
 }
 
-void vector::set(const vector &a)
-{
-	m_c[0] = a.m_c[0];
-	m_c[1] = a.m_c[1];
-	m_c[2] = a.m_c[2];
-	m_c[3] = a.m_c[3];
-
-}
 void g0_t::set(const g0_t &a)
 {
 
@@ -1690,23 +1684,16 @@ void I_t::set(const I_t &a)
 {
 
 }
+void vector::set(const vector &a)
+{
+	m_c[0] = a.m_c[0];
+	m_c[1] = a.m_c[1];
+	m_c[2] = a.m_c[2];
+	m_c[3] = a.m_c[3];
+
+}
 
 
-double vector::largestCoordinate() const {
-	double maxValue = ::fabs(m_c[0]);
-	if (::fabs(m_c[1]) > maxValue) { maxValue = ::fabs(m_c[1]); }
-	if (::fabs(m_c[2]) > maxValue) { maxValue = ::fabs(m_c[2]); }
-	if (::fabs(m_c[3]) > maxValue) { maxValue = ::fabs(m_c[3]); }
-	return maxValue;
-}
-double vector::largestBasisBlade(unsigned int &bm) const {
-	double maxValue = ::fabs(m_c[0]);
-	bm = 0;
-	if (::fabs(m_c[1]) > maxValue) { maxValue = ::fabs(m_c[1]); bm = 2; }
-	if (::fabs(m_c[2]) > maxValue) { maxValue = ::fabs(m_c[2]); bm = 4; }
-	if (::fabs(m_c[3]) > maxValue) { maxValue = ::fabs(m_c[3]); bm = 8; }
-	return maxValue;
-}
 double g0_t::largestCoordinate() const {
 	double maxValue = 1.0;
 	return maxValue;
@@ -1752,10 +1739,22 @@ double I_t::largestBasisBlade(unsigned int &bm) const {
 	bm = 15;
 	return maxValue;
 }
-
-double _double(const vector &x) {
-	return 0.0;
+double vector::largestCoordinate() const {
+	double maxValue = ::fabs(m_c[0]);
+	if (::fabs(m_c[1]) > maxValue) { maxValue = ::fabs(m_c[1]); }
+	if (::fabs(m_c[2]) > maxValue) { maxValue = ::fabs(m_c[2]); }
+	if (::fabs(m_c[3]) > maxValue) { maxValue = ::fabs(m_c[3]); }
+	return maxValue;
 }
+double vector::largestBasisBlade(unsigned int &bm) const {
+	double maxValue = ::fabs(m_c[0]);
+	bm = 0;
+	if (::fabs(m_c[1]) > maxValue) { maxValue = ::fabs(m_c[1]); bm = 2; }
+	if (::fabs(m_c[2]) > maxValue) { maxValue = ::fabs(m_c[2]); bm = 4; }
+	if (::fabs(m_c[3]) > maxValue) { maxValue = ::fabs(m_c[3]); bm = 8; }
+	return maxValue;
+}
+
 double _double(const g0_t &x) {
 	return 0.0;
 }
@@ -1769,6 +1768,9 @@ double _double(const g3_t &x) {
 	return 0.0;
 }
 double _double(const I_t &x) {
+	return 0.0;
+}
+double _double(const vector &x) {
 	return 0.0;
 }
 

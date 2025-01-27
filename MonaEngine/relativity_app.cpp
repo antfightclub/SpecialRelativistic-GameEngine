@@ -588,10 +588,13 @@ namespace mve {
 
 	glm::mat4 RelativityApp::m4sta_to_glm_Lorentz(m4sta::mv PlayerU) {
 		double lorentzfactor = _double(PlayerU * m4sta::g0); // Spacetime split gives a relative scalar and three 
-		std::cout << "scalar part of PlayerU    = " << lorentzfactor << "\n";
-		std::cout << "PlayerU spacetime split   = " << (PlayerU*m4sta::g0).toString() << "\n";
+		//std::cout << "scalar part of PlayerU    = " << lorentzfactor << "\n";
+		//std::cout << "PlayerU spacetime split   = " << (PlayerU*m4sta::g0).toString() << "\n";
 		std::cout << "getg0g1                   = " << (PlayerU * m4sta::g0).get_g0_g1() << "\n";
- 		
+		std::cout << "g0g1*g0g2*g0g3            = " << ((m4sta::g0 * m4sta::g1) * (m4sta::g0 * m4sta::g2) * (m4sta::g0 * m4sta::g3)).toString() << "\n";
+		std::cout << "g0g1g2g3                  = " << (m4sta::I).toString() << "\n";
+		//std::cout << "" <<)
+		
 		// reminder to write a specification that handles rotors
 		// I think if I were to define a quaternion using a specialized multivector, it would just be 
 		// m4sta::spacetimesplit split = (PlayerU * m4sta::g0);

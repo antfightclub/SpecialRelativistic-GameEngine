@@ -14,6 +14,9 @@
     copyright="Gaigen 2.5 Test Suite"
 >
 
+<verbatim filename="m4sta.cpp" position="before" marker="#include ">
+#define _CRT_SECURE_NO_WARNINGS
+</verbatim>
 
 
 <inline 
@@ -45,12 +48,16 @@
 	g0^g1^g2^g3
 </mv>
 
-<smv name="vector" type="blade">g0 g1 g2 g3</smv>
+
 <smv name="g0" const="true" type="blade">g0=1</smv>
 <smv name="g1" const="true" type="blade">g1=1</smv>
 <smv name="g2" const="true" type="blade">g2=1</smv>
 <smv name="g3" const="true" type="blade">g3=1</smv>
 <smv name="I" const="true" type="blade">g0^g1^g2^g3=1</smv>
+
+<smv name="vector" type="blade">g0 g1 g2 g3</smv>
+
+
 
 	<om name="om" coordinateOrder="default" />
 	<function name="random_double" outputName="genrand" optionGen="libc"/>
