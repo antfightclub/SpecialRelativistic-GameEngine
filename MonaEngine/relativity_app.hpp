@@ -52,6 +52,8 @@ namespace mve {
 		glm::mat4 m4sta_g02_K2_glm(double g02);
 		glm::mat4 m4sta_g03_K3_glm(double g03);
 
+		void m4sta_testing_stuffs();
+
 
 		void setupDearImgui();
 		void loadGameObjects();

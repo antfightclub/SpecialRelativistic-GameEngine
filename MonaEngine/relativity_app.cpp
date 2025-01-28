@@ -269,6 +269,8 @@ namespace mve {
 				m4sta::mv negativeSpacetimeVelocity = m4sta::vector(m4sta::vector::coord_g0_g1_g2_g3, -PlayerU[0], -PlayerU[1], -PlayerU[2], -PlayerU[3]);
 				glm::mat4 lorentz_sta_inv = m4sta_to_glm_Lorentz(negativeSpacetimeVelocity);
 
+				m4sta_testing_stuffs();
+
 				Math::Matrix44 L{};	
 				L = Math::Matrix44::Lorentz(player.P.U); // Lorentz boost matrix : Bg frame -> Player frame
 				glm::mat4 lorentz = L.toGLM();			 // .toGLM() transposes the matrix to conform to GLSL conventions
@@ -614,14 +616,14 @@ namespace mve {
 
 		glm::mat4 m{ 1.0f };
 
-		m4sta::mv split = PlayerU * m4sta::g0;
-
-		glm::mat4 K1 = m4sta_g01_K1_glm(split.get_g0_g1());
-		glm::mat4 K2 = m4sta_g02_K2_glm(split.get_g0_g2());
-		glm::mat4 K3 = m4sta_g03_K3_glm(split.get_g0_g3());
-		glm::mat4 K_combination = K3 * K2 * K1;
-		
-		m4sta::mv rapidity = 0.0;
+		//m4sta::mv split = PlayerU * m4sta::g0;
+		//
+		//glm::mat4 K1 = m4sta_g01_K1_glm(split.get_g0_g1());
+		//glm::mat4 K2 = m4sta_g02_K2_glm(split.get_g0_g2());
+		//glm::mat4 K3 = m4sta_g03_K3_glm(split.get_g0_g3());
+		//glm::mat4 K_combination = K3 * K2 * K1;
+		//
+		//m4sta::mv rapidity = 0.0;
 		// WAWA
 
 		return m;
@@ -718,4 +720,32 @@ namespace mve {
 		m[3].z = g03;
 		return m;
 	}
+
+	void RelativityApp::m4sta_testing_stuffs() {
+		// Currently want to test the bivectors and stuffs.
+		m4sta::mv g0 = m4sta::g0;
+		m4sta::mv g1 = m4sta::g1;
+		m4sta::mv g2 = m4sta::g2;
+		m4sta::mv g3 = m4sta::g3;
+
+		m4sta::mv g01 = g0 * g1;	m4sta::mv g10 = g1 * g0;
+		m4sta::mv g02 = g0 * g2;	m4sta::mv g20 = g2 * g0;
+		m4sta::mv g03 = g0 * g3;	m4sta::mv g30 = g3 * g0;
+		
+		m4sta::mv g12 = g1 * g2;	m4sta::mv g21 = g2 * g1;
+		m4sta::mv g13 = g1 * g3;	m4sta::mv g31 = g3 * g1;
+		m4sta::mv g23 = g2 * g3;	m4sta::mv g32 = g3 * g2;
+		
+		std::cout << "		**********				**********\n";
+		std::cout << "g01 = " << g01.toString() << " |		g10 = " << g10.toString() << "\n";
+		std::cout << "g02 = " << g02.toString() << " |		g20 = " << g20.toString() << "\n";
+		std::cout << "g03 = " << g03.toString() << " |		g30 = " << g30.toString() << "\n\n";
+
+		std::cout << "g12 = " << g12.toString() << " |		g21 = " << g21.toString() << "\n";
+		std::cout << "g13 = " << g13.toString() << " |		g31 = " << g31.toString() << "\n";
+		std::cout << "g23 = " << g23.toString() << " |		g32 = " << g32.toString() << "\n\n";
+
+
+	}
+
 }

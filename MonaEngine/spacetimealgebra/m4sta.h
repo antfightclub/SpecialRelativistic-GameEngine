@@ -129,14 +129,13 @@ class g1_t;
 class g2_t;
 class g3_t;
 class I_t;
-class pseudoscalar;
+class scalar;
 class vector;
 class bivector;
 class trivector;
-class rotor;
-class oddVersor;
-class idk1;
-class idk2;
+class pseudoscalar;
+class evensubalgebra;
+class oddsubalgebra;
 class om;
 
 /**
@@ -217,22 +216,20 @@ public:
 	inline mv(const g3_t&A)  : m_c(NULL), m_gu(0) {set(A);}
 	/// Converts a I_t to a mv.
 	inline mv(const I_t&A)  : m_c(NULL), m_gu(0) {set(A);}
-	/// Converts a pseudoscalar to a mv.
-	inline mv(const pseudoscalar&A)  : m_c(NULL), m_gu(0) {set(A);}
+	/// Converts a scalar to a mv.
+	inline mv(const scalar&A)  : m_c(NULL), m_gu(0) {set(A);}
 	/// Converts a vector to a mv.
 	inline mv(const vector&A)  : m_c(NULL), m_gu(0) {set(A);}
 	/// Converts a bivector to a mv.
 	inline mv(const bivector&A)  : m_c(NULL), m_gu(0) {set(A);}
 	/// Converts a trivector to a mv.
 	inline mv(const trivector&A)  : m_c(NULL), m_gu(0) {set(A);}
-	/// Converts a rotor to a mv.
-	inline mv(const rotor&A)  : m_c(NULL), m_gu(0) {set(A);}
-	/// Converts a oddVersor to a mv.
-	inline mv(const oddVersor&A)  : m_c(NULL), m_gu(0) {set(A);}
-	/// Converts a idk1 to a mv.
-	inline mv(const idk1&A)  : m_c(NULL), m_gu(0) {set(A);}
-	/// Converts a idk2 to a mv.
-	inline mv(const idk2&A)  : m_c(NULL), m_gu(0) {set(A);}
+	/// Converts a pseudoscalar to a mv.
+	inline mv(const pseudoscalar&A)  : m_c(NULL), m_gu(0) {set(A);}
+	/// Converts a evensubalgebra to a mv.
+	inline mv(const evensubalgebra&A)  : m_c(NULL), m_gu(0) {set(A);}
+	/// Converts a oddsubalgebra to a mv.
+	inline mv(const oddsubalgebra&A)  : m_c(NULL), m_gu(0) {set(A);}
 
 	/// Destructor (frees dynamically allocated memory).
 	~mv() {if (m_c != NULL) free(m_c);}
@@ -254,7 +251,7 @@ public:
 	/// Assignment operator (mv).
 	inline mv &operator=(const I_t &A) {set(A); return *this;}
 	/// Assignment operator (mv).
-	inline mv &operator=(const pseudoscalar &A) {set(A); return *this;}
+	inline mv &operator=(const scalar &A) {set(A); return *this;}
 	/// Assignment operator (mv).
 	inline mv &operator=(const vector &A) {set(A); return *this;}
 	/// Assignment operator (mv).
@@ -262,13 +259,11 @@ public:
 	/// Assignment operator (mv).
 	inline mv &operator=(const trivector &A) {set(A); return *this;}
 	/// Assignment operator (mv).
-	inline mv &operator=(const rotor &A) {set(A); return *this;}
+	inline mv &operator=(const pseudoscalar &A) {set(A); return *this;}
 	/// Assignment operator (mv).
-	inline mv &operator=(const oddVersor &A) {set(A); return *this;}
+	inline mv &operator=(const evensubalgebra &A) {set(A); return *this;}
 	/// Assignment operator (mv).
-	inline mv &operator=(const idk1 &A) {set(A); return *this;}
-	/// Assignment operator (mv).
-	inline mv &operator=(const idk2 &A) {set(A); return *this;}
+	inline mv &operator=(const oddsubalgebra &A) {set(A); return *this;}
 
 	/// Sets this mv to 0.
 	void set();
@@ -295,22 +290,20 @@ public:
 	void set(const g3_t &A);
 	/// Sets this mv to the value of I_t A
 	void set(const I_t &A);
-	/// Sets this mv to the value of pseudoscalar A
-	void set(const pseudoscalar &A);
+	/// Sets this mv to the value of scalar A
+	void set(const scalar &A);
 	/// Sets this mv to the value of vector A
 	void set(const vector &A);
 	/// Sets this mv to the value of bivector A
 	void set(const bivector &A);
 	/// Sets this mv to the value of trivector A
 	void set(const trivector &A);
-	/// Sets this mv to the value of rotor A
-	void set(const rotor &A);
-	/// Sets this mv to the value of oddVersor A
-	void set(const oddVersor &A);
-	/// Sets this mv to the value of idk1 A
-	void set(const idk1 &A);
-	/// Sets this mv to the value of idk2 A
-	void set(const idk2 &A);
+	/// Sets this mv to the value of pseudoscalar A
+	void set(const pseudoscalar &A);
+	/// Sets this mv to the value of evensubalgebra A
+	void set(const evensubalgebra &A);
+	/// Sets this mv to the value of oddsubalgebra A
+	void set(const oddsubalgebra &A);
 	/// Returns the scalar coordinate of this mv.
 	inline double get_scalar() const {
 		return (m_gu & 1) ? m_c[m4sta_mvSize[m_gu & 0] + 0] : 0.0;
@@ -1169,72 +1162,78 @@ public:
 	inline double get_scalar() const { return 0.0;}
 }; // end of class I_t
 
-/// This class can hold a specialized multivector of type pseudoscalar.
+/// This class can hold a specialized multivector of type scalar.
 /// 
 /// The coordinates are stored in type double.
 /// 
 /// The variable non-zero coordinates are:
-///   - coordinate g0^g1^g2^g3  (array index: G0_G1_G2_G3 = 0)
+///   - coordinate 1  (array index: SCALAR = 0)
 /// 
 /// The type has no constant coordinates.
 /// 
 /// 
-class pseudoscalar
+class scalar
 {
 public:
 	/// The coordinates (stored in an array).
-	double m_c[1]; // g0^g1^g2^g3
+	double m_c[1]; // 1
 public:
 
-	/// Floating point type used by pseudoscalar 
+	/// Floating point type used by scalar 
 	typedef double Float;
-	/// Array indices of pseudoscalar coordinates.
+	/// Array indices of scalar coordinates.
 	typedef enum {
-		/// index of coordinate for g0^g1^g2^g3 in pseudoscalar
-		G0_G1_G2_G3 = 0, 
+		/// index of coordinate for 1 in scalar
+		SCALAR = 0, 
 	} ArrayIndex;
 	typedef enum {
 		/// the order of coordinates (this is the type of the first argument of coordinate-handling functions)
-		coord_g0g1g2g3
+		coord_scalar
 	} CoordinateOrder;
 
-	/// Constructs a new pseudoscalar with variable coordinates set to 0.
-	inline pseudoscalar() {set();}
+	/// Constructs a new scalar with variable coordinates set to 0.
+	inline scalar() {set();}
 
 	/// Copy constructor.
-	inline pseudoscalar(const pseudoscalar &A) {set(A);}
+	inline scalar(const scalar &A) {set(A);}
 
 
+	/// Constructs a new scalar with scalar value 'scalar'.
+	inline scalar(double scalar) {set(scalar);}
 
-	/// Constructs a new pseudoscalar from mv.
+	/// Constructs a new scalar from mv.
 	/// \param A The value to copy. Coordinates that cannot be represented
 	/// are silently dropped.
 	/// \param filler This argument can have any value; it's role
 	/// is only to prevent the compiler from using this constructor as a converter.
-	inline pseudoscalar(mv &A, int filler) {set(A);}
+	inline scalar(mv &A, int filler) {set(A);}
 
-	/// Constructs a new pseudoscalar. Coordinate values come from 'A'.
-	inline pseudoscalar(const CoordinateOrder co, const double A[1]) {set(co, A);}
+	/// Constructs a new scalar. Coordinate values come from 'A'.
+	inline scalar(const CoordinateOrder co, const double A[1]) {set(co, A);}
 	
-	/// Constructs a new pseudoscalar with each coordinate specified.
-	inline pseudoscalar(const CoordinateOrder co,  double g0_g1_g2_g3) {
-		set(co, g0_g1_g2_g3);
+	/// Constructs a new scalar with each coordinate specified.
+	inline scalar(const CoordinateOrder co,  double scalar) {
+		set(co, scalar);
 	}
 
-	/// Assignment operator (pseudoscalar).
-	inline pseudoscalar &operator=(const pseudoscalar &A) {if (this != &A) {set(A);} return *this;}
+	/// Assignment operator (scalar).
+	inline scalar &operator=(const scalar &A) {if (this != &A) {set(A);} return *this;}
 	
 		
+	/// Assignment operator (double).
+	inline scalar &operator=(const double &scalar) {set(scalar); return *this;}
 
 	/// Assignment operator (mv).
-	inline pseudoscalar &operator=(const mv &A) {set(A); return *this;}
+	inline scalar &operator=(const mv &A) {set(A); return *this;}
 
 
 	/// Sets variable coordinates of 'this' to 0.
 	void set();
 	/// Sets this to 'A'.
-	void set(const pseudoscalar &A);
+	void set(const scalar &A);
 
+	/// Sets this to scalar value 'scalar'.
+	void set(double scalar);
 
 	/// Sets this to 'A'.
 	/// \param A The value to copy. Coordinates that cannot be represented
@@ -1246,7 +1245,7 @@ public:
 	void set(const CoordinateOrder, const double A[1]);
 	
 	/// Sets this to coordinates specified.
-	void set(const CoordinateOrder,  double g0_g1_g2_g3);
+	void set(const CoordinateOrder,  double scalar);
 
 	/// returns the absolute largest coordinate.
 	double largestCoordinate() const;
@@ -1284,15 +1283,13 @@ public:
 	/// Returns a string representation (const char*) of this multivector using %e20.
 	inline std::string toString_e20() const {return toString("%2.20e");}
 
-	/// Returns the g0^g1^g2^g3 coordinate.
-	inline double get_g0_g1_g2_g3() const { return m_c[0];}
-	/// Sets the g0^g1^g2^g3 coordinate.
-	inline void set_g0_g1_g2_g3(double g0_g1_g2_g3) { m_c[0] = g0_g1_g2_g3;}
-	/// Returns the scalar coordinate (which is always 0).
-	inline double get_scalar() const { return 0.0;}
+	/// Returns the 1 coordinate.
+	inline double get_scalar() const { return m_c[0];}
+	/// Sets the 1 coordinate.
+	inline void set_scalar(double scalar) { m_c[0] = scalar;}
 	/// Returns array of coordinates.
 	inline const double *getC(CoordinateOrder) const { return m_c;}
-}; // end of class pseudoscalar
+}; // end of class scalar
 
 /// This class can hold a specialized multivector of type vector.
 /// 
@@ -1606,9 +1603,9 @@ public:
 /// 
 /// The variable non-zero coordinates are:
 ///   - coordinate g1^g2^g3  (array index: G1_G2_G3 = 0)
-///   - coordinate g0^g1^g2  (array index: G0_G1_G2 = 1)
-///   - coordinate g0^g1^g3  (array index: G0_G1_G3 = 2)
-///   - coordinate g0^g2^g3  (array index: G0_G2_G3 = 3)
+///   - coordinate g0^g2^g3  (array index: G0_G2_G3 = 1)
+///   - coordinate -1*g0^g1^g3  (array index: G1_G0_G3 = 2)
+///   - coordinate g0^g1^g2  (array index: G0_G1_G2 = 3)
 /// 
 /// The type has no constant coordinates.
 /// 
@@ -1617,7 +1614,7 @@ class trivector
 {
 public:
 	/// The coordinates (stored in an array).
-	double m_c[4]; // g1^g2^g3, g0^g1^g2, g0^g1^g3, g0^g2^g3
+	double m_c[4]; // g1^g2^g3, g0^g2^g3, -1*g0^g1^g3, g0^g1^g2
 public:
 
 	/// Floating point type used by trivector 
@@ -1626,16 +1623,16 @@ public:
 	typedef enum {
 		/// index of coordinate for g1^g2^g3 in trivector
 		G1_G2_G3 = 0, 
-		/// index of coordinate for g0^g1^g2 in trivector
-		G0_G1_G2 = 1, 
-		/// index of coordinate for g0^g1^g3 in trivector
-		G0_G1_G3 = 2, 
 		/// index of coordinate for g0^g2^g3 in trivector
-		G0_G2_G3 = 3, 
+		G0_G2_G3 = 1, 
+		/// index of coordinate for -1*g0^g1^g3 in trivector
+		G1_G0_G3 = 2, 
+		/// index of coordinate for g0^g1^g2 in trivector
+		G0_G1_G2 = 3, 
 	} ArrayIndex;
 	typedef enum {
 		/// the order of coordinates (this is the type of the first argument of coordinate-handling functions)
-		coord_g1g2g3_g0g1g2_g0g1g3_g0g2g3
+		coord_g1g2g3_g0g2g3_g1g0g3_g0g1g2
 	} CoordinateOrder;
 
 	/// Constructs a new trivector with variable coordinates set to 0.
@@ -1657,8 +1654,8 @@ public:
 	inline trivector(const CoordinateOrder co, const double A[4]) {set(co, A);}
 	
 	/// Constructs a new trivector with each coordinate specified.
-	inline trivector(const CoordinateOrder co,  double g1_g2_g3, double g0_g1_g2, double g0_g1_g3, double g0_g2_g3) {
-		set(co, g1_g2_g3, g0_g1_g2, g0_g1_g3, g0_g2_g3);
+	inline trivector(const CoordinateOrder co,  double g1_g2_g3, double g0_g2_g3, double g1_g0_g3, double g0_g1_g2) {
+		set(co, g1_g2_g3, g0_g2_g3, g1_g0_g3, g0_g1_g2);
 	}
 
 	/// Assignment operator (trivector).
@@ -1686,7 +1683,7 @@ public:
 	void set(const CoordinateOrder, const double A[4]);
 	
 	/// Sets this to coordinates specified.
-	void set(const CoordinateOrder,  double g1_g2_g3, double g0_g1_g2, double g0_g1_g3, double g0_g2_g3);
+	void set(const CoordinateOrder,  double g1_g2_g3, double g0_g2_g3, double g1_g0_g3, double g0_g1_g2);
 
 	/// returns the absolute largest coordinate.
 	double largestCoordinate() const;
@@ -1728,25 +1725,150 @@ public:
 	inline double get_g1_g2_g3() const { return m_c[0];}
 	/// Sets the g1^g2^g3 coordinate.
 	inline void set_g1_g2_g3(double g1_g2_g3) { m_c[0] = g1_g2_g3;}
-	/// Returns the g0^g1^g2 coordinate.
-	inline double get_g0_g1_g2() const { return m_c[1];}
-	/// Sets the g0^g1^g2 coordinate.
-	inline void set_g0_g1_g2(double g0_g1_g2) { m_c[1] = g0_g1_g2;}
-	/// Returns the g0^g1^g3 coordinate.
-	inline double get_g0_g1_g3() const { return m_c[2];}
-	/// Sets the g0^g1^g3 coordinate.
-	inline void set_g0_g1_g3(double g0_g1_g3) { m_c[2] = g0_g1_g3;}
 	/// Returns the g0^g2^g3 coordinate.
-	inline double get_g0_g2_g3() const { return m_c[3];}
+	inline double get_g0_g2_g3() const { return m_c[1];}
 	/// Sets the g0^g2^g3 coordinate.
-	inline void set_g0_g2_g3(double g0_g2_g3) { m_c[3] = g0_g2_g3;}
+	inline void set_g0_g2_g3(double g0_g2_g3) { m_c[1] = g0_g2_g3;}
+	/// Returns the -1*g0^g1^g3 coordinate.
+	inline double get_g1_g0_g3() const { return m_c[2];}
+	/// Sets the -1*g0^g1^g3 coordinate.
+	inline void set_g1_g0_g3(double g1_g0_g3) { m_c[2] = g1_g0_g3;}
+	/// Returns the g0^g1^g2 coordinate.
+	inline double get_g0_g1_g2() const { return m_c[3];}
+	/// Sets the g0^g1^g2 coordinate.
+	inline void set_g0_g1_g2(double g0_g1_g2) { m_c[3] = g0_g1_g2;}
 	/// Returns the scalar coordinate (which is always 0).
 	inline double get_scalar() const { return 0.0;}
 	/// Returns array of coordinates.
 	inline const double *getC(CoordinateOrder) const { return m_c;}
 }; // end of class trivector
 
-/// This class can hold a specialized multivector of type rotor.
+/// This class can hold a specialized multivector of type pseudoscalar.
+/// 
+/// The coordinates are stored in type double.
+/// 
+/// The variable non-zero coordinates are:
+///   - coordinate g0^g1^g2^g3  (array index: G0_G1_G2_G3 = 0)
+/// 
+/// The type has no constant coordinates.
+/// 
+/// 
+class pseudoscalar
+{
+public:
+	/// The coordinates (stored in an array).
+	double m_c[1]; // g0^g1^g2^g3
+public:
+
+	/// Floating point type used by pseudoscalar 
+	typedef double Float;
+	/// Array indices of pseudoscalar coordinates.
+	typedef enum {
+		/// index of coordinate for g0^g1^g2^g3 in pseudoscalar
+		G0_G1_G2_G3 = 0, 
+	} ArrayIndex;
+	typedef enum {
+		/// the order of coordinates (this is the type of the first argument of coordinate-handling functions)
+		coord_g0g1g2g3
+	} CoordinateOrder;
+
+	/// Constructs a new pseudoscalar with variable coordinates set to 0.
+	inline pseudoscalar() {set();}
+
+	/// Copy constructor.
+	inline pseudoscalar(const pseudoscalar &A) {set(A);}
+
+
+
+	/// Constructs a new pseudoscalar from mv.
+	/// \param A The value to copy. Coordinates that cannot be represented
+	/// are silently dropped.
+	/// \param filler This argument can have any value; it's role
+	/// is only to prevent the compiler from using this constructor as a converter.
+	inline pseudoscalar(mv &A, int filler) {set(A);}
+
+	/// Constructs a new pseudoscalar. Coordinate values come from 'A'.
+	inline pseudoscalar(const CoordinateOrder co, const double A[1]) {set(co, A);}
+	
+	/// Constructs a new pseudoscalar with each coordinate specified.
+	inline pseudoscalar(const CoordinateOrder co,  double g0_g1_g2_g3) {
+		set(co, g0_g1_g2_g3);
+	}
+
+	/// Assignment operator (pseudoscalar).
+	inline pseudoscalar &operator=(const pseudoscalar &A) {if (this != &A) {set(A);} return *this;}
+	
+		
+
+	/// Assignment operator (mv).
+	inline pseudoscalar &operator=(const mv &A) {set(A); return *this;}
+
+
+	/// Sets variable coordinates of 'this' to 0.
+	void set();
+	/// Sets this to 'A'.
+	void set(const pseudoscalar &A);
+
+
+	/// Sets this to 'A'.
+	/// \param A The value to copy. Coordinates that cannot be represented
+	/// are silently dropped.
+	void set(const mv &A);
+
+
+	/// Sets this to 'A'.
+	void set(const CoordinateOrder, const double A[1]);
+	
+	/// Sets this to coordinates specified.
+	void set(const CoordinateOrder,  double g0_g1_g2_g3);
+
+	/// returns the absolute largest coordinate.
+	double largestCoordinate() const;
+	/// returns the absolute largest coordinate, and the corresponding basis blade bitmap.
+	double largestBasisBlade(unsigned int &bm) const;
+	
+
+	/// Returns a string representation (const char*) of this multivector.
+	/// Not multi-threading safe.
+	/// \param fp how floats are printed (e.g., "%f");
+	inline const char * c_str(const char *fp = NULL) const {
+		static char buf[2048]; // not MT-safe
+		return ::m4sta::c_str(*this, buf, 2048, fp);
+	}
+	
+	/// Returns a string representation (const char*) of this multivector using %f.
+	/// Not multi-threading safe.
+	inline const char * c_str_f() const {return c_str("%f");}
+	/// Returns a string representation (const char*) of this multivector using %e
+	/// Not multi-threading safe.
+	inline const char * c_str_e() const {return c_str("%e");}
+	/// Returns a string representation (const char*) of this multivector using %e20 (which is lossless for doubles)
+	/// Not multi-threading safe.
+	inline const char * c_str_e20() const {return c_str("%2.20e");}
+
+	/// Returns a string representation (const char*) of this multivector.
+	inline std::string toString(const char *fp = NULL) const {
+		return ::m4sta::toString(*this, fp);
+	}
+	
+	/// Returns a string representation (const char*) of this multivector using %f.
+	inline std::string toString_f() const {return toString("%f");}
+	/// Returns a string representation (const char*) of this multivector using %e.
+	inline std::string toString_e() const {return toString("%e");}
+	/// Returns a string representation (const char*) of this multivector using %e20.
+	inline std::string toString_e20() const {return toString("%2.20e");}
+
+	/// Returns the g0^g1^g2^g3 coordinate.
+	inline double get_g0_g1_g2_g3() const { return m_c[0];}
+	/// Sets the g0^g1^g2^g3 coordinate.
+	inline void set_g0_g1_g2_g3(double g0_g1_g2_g3) { m_c[0] = g0_g1_g2_g3;}
+	/// Returns the scalar coordinate (which is always 0).
+	inline double get_scalar() const { return 0.0;}
+	/// Returns array of coordinates.
+	inline const double *getC(CoordinateOrder) const { return m_c;}
+}; // end of class pseudoscalar
+
+/// This class can hold a specialized multivector of type evensubalgebra.
 /// 
 /// The coordinates are stored in type double.
 /// 
@@ -1754,85 +1876,88 @@ public:
 ///   - coordinate 1  (array index: SCALAR = 0)
 ///   - coordinate g0^g1  (array index: G0_G1 = 1)
 ///   - coordinate g0^g2  (array index: G0_G2 = 2)
-///   - coordinate g1^g2  (array index: G1_G2 = 3)
-///   - coordinate g0^g3  (array index: G0_G3 = 4)
+///   - coordinate g0^g3  (array index: G0_G3 = 3)
+///   - coordinate g1^g2  (array index: G1_G2 = 4)
 ///   - coordinate g1^g3  (array index: G1_G3 = 5)
 ///   - coordinate g2^g3  (array index: G2_G3 = 6)
+///   - coordinate g0^g1^g2^g3  (array index: G0_G1_G2_G3 = 7)
 /// 
 /// The type has no constant coordinates.
 /// 
 /// 
-class rotor
+class evensubalgebra
 {
 public:
 	/// The coordinates (stored in an array).
-	double m_c[7]; // 1, g0^g1, g0^g2, g1^g2, g0^g3, g1^g3, g2^g3
+	double m_c[8]; // 1, g0^g1, g0^g2, g0^g3, g1^g2, g1^g3, g2^g3, g0^g1^g2^g3
 public:
 
-	/// Floating point type used by rotor 
+	/// Floating point type used by evensubalgebra 
 	typedef double Float;
-	/// Array indices of rotor coordinates.
+	/// Array indices of evensubalgebra coordinates.
 	typedef enum {
-		/// index of coordinate for 1 in rotor
+		/// index of coordinate for 1 in evensubalgebra
 		SCALAR = 0, 
-		/// index of coordinate for g0^g1 in rotor
+		/// index of coordinate for g0^g1 in evensubalgebra
 		G0_G1 = 1, 
-		/// index of coordinate for g0^g2 in rotor
+		/// index of coordinate for g0^g2 in evensubalgebra
 		G0_G2 = 2, 
-		/// index of coordinate for g1^g2 in rotor
-		G1_G2 = 3, 
-		/// index of coordinate for g0^g3 in rotor
-		G0_G3 = 4, 
-		/// index of coordinate for g1^g3 in rotor
+		/// index of coordinate for g0^g3 in evensubalgebra
+		G0_G3 = 3, 
+		/// index of coordinate for g1^g2 in evensubalgebra
+		G1_G2 = 4, 
+		/// index of coordinate for g1^g3 in evensubalgebra
 		G1_G3 = 5, 
-		/// index of coordinate for g2^g3 in rotor
+		/// index of coordinate for g2^g3 in evensubalgebra
 		G2_G3 = 6, 
+		/// index of coordinate for g0^g1^g2^g3 in evensubalgebra
+		G0_G1_G2_G3 = 7, 
 	} ArrayIndex;
 	typedef enum {
 		/// the order of coordinates (this is the type of the first argument of coordinate-handling functions)
-		coord_scalar_g0g1_g0g2_g1g2_g0g3_g1g3_g2g3
+		coord_scalar_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3_g0g1g2g3
 	} CoordinateOrder;
 
-	/// Constructs a new rotor with variable coordinates set to 0.
-	inline rotor() {set();}
+	/// Constructs a new evensubalgebra with variable coordinates set to 0.
+	inline evensubalgebra() {set();}
 
 	/// Copy constructor.
-	inline rotor(const rotor &A) {set(A);}
+	inline evensubalgebra(const evensubalgebra &A) {set(A);}
 
 
-	/// Constructs a new rotor with scalar value 'scalar'.
-	inline rotor(double scalar) {set(scalar);}
+	/// Constructs a new evensubalgebra with scalar value 'scalar'.
+	inline evensubalgebra(double scalar) {set(scalar);}
 
-	/// Constructs a new rotor from mv.
+	/// Constructs a new evensubalgebra from mv.
 	/// \param A The value to copy. Coordinates that cannot be represented
 	/// are silently dropped.
 	/// \param filler This argument can have any value; it's role
 	/// is only to prevent the compiler from using this constructor as a converter.
-	inline rotor(mv &A, int filler) {set(A);}
+	inline evensubalgebra(mv &A, int filler) {set(A);}
 
-	/// Constructs a new rotor. Coordinate values come from 'A'.
-	inline rotor(const CoordinateOrder co, const double A[7]) {set(co, A);}
+	/// Constructs a new evensubalgebra. Coordinate values come from 'A'.
+	inline evensubalgebra(const CoordinateOrder co, const double A[8]) {set(co, A);}
 	
-	/// Constructs a new rotor with each coordinate specified.
-	inline rotor(const CoordinateOrder co,  double scalar, double g0_g1, double g0_g2, double g1_g2, double g0_g3, double g1_g3, double g2_g3) {
-		set(co, scalar, g0_g1, g0_g2, g1_g2, g0_g3, g1_g3, g2_g3);
+	/// Constructs a new evensubalgebra with each coordinate specified.
+	inline evensubalgebra(const CoordinateOrder co,  double scalar, double g0_g1, double g0_g2, double g0_g3, double g1_g2, double g1_g3, double g2_g3, double g0_g1_g2_g3) {
+		set(co, scalar, g0_g1, g0_g2, g0_g3, g1_g2, g1_g3, g2_g3, g0_g1_g2_g3);
 	}
 
-	/// Assignment operator (rotor).
-	inline rotor &operator=(const rotor &A) {if (this != &A) {set(A);} return *this;}
+	/// Assignment operator (evensubalgebra).
+	inline evensubalgebra &operator=(const evensubalgebra &A) {if (this != &A) {set(A);} return *this;}
 	
 		
 	/// Assignment operator (double).
-	inline rotor &operator=(const double &scalar) {set(scalar); return *this;}
+	inline evensubalgebra &operator=(const double &scalar) {set(scalar); return *this;}
 
 	/// Assignment operator (mv).
-	inline rotor &operator=(const mv &A) {set(A); return *this;}
+	inline evensubalgebra &operator=(const mv &A) {set(A); return *this;}
 
 
 	/// Sets variable coordinates of 'this' to 0.
 	void set();
 	/// Sets this to 'A'.
-	void set(const rotor &A);
+	void set(const evensubalgebra &A);
 
 	/// Sets this to scalar value 'scalar'.
 	void set(double scalar);
@@ -1844,10 +1969,10 @@ public:
 
 
 	/// Sets this to 'A'.
-	void set(const CoordinateOrder, const double A[7]);
+	void set(const CoordinateOrder, const double A[8]);
 	
 	/// Sets this to coordinates specified.
-	void set(const CoordinateOrder,  double scalar, double g0_g1, double g0_g2, double g1_g2, double g0_g3, double g1_g3, double g2_g3);
+	void set(const CoordinateOrder,  double scalar, double g0_g1, double g0_g2, double g0_g3, double g1_g2, double g1_g3, double g2_g3, double g0_g1_g2_g3);
 
 	/// returns the absolute largest coordinate.
 	double largestCoordinate() const;
@@ -1897,14 +2022,14 @@ public:
 	inline double get_g0_g2() const { return m_c[2];}
 	/// Sets the g0^g2 coordinate.
 	inline void set_g0_g2(double g0_g2) { m_c[2] = g0_g2;}
-	/// Returns the g1^g2 coordinate.
-	inline double get_g1_g2() const { return m_c[3];}
-	/// Sets the g1^g2 coordinate.
-	inline void set_g1_g2(double g1_g2) { m_c[3] = g1_g2;}
 	/// Returns the g0^g3 coordinate.
-	inline double get_g0_g3() const { return m_c[4];}
+	inline double get_g0_g3() const { return m_c[3];}
 	/// Sets the g0^g3 coordinate.
-	inline void set_g0_g3(double g0_g3) { m_c[4] = g0_g3;}
+	inline void set_g0_g3(double g0_g3) { m_c[3] = g0_g3;}
+	/// Returns the g1^g2 coordinate.
+	inline double get_g1_g2() const { return m_c[4];}
+	/// Sets the g1^g2 coordinate.
+	inline void set_g1_g2(double g1_g2) { m_c[4] = g1_g2;}
 	/// Returns the g1^g3 coordinate.
 	inline double get_g1_g3() const { return m_c[5];}
 	/// Sets the g1^g3 coordinate.
@@ -1913,11 +2038,15 @@ public:
 	inline double get_g2_g3() const { return m_c[6];}
 	/// Sets the g2^g3 coordinate.
 	inline void set_g2_g3(double g2_g3) { m_c[6] = g2_g3;}
+	/// Returns the g0^g1^g2^g3 coordinate.
+	inline double get_g0_g1_g2_g3() const { return m_c[7];}
+	/// Sets the g0^g1^g2^g3 coordinate.
+	inline void set_g0_g1_g2_g3(double g0_g1_g2_g3) { m_c[7] = g0_g1_g2_g3;}
 	/// Returns array of coordinates.
 	inline const double *getC(CoordinateOrder) const { return m_c;}
-}; // end of class rotor
+}; // end of class evensubalgebra
 
-/// This class can hold a specialized multivector of type oddVersor.
+/// This class can hold a specialized multivector of type oddsubalgebra.
 /// 
 /// The coordinates are stored in type double.
 /// 
@@ -1926,83 +2055,83 @@ public:
 ///   - coordinate g1  (array index: G1 = 1)
 ///   - coordinate g2  (array index: G2 = 2)
 ///   - coordinate g3  (array index: G3 = 3)
-///   - coordinate g0^g1^g2  (array index: G0_G1_G2 = 4)
-///   - coordinate g0^g1^g3  (array index: G0_G1_G3 = 5)
-///   - coordinate g0^g2^g3  (array index: G0_G2_G3 = 6)
-///   - coordinate g1^g2^g3  (array index: G1_G2_G3 = 7)
+///   - coordinate g1^g2^g3  (array index: G1_G2_G3 = 4)
+///   - coordinate g0^g2^g3  (array index: G0_G2_G3 = 5)
+///   - coordinate -1*g0^g1^g3  (array index: G1_G0_G3 = 6)
+///   - coordinate g0^g1^g2  (array index: G0_G1_G2 = 7)
 /// 
 /// The type has no constant coordinates.
 /// 
 /// 
-class oddVersor
+class oddsubalgebra
 {
 public:
 	/// The coordinates (stored in an array).
-	double m_c[8]; // g0, g1, g2, g3, g0^g1^g2, g0^g1^g3, g0^g2^g3, g1^g2^g3
+	double m_c[8]; // g0, g1, g2, g3, g1^g2^g3, g0^g2^g3, -1*g0^g1^g3, g0^g1^g2
 public:
 
-	/// Floating point type used by oddVersor 
+	/// Floating point type used by oddsubalgebra 
 	typedef double Float;
-	/// Array indices of oddVersor coordinates.
+	/// Array indices of oddsubalgebra coordinates.
 	typedef enum {
-		/// index of coordinate for g0 in oddVersor
+		/// index of coordinate for g0 in oddsubalgebra
 		G0 = 0, 
-		/// index of coordinate for g1 in oddVersor
+		/// index of coordinate for g1 in oddsubalgebra
 		G1 = 1, 
-		/// index of coordinate for g2 in oddVersor
+		/// index of coordinate for g2 in oddsubalgebra
 		G2 = 2, 
-		/// index of coordinate for g3 in oddVersor
+		/// index of coordinate for g3 in oddsubalgebra
 		G3 = 3, 
-		/// index of coordinate for g0^g1^g2 in oddVersor
-		G0_G1_G2 = 4, 
-		/// index of coordinate for g0^g1^g3 in oddVersor
-		G0_G1_G3 = 5, 
-		/// index of coordinate for g0^g2^g3 in oddVersor
-		G0_G2_G3 = 6, 
-		/// index of coordinate for g1^g2^g3 in oddVersor
-		G1_G2_G3 = 7, 
+		/// index of coordinate for g1^g2^g3 in oddsubalgebra
+		G1_G2_G3 = 4, 
+		/// index of coordinate for g0^g2^g3 in oddsubalgebra
+		G0_G2_G3 = 5, 
+		/// index of coordinate for -1*g0^g1^g3 in oddsubalgebra
+		G1_G0_G3 = 6, 
+		/// index of coordinate for g0^g1^g2 in oddsubalgebra
+		G0_G1_G2 = 7, 
 	} ArrayIndex;
 	typedef enum {
 		/// the order of coordinates (this is the type of the first argument of coordinate-handling functions)
-		coord_g0_g1_g2_g3_g0g1g2_g0g1g3_g0g2g3_g1g2g3
+		coord_g0_g1_g2_g3_g1g2g3_g0g2g3_g1g0g3_g0g1g2
 	} CoordinateOrder;
 
-	/// Constructs a new oddVersor with variable coordinates set to 0.
-	inline oddVersor() {set();}
+	/// Constructs a new oddsubalgebra with variable coordinates set to 0.
+	inline oddsubalgebra() {set();}
 
 	/// Copy constructor.
-	inline oddVersor(const oddVersor &A) {set(A);}
+	inline oddsubalgebra(const oddsubalgebra &A) {set(A);}
 
 
 
-	/// Constructs a new oddVersor from mv.
+	/// Constructs a new oddsubalgebra from mv.
 	/// \param A The value to copy. Coordinates that cannot be represented
 	/// are silently dropped.
 	/// \param filler This argument can have any value; it's role
 	/// is only to prevent the compiler from using this constructor as a converter.
-	inline oddVersor(mv &A, int filler) {set(A);}
+	inline oddsubalgebra(mv &A, int filler) {set(A);}
 
-	/// Constructs a new oddVersor. Coordinate values come from 'A'.
-	inline oddVersor(const CoordinateOrder co, const double A[8]) {set(co, A);}
+	/// Constructs a new oddsubalgebra. Coordinate values come from 'A'.
+	inline oddsubalgebra(const CoordinateOrder co, const double A[8]) {set(co, A);}
 	
-	/// Constructs a new oddVersor with each coordinate specified.
-	inline oddVersor(const CoordinateOrder co,  double g0, double g1, double g2, double g3, double g0_g1_g2, double g0_g1_g3, double g0_g2_g3, double g1_g2_g3) {
-		set(co, g0, g1, g2, g3, g0_g1_g2, g0_g1_g3, g0_g2_g3, g1_g2_g3);
+	/// Constructs a new oddsubalgebra with each coordinate specified.
+	inline oddsubalgebra(const CoordinateOrder co,  double g0, double g1, double g2, double g3, double g1_g2_g3, double g0_g2_g3, double g1_g0_g3, double g0_g1_g2) {
+		set(co, g0, g1, g2, g3, g1_g2_g3, g0_g2_g3, g1_g0_g3, g0_g1_g2);
 	}
 
-	/// Assignment operator (oddVersor).
-	inline oddVersor &operator=(const oddVersor &A) {if (this != &A) {set(A);} return *this;}
+	/// Assignment operator (oddsubalgebra).
+	inline oddsubalgebra &operator=(const oddsubalgebra &A) {if (this != &A) {set(A);} return *this;}
 	
 		
 
 	/// Assignment operator (mv).
-	inline oddVersor &operator=(const mv &A) {set(A); return *this;}
+	inline oddsubalgebra &operator=(const mv &A) {set(A); return *this;}
 
 
 	/// Sets variable coordinates of 'this' to 0.
 	void set();
 	/// Sets this to 'A'.
-	void set(const oddVersor &A);
+	void set(const oddsubalgebra &A);
 
 
 	/// Sets this to 'A'.
@@ -2015,7 +2144,7 @@ public:
 	void set(const CoordinateOrder, const double A[8]);
 	
 	/// Sets this to coordinates specified.
-	void set(const CoordinateOrder,  double g0, double g1, double g2, double g3, double g0_g1_g2, double g0_g1_g3, double g0_g2_g3, double g1_g2_g3);
+	void set(const CoordinateOrder,  double g0, double g1, double g2, double g3, double g1_g2_g3, double g0_g2_g3, double g1_g0_g3, double g0_g1_g2);
 
 	/// returns the absolute largest coordinate.
 	double largestCoordinate() const;
@@ -2069,376 +2198,27 @@ public:
 	inline double get_g3() const { return m_c[3];}
 	/// Sets the g3 coordinate.
 	inline void set_g3(double g3) { m_c[3] = g3;}
-	/// Returns the g0^g1^g2 coordinate.
-	inline double get_g0_g1_g2() const { return m_c[4];}
-	/// Sets the g0^g1^g2 coordinate.
-	inline void set_g0_g1_g2(double g0_g1_g2) { m_c[4] = g0_g1_g2;}
-	/// Returns the g0^g1^g3 coordinate.
-	inline double get_g0_g1_g3() const { return m_c[5];}
-	/// Sets the g0^g1^g3 coordinate.
-	inline void set_g0_g1_g3(double g0_g1_g3) { m_c[5] = g0_g1_g3;}
-	/// Returns the g0^g2^g3 coordinate.
-	inline double get_g0_g2_g3() const { return m_c[6];}
-	/// Sets the g0^g2^g3 coordinate.
-	inline void set_g0_g2_g3(double g0_g2_g3) { m_c[6] = g0_g2_g3;}
 	/// Returns the g1^g2^g3 coordinate.
-	inline double get_g1_g2_g3() const { return m_c[7];}
+	inline double get_g1_g2_g3() const { return m_c[4];}
 	/// Sets the g1^g2^g3 coordinate.
-	inline void set_g1_g2_g3(double g1_g2_g3) { m_c[7] = g1_g2_g3;}
+	inline void set_g1_g2_g3(double g1_g2_g3) { m_c[4] = g1_g2_g3;}
+	/// Returns the g0^g2^g3 coordinate.
+	inline double get_g0_g2_g3() const { return m_c[5];}
+	/// Sets the g0^g2^g3 coordinate.
+	inline void set_g0_g2_g3(double g0_g2_g3) { m_c[5] = g0_g2_g3;}
+	/// Returns the -1*g0^g1^g3 coordinate.
+	inline double get_g1_g0_g3() const { return m_c[6];}
+	/// Sets the -1*g0^g1^g3 coordinate.
+	inline void set_g1_g0_g3(double g1_g0_g3) { m_c[6] = g1_g0_g3;}
+	/// Returns the g0^g1^g2 coordinate.
+	inline double get_g0_g1_g2() const { return m_c[7];}
+	/// Sets the g0^g1^g2 coordinate.
+	inline void set_g0_g1_g2(double g0_g1_g2) { m_c[7] = g0_g1_g2;}
 	/// Returns the scalar coordinate (which is always 0).
 	inline double get_scalar() const { return 0.0;}
 	/// Returns array of coordinates.
 	inline const double *getC(CoordinateOrder) const { return m_c;}
-}; // end of class oddVersor
-
-/// This class can hold a specialized multivector of type idk1.
-/// 
-/// The coordinates are stored in type double.
-/// 
-/// The variable non-zero coordinates are:
-///   - coordinate 1  (array index: SCALAR = 0)
-///   - coordinate g0^g1  (array index: G0_G1 = 1)
-///   - coordinate g0^g2  (array index: G0_G2 = 2)
-///   - coordinate g1^g2  (array index: G1_G2 = 3)
-///   - coordinate g0^g3  (array index: G0_G3 = 4)
-///   - coordinate g1^g3  (array index: G1_G3 = 5)
-///   - coordinate g2^g3  (array index: G2_G3 = 6)
-///   - coordinate g0^g1^g2^g3  (array index: G0_G1_G2_G3 = 7)
-/// 
-/// The type has no constant coordinates.
-/// 
-/// 
-/// MISSING; PLEASE ADD TO SPECIFICATION
-/// 
-class idk1
-{
-public:
-	/// The coordinates (stored in an array).
-	double m_c[8]; // 1, g0^g1, g0^g2, g1^g2, g0^g3, g1^g3, g2^g3, g0^g1^g2^g3
-public:
-
-	/// Floating point type used by idk1 
-	typedef double Float;
-	/// Array indices of idk1 coordinates.
-	typedef enum {
-		/// index of coordinate for 1 in idk1
-		SCALAR = 0, 
-		/// index of coordinate for g0^g1 in idk1
-		G0_G1 = 1, 
-		/// index of coordinate for g0^g2 in idk1
-		G0_G2 = 2, 
-		/// index of coordinate for g1^g2 in idk1
-		G1_G2 = 3, 
-		/// index of coordinate for g0^g3 in idk1
-		G0_G3 = 4, 
-		/// index of coordinate for g1^g3 in idk1
-		G1_G3 = 5, 
-		/// index of coordinate for g2^g3 in idk1
-		G2_G3 = 6, 
-		/// index of coordinate for g0^g1^g2^g3 in idk1
-		G0_G1_G2_G3 = 7, 
-	} ArrayIndex;
-	typedef enum {
-		/// the order of coordinates (this is the type of the first argument of coordinate-handling functions)
-		coord_scalar_g0g1_g0g2_g1g2_g0g3_g1g3_g2g3_g0g1g2g3
-	} CoordinateOrder;
-
-	/// Constructs a new idk1 with variable coordinates set to 0.
-	inline idk1() {set();}
-
-	/// Copy constructor.
-	inline idk1(const idk1 &A) {set(A);}
-
-
-	/// Constructs a new idk1 with scalar value 'scalar'.
-	inline idk1(double scalar) {set(scalar);}
-
-	/// Constructs a new idk1 from mv.
-	/// \param A The value to copy. Coordinates that cannot be represented
-	/// are silently dropped.
-	/// \param filler This argument can have any value; it's role
-	/// is only to prevent the compiler from using this constructor as a converter.
-	inline idk1(mv &A, int filler) {set(A);}
-
-	/// Constructs a new idk1. Coordinate values come from 'A'.
-	inline idk1(const CoordinateOrder co, const double A[8]) {set(co, A);}
-	
-	/// Constructs a new idk1 with each coordinate specified.
-	inline idk1(const CoordinateOrder co,  double scalar, double g0_g1, double g0_g2, double g1_g2, double g0_g3, double g1_g3, double g2_g3, double g0_g1_g2_g3) {
-		set(co, scalar, g0_g1, g0_g2, g1_g2, g0_g3, g1_g3, g2_g3, g0_g1_g2_g3);
-	}
-
-	/// Assignment operator (idk1).
-	inline idk1 &operator=(const idk1 &A) {if (this != &A) {set(A);} return *this;}
-	
-		
-	/// Assignment operator (double).
-	inline idk1 &operator=(const double &scalar) {set(scalar); return *this;}
-
-	/// Assignment operator (mv).
-	inline idk1 &operator=(const mv &A) {set(A); return *this;}
-
-
-	/// Sets variable coordinates of 'this' to 0.
-	void set();
-	/// Sets this to 'A'.
-	void set(const idk1 &A);
-
-	/// Sets this to scalar value 'scalar'.
-	void set(double scalar);
-
-	/// Sets this to 'A'.
-	/// \param A The value to copy. Coordinates that cannot be represented
-	/// are silently dropped.
-	void set(const mv &A);
-
-
-	/// Sets this to 'A'.
-	void set(const CoordinateOrder, const double A[8]);
-	
-	/// Sets this to coordinates specified.
-	void set(const CoordinateOrder,  double scalar, double g0_g1, double g0_g2, double g1_g2, double g0_g3, double g1_g3, double g2_g3, double g0_g1_g2_g3);
-
-	/// returns the absolute largest coordinate.
-	double largestCoordinate() const;
-	/// returns the absolute largest coordinate, and the corresponding basis blade bitmap.
-	double largestBasisBlade(unsigned int &bm) const;
-	
-
-	/// Returns a string representation (const char*) of this multivector.
-	/// Not multi-threading safe.
-	/// \param fp how floats are printed (e.g., "%f");
-	inline const char * c_str(const char *fp = NULL) const {
-		static char buf[2048]; // not MT-safe
-		return ::m4sta::c_str(*this, buf, 2048, fp);
-	}
-	
-	/// Returns a string representation (const char*) of this multivector using %f.
-	/// Not multi-threading safe.
-	inline const char * c_str_f() const {return c_str("%f");}
-	/// Returns a string representation (const char*) of this multivector using %e
-	/// Not multi-threading safe.
-	inline const char * c_str_e() const {return c_str("%e");}
-	/// Returns a string representation (const char*) of this multivector using %e20 (which is lossless for doubles)
-	/// Not multi-threading safe.
-	inline const char * c_str_e20() const {return c_str("%2.20e");}
-
-	/// Returns a string representation (const char*) of this multivector.
-	inline std::string toString(const char *fp = NULL) const {
-		return ::m4sta::toString(*this, fp);
-	}
-	
-	/// Returns a string representation (const char*) of this multivector using %f.
-	inline std::string toString_f() const {return toString("%f");}
-	/// Returns a string representation (const char*) of this multivector using %e.
-	inline std::string toString_e() const {return toString("%e");}
-	/// Returns a string representation (const char*) of this multivector using %e20.
-	inline std::string toString_e20() const {return toString("%2.20e");}
-
-	/// Returns the 1 coordinate.
-	inline double get_scalar() const { return m_c[0];}
-	/// Sets the 1 coordinate.
-	inline void set_scalar(double scalar) { m_c[0] = scalar;}
-	/// Returns the g0^g1 coordinate.
-	inline double get_g0_g1() const { return m_c[1];}
-	/// Sets the g0^g1 coordinate.
-	inline void set_g0_g1(double g0_g1) { m_c[1] = g0_g1;}
-	/// Returns the g0^g2 coordinate.
-	inline double get_g0_g2() const { return m_c[2];}
-	/// Sets the g0^g2 coordinate.
-	inline void set_g0_g2(double g0_g2) { m_c[2] = g0_g2;}
-	/// Returns the g1^g2 coordinate.
-	inline double get_g1_g2() const { return m_c[3];}
-	/// Sets the g1^g2 coordinate.
-	inline void set_g1_g2(double g1_g2) { m_c[3] = g1_g2;}
-	/// Returns the g0^g3 coordinate.
-	inline double get_g0_g3() const { return m_c[4];}
-	/// Sets the g0^g3 coordinate.
-	inline void set_g0_g3(double g0_g3) { m_c[4] = g0_g3;}
-	/// Returns the g1^g3 coordinate.
-	inline double get_g1_g3() const { return m_c[5];}
-	/// Sets the g1^g3 coordinate.
-	inline void set_g1_g3(double g1_g3) { m_c[5] = g1_g3;}
-	/// Returns the g2^g3 coordinate.
-	inline double get_g2_g3() const { return m_c[6];}
-	/// Sets the g2^g3 coordinate.
-	inline void set_g2_g3(double g2_g3) { m_c[6] = g2_g3;}
-	/// Returns the g0^g1^g2^g3 coordinate.
-	inline double get_g0_g1_g2_g3() const { return m_c[7];}
-	/// Sets the g0^g1^g2^g3 coordinate.
-	inline void set_g0_g1_g2_g3(double g0_g1_g2_g3) { m_c[7] = g0_g1_g2_g3;}
-	/// Returns array of coordinates.
-	inline const double *getC(CoordinateOrder) const { return m_c;}
-}; // end of class idk1
-
-/// This class can hold a specialized multivector of type idk2.
-/// 
-/// The coordinates are stored in type double.
-/// 
-/// The variable non-zero coordinates are:
-///   - coordinate g0^g1  (array index: G0_G1 = 0)
-///   - coordinate g0^g2  (array index: G0_G2 = 1)
-///   - coordinate g1^g2  (array index: G1_G2 = 2)
-///   - coordinate g0^g3  (array index: G0_G3 = 3)
-///   - coordinate g1^g3  (array index: G1_G3 = 4)
-///   - coordinate g2^g3  (array index: G2_G3 = 5)
-///   - coordinate g0^g1^g2^g3  (array index: G0_G1_G2_G3 = 6)
-/// 
-/// The type has no constant coordinates.
-/// 
-/// 
-/// MISSING; PLEASE ADD TO SPECIFICATION
-/// 
-class idk2
-{
-public:
-	/// The coordinates (stored in an array).
-	double m_c[7]; // g0^g1, g0^g2, g1^g2, g0^g3, g1^g3, g2^g3, g0^g1^g2^g3
-public:
-
-	/// Floating point type used by idk2 
-	typedef double Float;
-	/// Array indices of idk2 coordinates.
-	typedef enum {
-		/// index of coordinate for g0^g1 in idk2
-		G0_G1 = 0, 
-		/// index of coordinate for g0^g2 in idk2
-		G0_G2 = 1, 
-		/// index of coordinate for g1^g2 in idk2
-		G1_G2 = 2, 
-		/// index of coordinate for g0^g3 in idk2
-		G0_G3 = 3, 
-		/// index of coordinate for g1^g3 in idk2
-		G1_G3 = 4, 
-		/// index of coordinate for g2^g3 in idk2
-		G2_G3 = 5, 
-		/// index of coordinate for g0^g1^g2^g3 in idk2
-		G0_G1_G2_G3 = 6, 
-	} ArrayIndex;
-	typedef enum {
-		/// the order of coordinates (this is the type of the first argument of coordinate-handling functions)
-		coord_g0g1_g0g2_g1g2_g0g3_g1g3_g2g3_g0g1g2g3
-	} CoordinateOrder;
-
-	/// Constructs a new idk2 with variable coordinates set to 0.
-	inline idk2() {set();}
-
-	/// Copy constructor.
-	inline idk2(const idk2 &A) {set(A);}
-
-
-
-	/// Constructs a new idk2 from mv.
-	/// \param A The value to copy. Coordinates that cannot be represented
-	/// are silently dropped.
-	/// \param filler This argument can have any value; it's role
-	/// is only to prevent the compiler from using this constructor as a converter.
-	inline idk2(mv &A, int filler) {set(A);}
-
-	/// Constructs a new idk2. Coordinate values come from 'A'.
-	inline idk2(const CoordinateOrder co, const double A[7]) {set(co, A);}
-	
-	/// Constructs a new idk2 with each coordinate specified.
-	inline idk2(const CoordinateOrder co,  double g0_g1, double g0_g2, double g1_g2, double g0_g3, double g1_g3, double g2_g3, double g0_g1_g2_g3) {
-		set(co, g0_g1, g0_g2, g1_g2, g0_g3, g1_g3, g2_g3, g0_g1_g2_g3);
-	}
-
-	/// Assignment operator (idk2).
-	inline idk2 &operator=(const idk2 &A) {if (this != &A) {set(A);} return *this;}
-	
-		
-
-	/// Assignment operator (mv).
-	inline idk2 &operator=(const mv &A) {set(A); return *this;}
-
-
-	/// Sets variable coordinates of 'this' to 0.
-	void set();
-	/// Sets this to 'A'.
-	void set(const idk2 &A);
-
-
-	/// Sets this to 'A'.
-	/// \param A The value to copy. Coordinates that cannot be represented
-	/// are silently dropped.
-	void set(const mv &A);
-
-
-	/// Sets this to 'A'.
-	void set(const CoordinateOrder, const double A[7]);
-	
-	/// Sets this to coordinates specified.
-	void set(const CoordinateOrder,  double g0_g1, double g0_g2, double g1_g2, double g0_g3, double g1_g3, double g2_g3, double g0_g1_g2_g3);
-
-	/// returns the absolute largest coordinate.
-	double largestCoordinate() const;
-	/// returns the absolute largest coordinate, and the corresponding basis blade bitmap.
-	double largestBasisBlade(unsigned int &bm) const;
-	
-
-	/// Returns a string representation (const char*) of this multivector.
-	/// Not multi-threading safe.
-	/// \param fp how floats are printed (e.g., "%f");
-	inline const char * c_str(const char *fp = NULL) const {
-		static char buf[2048]; // not MT-safe
-		return ::m4sta::c_str(*this, buf, 2048, fp);
-	}
-	
-	/// Returns a string representation (const char*) of this multivector using %f.
-	/// Not multi-threading safe.
-	inline const char * c_str_f() const {return c_str("%f");}
-	/// Returns a string representation (const char*) of this multivector using %e
-	/// Not multi-threading safe.
-	inline const char * c_str_e() const {return c_str("%e");}
-	/// Returns a string representation (const char*) of this multivector using %e20 (which is lossless for doubles)
-	/// Not multi-threading safe.
-	inline const char * c_str_e20() const {return c_str("%2.20e");}
-
-	/// Returns a string representation (const char*) of this multivector.
-	inline std::string toString(const char *fp = NULL) const {
-		return ::m4sta::toString(*this, fp);
-	}
-	
-	/// Returns a string representation (const char*) of this multivector using %f.
-	inline std::string toString_f() const {return toString("%f");}
-	/// Returns a string representation (const char*) of this multivector using %e.
-	inline std::string toString_e() const {return toString("%e");}
-	/// Returns a string representation (const char*) of this multivector using %e20.
-	inline std::string toString_e20() const {return toString("%2.20e");}
-
-	/// Returns the g0^g1 coordinate.
-	inline double get_g0_g1() const { return m_c[0];}
-	/// Sets the g0^g1 coordinate.
-	inline void set_g0_g1(double g0_g1) { m_c[0] = g0_g1;}
-	/// Returns the g0^g2 coordinate.
-	inline double get_g0_g2() const { return m_c[1];}
-	/// Sets the g0^g2 coordinate.
-	inline void set_g0_g2(double g0_g2) { m_c[1] = g0_g2;}
-	/// Returns the g1^g2 coordinate.
-	inline double get_g1_g2() const { return m_c[2];}
-	/// Sets the g1^g2 coordinate.
-	inline void set_g1_g2(double g1_g2) { m_c[2] = g1_g2;}
-	/// Returns the g0^g3 coordinate.
-	inline double get_g0_g3() const { return m_c[3];}
-	/// Sets the g0^g3 coordinate.
-	inline void set_g0_g3(double g0_g3) { m_c[3] = g0_g3;}
-	/// Returns the g1^g3 coordinate.
-	inline double get_g1_g3() const { return m_c[4];}
-	/// Sets the g1^g3 coordinate.
-	inline void set_g1_g3(double g1_g3) { m_c[4] = g1_g3;}
-	/// Returns the g2^g3 coordinate.
-	inline double get_g2_g3() const { return m_c[5];}
-	/// Sets the g2^g3 coordinate.
-	inline void set_g2_g3(double g2_g3) { m_c[5] = g2_g3;}
-	/// Returns the g0^g1^g2^g3 coordinate.
-	inline double get_g0_g1_g2_g3() const { return m_c[6];}
-	/// Sets the g0^g1^g2^g3 coordinate.
-	inline void set_g0_g1_g2_g3(double g0_g1_g2_g3) { m_c[6] = g0_g1_g2_g3;}
-	/// Returns the scalar coordinate (which is always 0).
-	inline double get_scalar() const { return 0.0;}
-	/// Returns array of coordinates.
-	inline const double *getC(CoordinateOrder) const { return m_c;}
-}; // end of class idk2
+}; // end of class oddsubalgebra
 
 /// This class can hold a general outermorphism.
 /// 
@@ -2643,10 +2423,10 @@ inline double _Float(const g3_t &x) {return _double(x); };
 double _double(const I_t &x);
 /// Returns scalar part of  I_t
 inline double _Float(const I_t &x) {return _double(x); };
-/// Returns scalar part of  pseudoscalar
-double _double(const pseudoscalar &x);
-/// Returns scalar part of  pseudoscalar
-inline double _Float(const pseudoscalar &x) {return _double(x); };
+/// Returns scalar part of  scalar
+double _double(const scalar &x);
+/// Returns scalar part of  scalar
+inline double _Float(const scalar &x) {return _double(x); };
 /// Returns scalar part of  vector
 double _double(const vector &x);
 /// Returns scalar part of  vector
@@ -2659,407 +2439,30 @@ inline double _Float(const bivector &x) {return _double(x); };
 double _double(const trivector &x);
 /// Returns scalar part of  trivector
 inline double _Float(const trivector &x) {return _double(x); };
-/// Returns scalar part of  rotor
-double _double(const rotor &x);
-/// Returns scalar part of  rotor
-inline double _Float(const rotor &x) {return _double(x); };
-/// Returns scalar part of  oddVersor
-double _double(const oddVersor &x);
-/// Returns scalar part of  oddVersor
-inline double _Float(const oddVersor &x) {return _double(x); };
-/// Returns scalar part of  idk1
-double _double(const idk1 &x);
-/// Returns scalar part of  idk1
-inline double _Float(const idk1 &x) {return _double(x); };
-/// Returns scalar part of  idk2
-double _double(const idk2 &x);
-/// Returns scalar part of  idk2
-inline double _Float(const idk2 &x) {return _double(x); };
-/** Converts rotor to bivector: dst = R.
-Extracts the bivector part of a rotor. */
-bivector _bivector(const rotor &R);
-/** Converts oddVersor to vector: dst = V.
-Extracts the vector part of an oddVersor. */
-vector _vector(const oddVersor &V);
-/** Converts oddVersor to trivector: dst = V.
-Extracts the trivector part of an oddVersor. */
-trivector _trivector(const oddVersor &V);
+/// Returns scalar part of  pseudoscalar
+double _double(const pseudoscalar &x);
+/// Returns scalar part of  pseudoscalar
+inline double _Float(const pseudoscalar &x) {return _double(x); };
+/// Returns scalar part of  evensubalgebra
+double _double(const evensubalgebra &x);
+/// Returns scalar part of  evensubalgebra
+inline double _Float(const evensubalgebra &x) {return _double(x); };
+/// Returns scalar part of  oddsubalgebra
+double _double(const oddsubalgebra &x);
+/// Returns scalar part of  oddsubalgebra
+inline double _Float(const oddsubalgebra &x) {return _double(x); };
 /// Generates a random double in [0.0 1.0) interval using the c library rand() function
 double genrand();
 /// Seeds the random number generator for  double
 void genrand_seed(unsigned int seed);
 /// Seeds the random number generator for  double with the current time
 void genrand_timeSeed();
-/// Returns mv + mv.
-/// Adds two general spacetime multivectors.
-mv add(const mv &a, const mv &b);
-/// Returns vector + vector.
-/// Adds two spacetime vectors.
-vector add(const vector &a, const vector &b);
-/// Returns bivector + bivector.
-/// Adds two spacetime bivectors.
-bivector add(const bivector &a, const bivector &b);
-/// Returns trivector + trivector.
-/// Adds two spacetime trivectors.
-trivector add(const trivector &a, const trivector &b);
-/// Returns vector + trivector.
-/// Adds a spacetime vector and a spacetime trivector.
-oddVersor add(const vector &a, const trivector &b);
-/// Returns rotor + bivector.
-/// Adds a spacetime rotor and a spacetime bivector.
-rotor add(const rotor &a, const bivector &b);
-/// Returns g0_t + g1_t.
-vector add(const g0_t &a, const g1_t &b);
-/// Returns g0_t + g2_t.
-vector add(const g0_t &a, const g2_t &b);
-/// Returns g0_t + g3_t.
-vector add(const g0_t &a, const g3_t &b);
-/// Returns mv - mv.
-/// Subtracts two general spacetime multivectors.
-mv subtract(const mv &a, const mv &b);
-/// Returns vector - vector.
-/// Subtracts two spacetime vectors.
-vector subtract(const vector &a, const vector &b);
-/// Returns bivector - bivector.
-/// Subtracts two spacetime bivectors.
-bivector subtract(const bivector &a, const bivector &b);
-/// Returns trivector - trivector.
-/// Subtracts two spacetime trivectors.
-trivector subtract(const trivector &a, const trivector &b);
-/// Returns bivector - rotor.
-rotor subtract(const bivector &a, const rotor &b);
-/// Returns vector - trivector.
-oddVersor subtract(const vector &a, const trivector &b);
-/// Returns a / b
-/// Divides a general spacetime multivector with a double.
-mv div(const mv &a, const double b);
-/// Returns a / b
-/// Divides a spacetime vector with a double.
-vector div(const vector &a, const double b);
-/// Returns a / b
-/// Divides a spacetime bivector with a double.
-bivector div(const bivector &a, const double b);
-/// Returns a / b
-/// Divides a spacetime trivector with a double.
-trivector div(const trivector &a, const double b);
-/// Returns a / b
-rotor div(const rotor &a, const double b);
-/// Returns a / b
-vector div(const g0_t &a, const double b);
-/// Returns a / b
-pseudoscalar div(const I_t &a, const double b);
-/// Returns dual of mv using default metric.
-/// The dual of a general spacetime multivector.
-mv dual(const mv &a);
-/// Returns dual of double using default metric.
-/// The dual of a scalar.
-pseudoscalar dual(const double a);
-/// Returns dual of vector using default metric.
-/// The dual of a spacetime vector.
-trivector dual(const vector &a);
-/// Returns dual of bivector using default metric.
-/// The dual of a spacetime bivector.
-bivector dual(const bivector &a);
-/// Returns dual of trivector using default metric.
-/// The dual of a spacetime trivector.
-vector dual(const trivector &a);
-/// Returns dual of oddVersor using default metric.
-oddVersor dual(const oddVersor &a);
-/// Returns dual of g0_t using default metric.
-trivector dual(const g0_t &a);
-/// Returns dual of g1_t using default metric.
-trivector dual(const g1_t &a);
-/// Returns dual of g2_t using default metric.
-trivector dual(const g2_t &a);
-/// Returns dual of g3_t using default metric.
-trivector dual(const g3_t &a);
-/// Returns dual of I_t using default metric.
-double dual(const I_t &a);
-/// Returns undual of mv using default metric.
-/// The undual of a general spacetime multivector.
-mv undual(const mv &a);
-/// Returns undual of double using default metric.
-/// The undual of a scalar.
-pseudoscalar undual(const double a);
-/// Returns undual of vector using default metric.
-/// The undual of a spacetime vector.
-trivector undual(const vector &a);
-/// Returns undual of bivector using default metric.
-/// The undual of a spacetime bivector.
-bivector undual(const bivector &a);
-/// Returns undual of trivector using default metric.
-/// The undual of a spacetime trivector.
-vector undual(const trivector &a);
-/// Returns undual of oddVersor using default metric.
-oddVersor undual(const oddVersor &a);
-/// Returns undual of g0_t using default metric.
-trivector undual(const g0_t &a);
-/// Returns undual of g1_t using default metric.
-trivector undual(const g1_t &a);
-/// Returns undual of g2_t using default metric.
-trivector undual(const g2_t &a);
-/// Returns undual of g3_t using default metric.
-trivector undual(const g3_t &a);
-/// Returns undual of I_t using default metric.
-double undual(const I_t &a);
-/// Returns whether input multivectors are equal up to an epsilon c.
-/// Compares equality between two general spacetime multivectors up to some scalar epsilon (difference threshold)
-bool equals(const mv &a, const mv &b, const double c);
-/// Returns whether input multivectors are equal up to an epsilon c.
-/// Compares equality between two spacetime vectors up to some scalar epsilon (difference threshold)
-bool equals(const vector &a, const vector &b, const double c);
-/// Returns whether input multivectors are equal up to an epsilon c.
-/// Compares equality between two spacetime bivectors up to some scalar epsilon (difference threshold)
-bool equals(const bivector &a, const bivector &b, const double c);
-/// Returns whether input multivectors are equal up to an epsilon c.
-/// Compares equality between two spacetime trivectors up to some scalar epsilon (difference threshold)
-bool equals(const trivector &a, const trivector &b, const double c);
-/// Returns whether input multivectors are equal up to an epsilon c.
-bool equals(const rotor &a, const rotor &b, const double c);
-/// Returns whether input multivectors are equal up to an epsilon c.
-bool equals(const bivector &a, const rotor &b, const double c);
-/// Returns whether input multivectors are equal up to an epsilon c.
-bool equals(const rotor &a, const bivector &b, const double c);
-/// Returns whether input multivectors are equal up to an epsilon c.
-bool equals(const g0_t &a, const g0_t &b, const double c);
-/// Returns whether input multivectors are equal up to an epsilon c.
-bool equals(const g1_t &a, const I_t &b, const double c);
-/// Returns grade groupBitmap of  mv.
-mv extractGrade(const mv &a, int groupBitmap);
-/// Returns grade 0 of  mv.
-mv extractGrade0(const mv &a);
-/// Returns grade 1 of  mv.
-mv extractGrade1(const mv &a);
-/// Returns grade 2 of  mv.
-mv extractGrade2(const mv &a);
-/// Returns grade 3 of  mv.
-mv extractGrade3(const mv &a);
-/// Returns grade 4 of  mv.
-mv extractGrade4(const mv &a);
-/// Returns grade 0 of  I_t.
-double extractGrade0(const I_t &a);
-/// Returns grade 1 of  I_t.
-double extractGrade1(const I_t &a);
-/// Returns grade 2 of  I_t.
-double extractGrade2(const I_t &a);
-/// Returns grade 3 of  I_t.
-double extractGrade3(const I_t &a);
-/// Returns grade 4 of  I_t.
-I_t extractGrade4(const I_t &a);
-/// Returns grade 0 of  rotor.
-double extractGrade0(const rotor &a);
-/// Returns grade 2 of  rotor.
-bivector extractGrade2(const rotor &a);
-/// Returns grade 0 of  oddVersor.
-double extractGrade0(const oddVersor &a);
-/// Returns grade 1 of  oddVersor.
-vector extractGrade1(const oddVersor &a);
-/// Returns grade 2 of  oddVersor.
-double extractGrade2(const oddVersor &a);
-/// Returns grade 3 of  oddVersor.
-trivector extractGrade3(const oddVersor &a);
 /// Returns geometric product of mv and mv.
 mv gp(const mv &a, const mv &b);
-/// Returns geometric product of mv and double.
-mv gp_dont_mangle_1(const mv &a, const double b);
-/// Returns geometric product of vector and vector.
-rotor gp(const vector &a, const vector &b);
-/// Returns geometric product of rotor and vector.
-oddVersor gp(const rotor &a, const vector &b);
-/// Returns geometric product of vector and rotor.
-oddVersor gp(const vector &a, const rotor &b);
-/// Returns geometric product of rotor and rotor.
-idk1 gp(const rotor &a, const rotor &b);
-/// Returns geometric product of bivector and bivector.
-idk1 gp(const bivector &a, const bivector &b);
-/// Returns geometric product of g0_t and rotor.
-oddVersor gp(const g0_t &a, const rotor &b);
-/// Returns geometric product of I_t and rotor.
-idk2 gp(const I_t &a, const rotor &b);
-/// Returns geometric product of bivector and g0_t.
-oddVersor gp(const bivector &a, const g0_t &b);
-/// Returns a * versorInverse(b).
-mv igp(const mv &a, const mv &b);
-/// Returns a bitmap where each one-bit means that at least one coordinate of the respective grade of  a is larger than b
-int gradeBitmap(const mv &a, const double b);
-/// Returns (a + 1).
-mv increment(const mv &a);
-/// Returns (a - 1).
-mv decrement(const mv &a);
-/// Returns scalar product of mv and mv.
-double sp(const mv &a, const mv &b);
-/// Returns left contraction of mv and mv.
-mv lc(const mv &a, const mv &b);
-/// Returns right contraction of mv and mv.
-mv rc(const mv &a, const mv &b);
-/// Returns Hestenes inner product of mv and mv.
-mv hip(const mv &a, const mv &b);
-/// Returns Modified Hestenes inner product of mv and mv.
-mv mhip(const mv &a, const mv &b);
-/// Returns norm of mv using default metric.
-double norm(const mv &a);
-/// internal conversion function
-double norm_returns_scalar(const mv &a);
-/// Returns norm2 of mv using default metric.
-double norm2(const mv &a);
-/// internal conversion function
-double norm2_returns_scalar(const mv &a);
-/// Returns outer product of mv and mv.
-mv op(const mv &a, const mv &b);
-/// Returns double b * mv a + double c.
-mv sas(const mv &a, const double b, const double c);
-
-/** Computes exp of mv.
- */
-mv exp(const mv &x, int order = 12);
-
-/** Computes cosh of mv.
- */
-mv cosh(const mv &x, int order = 12);
-
-/** Computes sinh of mv.
- */
-mv sinh(const mv &x, int order = 12);
-
-/** Computes cos of mv.
- */
-mv cos(const mv &x, int order = 12);
-
-/** Computes sin of mv.
- */
-mv sin(const mv &x, int order = 12);
-/// Returns negation of mv.
-mv negate(const mv &a);
-/// Returns reverse of mv.
-mv reverse(const mv &a);
-/// Returns Clifford conjugate of mv.
-mv cliffordConjugate(const mv &a);
-/// Returns grade involution of mv.
-mv gradeInvolution(const mv &a);
-/// Returns unit of mv using default metric.
-mv unit(const mv &a);
-/// Returns versor inverse of a using default metric.
-mv versorInverse(const mv &a);
-/// Returns true if all coordinates of a are abs <= b
-bool zero(const mv &a, const double b);
-/// returns add(a, b)
-mv operator+(const mv &a, const mv &b);
-/// returns (a = add(a, b))
-mv &operator+=(mv &a, const mv &b);
-/// returns add(a, b)
-vector operator+(const vector &a, const vector &b);
-/// returns (a = add(a, b))
-vector &operator+=(vector &a, const vector &b);
-/// returns add(a, b)
-bivector operator+(const bivector &a, const bivector &b);
-/// returns (a = add(a, b))
-bivector &operator+=(bivector &a, const bivector &b);
-/// returns add(a, b)
-trivector operator+(const trivector &a, const trivector &b);
-/// returns (a = add(a, b))
-trivector &operator+=(trivector &a, const trivector &b);
-/// returns add(a, b)
-oddVersor operator+(const vector &a, const trivector &b);
-/// returns add(a, b)
-rotor operator+(const rotor &a, const bivector &b);
-/// returns (a = add(a, b))
-rotor &operator+=(rotor &a, const bivector &b);
-/// returns add(a, b)
-vector operator+(const g0_t &a, const g1_t &b);
-/// returns add(a, b)
-vector operator+(const g0_t &a, const g2_t &b);
-/// returns add(a, b)
-vector operator+(const g0_t &a, const g3_t &b);
-/// returns subtract(a, b)
-mv operator-(const mv &a, const mv &b);
-/// returns (a = subtract(a, b))
-mv &operator-=(mv &a, const mv &b);
-/// returns subtract(a, b)
-vector operator-(const vector &a, const vector &b);
-/// returns (a = subtract(a, b))
-vector &operator-=(vector &a, const vector &b);
-/// returns subtract(a, b)
-bivector operator-(const bivector &a, const bivector &b);
-/// returns (a = subtract(a, b))
-bivector &operator-=(bivector &a, const bivector &b);
-/// returns subtract(a, b)
-trivector operator-(const trivector &a, const trivector &b);
-/// returns (a = subtract(a, b))
-trivector &operator-=(trivector &a, const trivector &b);
-/// returns subtract(a, b)
-rotor operator-(const bivector &a, const rotor &b);
-/// returns subtract(a, b)
-oddVersor operator-(const vector &a, const trivector &b);
-/// returns dual(a)
-mv operator*(const mv &a);
-/// returns dual(a)
-trivector operator*(const vector &a);
-/// returns dual(a)
-bivector operator*(const bivector &a);
-/// returns dual(a)
-vector operator*(const trivector &a);
-/// returns dual(a)
-oddVersor operator*(const oddVersor &a);
-/// returns dual(a)
-trivector operator*(const g0_t &a);
-/// returns dual(a)
-trivector operator*(const g1_t &a);
-/// returns dual(a)
-trivector operator*(const g2_t &a);
-/// returns dual(a)
-trivector operator*(const g3_t &a);
-/// returns dual(a)
-double operator*(const I_t &a);
 /// returns gp(a, b)
 mv operator*(const mv &a, const mv &b);
 /// returns (a = gp(a, b))
 mv &operator*=(mv &a, const mv &b);
-/// returns gp(a, b)
-rotor operator*(const vector &a, const vector &b);
-/// returns gp(a, b)
-oddVersor operator*(const rotor &a, const vector &b);
-/// returns gp(a, b)
-oddVersor operator*(const vector &a, const rotor &b);
-/// returns gp(a, b)
-idk1 operator*(const rotor &a, const rotor &b);
-/// returns gp(a, b)
-idk1 operator*(const bivector &a, const bivector &b);
-/// returns gp(a, b)
-oddVersor operator*(const g0_t &a, const rotor &b);
-/// returns gp(a, b)
-idk2 operator*(const I_t &a, const rotor &b);
-/// returns gp(a, b)
-oddVersor operator*(const bivector &a, const g0_t &b);
-/// returns igp(a, b)
-mv operator/(const mv &a, const mv &b);
-/// returns (a = igp(a, b))
-mv &operator/=(mv &a, const mv &b);
-/// returns (a = increment(a))
-mv &operator++(mv &a);
-/// returns (a = decrement(a))
-mv &operator--(mv &a);
-/// returns sp(a, b)
-mv operator%(const mv &a, const mv &b);
-/// returns (a = sp(a, b))
-mv &operator%=(mv &a, const mv &b);
-/// returns lc(a, b)
-mv operator<<(const mv &a, const mv &b);
-/// returns (a = lc(a, b))
-mv &operator<<=(mv &a, const mv &b);
-/// returns rc(a, b)
-mv operator>>(const mv &a, const mv &b);
-/// returns (a = rc(a, b))
-mv &operator>>=(mv &a, const mv &b);
-/// returns op(a, b)
-mv operator^(const mv &a, const mv &b);
-/// returns (a = op(a, b))
-mv &operator^=(mv &a, const mv &b);
-/// returns negate(a)
-mv operator-(const mv &a);
-/// returns reverse(a)
-mv operator~(const mv &a);
-/// returns versorInverse(a)
-mv operator!(const mv &a);
 
 inline void zero_1(double *dst) {
 	dst[0]=0.0;
