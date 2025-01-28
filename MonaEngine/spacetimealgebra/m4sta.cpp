@@ -79,7 +79,14 @@ const char *g_m4staTypenames[] =
 	"g2_t",
 	"g3_t",
 	"I_t",
-	"vector"
+	"pseudoscalar",
+	"vector",
+	"bivector",
+	"trivector",
+	"rotor",
+	"oddVersor",
+	"idk1",
+	"idk2"
 };
 g0_t g0;
 g1_t g1;
@@ -239,13 +246,100 @@ mv operator+(const mv &a, const mv &b) {
 mv &operator+=(mv &a, const mv &b) {
 	return (a = add(a, b));
 }
+vector operator+(const vector &a, const vector &b) {
+	return add(a, b);
+}
+vector &operator+=(vector &a, const vector &b) {
+	return (a = add(a, b));
+}
+bivector operator+(const bivector &a, const bivector &b) {
+	return add(a, b);
+}
+bivector &operator+=(bivector &a, const bivector &b) {
+	return (a = add(a, b));
+}
+trivector operator+(const trivector &a, const trivector &b) {
+	return add(a, b);
+}
+trivector &operator+=(trivector &a, const trivector &b) {
+	return (a = add(a, b));
+}
+oddVersor operator+(const vector &a, const trivector &b) {
+	return add(a, b);
+}
+rotor operator+(const rotor &a, const bivector &b) {
+	return add(a, b);
+}
+rotor &operator+=(rotor &a, const bivector &b) {
+	return (a = add(a, b));
+}
+vector operator+(const g0_t &a, const g1_t &b) {
+	return add(a, b);
+}
+vector operator+(const g0_t &a, const g2_t &b) {
+	return add(a, b);
+}
+vector operator+(const g0_t &a, const g3_t &b) {
+	return add(a, b);
+}
 mv operator-(const mv &a, const mv &b) {
 	return subtract(a, b);
 }
 mv &operator-=(mv &a, const mv &b) {
 	return (a = subtract(a, b));
 }
+vector operator-(const vector &a, const vector &b) {
+	return subtract(a, b);
+}
+vector &operator-=(vector &a, const vector &b) {
+	return (a = subtract(a, b));
+}
+bivector operator-(const bivector &a, const bivector &b) {
+	return subtract(a, b);
+}
+bivector &operator-=(bivector &a, const bivector &b) {
+	return (a = subtract(a, b));
+}
+trivector operator-(const trivector &a, const trivector &b) {
+	return subtract(a, b);
+}
+trivector &operator-=(trivector &a, const trivector &b) {
+	return (a = subtract(a, b));
+}
+rotor operator-(const bivector &a, const rotor &b) {
+	return subtract(a, b);
+}
+oddVersor operator-(const vector &a, const trivector &b) {
+	return subtract(a, b);
+}
 mv operator*(const mv &a) {
+	return dual(a);
+}
+trivector operator*(const vector &a) {
+	return dual(a);
+}
+bivector operator*(const bivector &a) {
+	return dual(a);
+}
+vector operator*(const trivector &a) {
+	return dual(a);
+}
+oddVersor operator*(const oddVersor &a) {
+	return dual(a);
+}
+trivector operator*(const g0_t &a) {
+	return dual(a);
+}
+trivector operator*(const g1_t &a) {
+	return dual(a);
+}
+trivector operator*(const g2_t &a) {
+	return dual(a);
+}
+trivector operator*(const g3_t &a) {
+	return dual(a);
+}
+double operator*(const I_t &a) {
 	return dual(a);
 }
 mv operator*(const mv &a, const mv &b) {
@@ -253,6 +347,30 @@ mv operator*(const mv &a, const mv &b) {
 }
 mv &operator*=(mv &a, const mv &b) {
 	return (a = gp(a, b));
+}
+rotor operator*(const vector &a, const vector &b) {
+	return gp(a, b);
+}
+oddVersor operator*(const rotor &a, const vector &b) {
+	return gp(a, b);
+}
+oddVersor operator*(const vector &a, const rotor &b) {
+	return gp(a, b);
+}
+idk1 operator*(const rotor &a, const rotor &b) {
+	return gp(a, b);
+}
+idk1 operator*(const bivector &a, const bivector &b) {
+	return gp(a, b);
+}
+oddVersor operator*(const g0_t &a, const rotor &b) {
+	return gp(a, b);
+}
+idk2 operator*(const I_t &a, const rotor &b) {
+	return gp(a, b);
+}
+oddVersor operator*(const bivector &a, const g0_t &b) {
+	return gp(a, b);
 }
 mv operator/(const mv &a, const mv &b) {
 	return igp(a, b);
@@ -1464,6 +1582,28 @@ void I_t::set(const mv &src) {
 	else {
 	}
 }
+void pseudoscalar::set(const mv &src) {
+	const double *ptr = src.getC();
+
+	if (src.gu() & 1) {
+		ptr += 1;
+	}
+	if (src.gu() & 2) {
+		ptr += 4;
+	}
+	if (src.gu() & 4) {
+		ptr += 6;
+	}
+	if (src.gu() & 8) {
+		ptr += 4;
+	}
+	if (src.gu() & 16) {
+		m_c[0] = ptr[0];
+	}
+	else {
+		m_c[0] = 0.0;
+	}
+}
 void vector::set(const mv &src) {
 	const double *ptr = src.getC();
 
@@ -1481,6 +1621,198 @@ void vector::set(const mv &src) {
 		m_c[1] = 0.0;
 		m_c[2] = 0.0;
 		m_c[3] = 0.0;
+	}
+}
+void bivector::set(const mv &src) {
+	const double *ptr = src.getC();
+
+	if (src.gu() & 1) {
+		ptr += 1;
+	}
+	if (src.gu() & 2) {
+		ptr += 4;
+	}
+	if (src.gu() & 4) {
+		m_c[0] = ptr[0];
+		m_c[1] = ptr[1];
+		m_c[2] = ptr[2];
+		m_c[3] = ptr[3];
+		m_c[4] = ptr[4];
+		m_c[5] = ptr[5];
+	}
+	else {
+		m_c[0] = 0.0;
+		m_c[1] = 0.0;
+		m_c[2] = 0.0;
+		m_c[3] = 0.0;
+		m_c[4] = 0.0;
+		m_c[5] = 0.0;
+	}
+}
+void trivector::set(const mv &src) {
+	const double *ptr = src.getC();
+
+	if (src.gu() & 1) {
+		ptr += 1;
+	}
+	if (src.gu() & 2) {
+		ptr += 4;
+	}
+	if (src.gu() & 4) {
+		ptr += 6;
+	}
+	if (src.gu() & 8) {
+		m_c[0] = ptr[0];
+		m_c[1] = ptr[1];
+		m_c[2] = ptr[2];
+		m_c[3] = ptr[3];
+	}
+	else {
+		m_c[0] = 0.0;
+		m_c[1] = 0.0;
+		m_c[2] = 0.0;
+		m_c[3] = 0.0;
+	}
+}
+void rotor::set(const mv &src) {
+	const double *ptr = src.getC();
+
+	if (src.gu() & 1) {
+		m_c[0] = ptr[0];
+		ptr += 1;
+	}
+	else {
+		m_c[0] = 0.0;
+	}
+	if (src.gu() & 2) {
+		ptr += 4;
+	}
+	if (src.gu() & 4) {
+		m_c[1] = ptr[0];
+		m_c[2] = ptr[1];
+		m_c[3] = ptr[3];
+		m_c[4] = ptr[2];
+		m_c[5] = ptr[4];
+		m_c[6] = ptr[5];
+	}
+	else {
+		m_c[1] = 0.0;
+		m_c[2] = 0.0;
+		m_c[3] = 0.0;
+		m_c[4] = 0.0;
+		m_c[5] = 0.0;
+		m_c[6] = 0.0;
+	}
+}
+void oddVersor::set(const mv &src) {
+	const double *ptr = src.getC();
+
+	if (src.gu() & 1) {
+		ptr += 1;
+	}
+	if (src.gu() & 2) {
+		m_c[0] = ptr[0];
+		m_c[1] = ptr[1];
+		m_c[2] = ptr[2];
+		m_c[3] = ptr[3];
+		ptr += 4;
+	}
+	else {
+		m_c[0] = 0.0;
+		m_c[1] = 0.0;
+		m_c[2] = 0.0;
+		m_c[3] = 0.0;
+	}
+	if (src.gu() & 4) {
+		ptr += 6;
+	}
+	if (src.gu() & 8) {
+		m_c[4] = ptr[1];
+		m_c[5] = ptr[2];
+		m_c[6] = ptr[3];
+		m_c[7] = ptr[0];
+	}
+	else {
+		m_c[4] = 0.0;
+		m_c[5] = 0.0;
+		m_c[6] = 0.0;
+		m_c[7] = 0.0;
+	}
+}
+void idk1::set(const mv &src) {
+	const double *ptr = src.getC();
+
+	if (src.gu() & 1) {
+		m_c[0] = ptr[0];
+		ptr += 1;
+	}
+	else {
+		m_c[0] = 0.0;
+	}
+	if (src.gu() & 2) {
+		ptr += 4;
+	}
+	if (src.gu() & 4) {
+		m_c[1] = ptr[0];
+		m_c[2] = ptr[1];
+		m_c[3] = ptr[3];
+		m_c[4] = ptr[2];
+		m_c[5] = ptr[4];
+		m_c[6] = ptr[5];
+		ptr += 6;
+	}
+	else {
+		m_c[1] = 0.0;
+		m_c[2] = 0.0;
+		m_c[3] = 0.0;
+		m_c[4] = 0.0;
+		m_c[5] = 0.0;
+		m_c[6] = 0.0;
+	}
+	if (src.gu() & 8) {
+		ptr += 4;
+	}
+	if (src.gu() & 16) {
+		m_c[7] = ptr[0];
+	}
+	else {
+		m_c[7] = 0.0;
+	}
+}
+void idk2::set(const mv &src) {
+	const double *ptr = src.getC();
+
+	if (src.gu() & 1) {
+		ptr += 1;
+	}
+	if (src.gu() & 2) {
+		ptr += 4;
+	}
+	if (src.gu() & 4) {
+		m_c[0] = ptr[0];
+		m_c[1] = ptr[1];
+		m_c[2] = ptr[3];
+		m_c[3] = ptr[2];
+		m_c[4] = ptr[4];
+		m_c[5] = ptr[5];
+		ptr += 6;
+	}
+	else {
+		m_c[0] = 0.0;
+		m_c[1] = 0.0;
+		m_c[2] = 0.0;
+		m_c[3] = 0.0;
+		m_c[4] = 0.0;
+		m_c[5] = 0.0;
+	}
+	if (src.gu() & 8) {
+		ptr += 4;
+	}
+	if (src.gu() & 16) {
+		m_c[6] = ptr[0];
+	}
+	else {
+		m_c[6] = 0.0;
 	}
 }
 void mv::set(const g0_t &src) {
@@ -1512,6 +1844,11 @@ void mv::set(const I_t &src) {
 	double *ptr = m_c;
 	ptr[0] = 1.0;
 }
+void mv::set(const pseudoscalar &src) {
+	setGroupUsage(16);
+	double *ptr = m_c;
+	ptr[0] = src.m_c[0];
+}
 void mv::set(const vector &src) {
 	setGroupUsage(2);
 	double *ptr = m_c;
@@ -1519,6 +1856,75 @@ void mv::set(const vector &src) {
 	ptr[1] = src.m_c[1];
 	ptr[2] = src.m_c[2];
 	ptr[3] = src.m_c[3];
+}
+void mv::set(const bivector &src) {
+	setGroupUsage(4);
+	double *ptr = m_c;
+	ptr[0] = src.m_c[0];
+	ptr[1] = src.m_c[1];
+	ptr[2] = src.m_c[2];
+	ptr[3] = src.m_c[3];
+	ptr[4] = src.m_c[4];
+	ptr[5] = src.m_c[5];
+}
+void mv::set(const trivector &src) {
+	setGroupUsage(8);
+	double *ptr = m_c;
+	ptr[0] = src.m_c[0];
+	ptr[1] = src.m_c[1];
+	ptr[2] = src.m_c[2];
+	ptr[3] = src.m_c[3];
+}
+void mv::set(const rotor &src) {
+	setGroupUsage(5);
+	double *ptr = m_c;
+	ptr[0] = src.m_c[0];
+	ptr += 1;
+	ptr[0] = src.m_c[1];
+	ptr[1] = src.m_c[2];
+	ptr[2] = src.m_c[4];
+	ptr[3] = src.m_c[3];
+	ptr[4] = src.m_c[5];
+	ptr[5] = src.m_c[6];
+}
+void mv::set(const oddVersor &src) {
+	setGroupUsage(10);
+	double *ptr = m_c;
+	ptr[0] = src.m_c[0];
+	ptr[1] = src.m_c[1];
+	ptr[2] = src.m_c[2];
+	ptr[3] = src.m_c[3];
+	ptr += 4;
+	ptr[0] = src.m_c[7];
+	ptr[1] = src.m_c[4];
+	ptr[2] = src.m_c[5];
+	ptr[3] = src.m_c[6];
+}
+void mv::set(const idk1 &src) {
+	setGroupUsage(21);
+	double *ptr = m_c;
+	ptr[0] = src.m_c[0];
+	ptr += 1;
+	ptr[0] = src.m_c[1];
+	ptr[1] = src.m_c[2];
+	ptr[2] = src.m_c[4];
+	ptr[3] = src.m_c[3];
+	ptr[4] = src.m_c[5];
+	ptr[5] = src.m_c[6];
+	ptr += 6;
+	ptr[0] = src.m_c[7];
+}
+void mv::set(const idk2 &src) {
+	setGroupUsage(20);
+	double *ptr = m_c;
+	ptr[0] = src.m_c[0];
+	ptr[1] = src.m_c[1];
+	ptr[2] = src.m_c[3];
+	ptr[3] = src.m_c[2];
+	ptr[4] = src.m_c[4];
+	ptr[5] = src.m_c[5];
+	ptr += 6;
+	ptr[0] = src.m_c[6];
 }
 
 double mv::largestCoordinate() const {
@@ -1639,13 +2045,65 @@ void mv::expand(const double *ptrs[5], bool nulls /* = true */) const {
 }
 
 
+void pseudoscalar::set()
+{
+	m_c[0] = 0.0;
+
+}
 void vector::set()
 {
 	m_c[0] = m_c[1] = m_c[2] = m_c[3] = 0.0;
 
 }
+void bivector::set()
+{
+	m_c[0] = m_c[1] = m_c[2] = m_c[3] = m_c[4] = m_c[5] = 0.0;
 
+}
+void trivector::set()
+{
+	m_c[0] = m_c[1] = m_c[2] = m_c[3] = 0.0;
 
+}
+void rotor::set()
+{
+	m_c[0] = m_c[1] = m_c[2] = m_c[3] = m_c[4] = m_c[5] = m_c[6] = 0.0;
+
+}
+void oddVersor::set()
+{
+	m_c[0] = m_c[1] = m_c[2] = m_c[3] = m_c[4] = m_c[5] = m_c[6] = m_c[7] = 0.0;
+
+}
+void idk1::set()
+{
+	m_c[0] = m_c[1] = m_c[2] = m_c[3] = m_c[4] = m_c[5] = m_c[6] = m_c[7] = 0.0;
+
+}
+void idk2::set()
+{
+	m_c[0] = m_c[1] = m_c[2] = m_c[3] = m_c[4] = m_c[5] = m_c[6] = 0.0;
+
+}
+
+void rotor::set(const double scalarVal)
+{
+	m_c[0] = scalarVal;
+	m_c[1] = m_c[2] = m_c[3] = m_c[4] = m_c[5] = m_c[6] = 0.0;
+
+}
+void idk1::set(const double scalarVal)
+{
+	m_c[0] = scalarVal;
+	m_c[1] = m_c[2] = m_c[3] = m_c[4] = m_c[5] = m_c[6] = m_c[7] = 0.0;
+
+}
+
+void pseudoscalar::set(const CoordinateOrder co, const double _g0_g1_g2_g3)
+{
+	m_c[0] = _g0_g1_g2_g3;
+
+}
 void vector::set(const CoordinateOrder co, const double _g0, const double _g1, const double _g2, const double _g3)
 {
 	m_c[0] = _g0;
@@ -1654,13 +2112,146 @@ void vector::set(const CoordinateOrder co, const double _g0, const double _g1, c
 	m_c[3] = _g3;
 
 }
+void bivector::set(const CoordinateOrder co, const double _g0_g1, const double _g0_g2, const double _g0_g3, const double _g1_g2, const double _g1_g3, const double _g2_g3)
+{
+	m_c[0] = _g0_g1;
+	m_c[1] = _g0_g2;
+	m_c[2] = _g0_g3;
+	m_c[3] = _g1_g2;
+	m_c[4] = _g1_g3;
+	m_c[5] = _g2_g3;
 
+}
+void trivector::set(const CoordinateOrder co, const double _g1_g2_g3, const double _g0_g1_g2, const double _g0_g1_g3, const double _g0_g2_g3)
+{
+	m_c[0] = _g1_g2_g3;
+	m_c[1] = _g0_g1_g2;
+	m_c[2] = _g0_g1_g3;
+	m_c[3] = _g0_g2_g3;
+
+}
+void rotor::set(const CoordinateOrder co, const double _scalar, const double _g0_g1, const double _g0_g2, const double _g1_g2, const double _g0_g3, const double _g1_g3, const double _g2_g3)
+{
+	m_c[0] = _scalar;
+	m_c[1] = _g0_g1;
+	m_c[2] = _g0_g2;
+	m_c[3] = _g1_g2;
+	m_c[4] = _g0_g3;
+	m_c[5] = _g1_g3;
+	m_c[6] = _g2_g3;
+
+}
+void oddVersor::set(const CoordinateOrder co, const double _g0, const double _g1, const double _g2, const double _g3, const double _g0_g1_g2, const double _g0_g1_g3, const double _g0_g2_g3, const double _g1_g2_g3)
+{
+	m_c[0] = _g0;
+	m_c[1] = _g1;
+	m_c[2] = _g2;
+	m_c[3] = _g3;
+	m_c[4] = _g0_g1_g2;
+	m_c[5] = _g0_g1_g3;
+	m_c[6] = _g0_g2_g3;
+	m_c[7] = _g1_g2_g3;
+
+}
+void idk1::set(const CoordinateOrder co, const double _scalar, const double _g0_g1, const double _g0_g2, const double _g1_g2, const double _g0_g3, const double _g1_g3, const double _g2_g3, const double _g0_g1_g2_g3)
+{
+	m_c[0] = _scalar;
+	m_c[1] = _g0_g1;
+	m_c[2] = _g0_g2;
+	m_c[3] = _g1_g2;
+	m_c[4] = _g0_g3;
+	m_c[5] = _g1_g3;
+	m_c[6] = _g2_g3;
+	m_c[7] = _g0_g1_g2_g3;
+
+}
+void idk2::set(const CoordinateOrder co, const double _g0_g1, const double _g0_g2, const double _g1_g2, const double _g0_g3, const double _g1_g3, const double _g2_g3, const double _g0_g1_g2_g3)
+{
+	m_c[0] = _g0_g1;
+	m_c[1] = _g0_g2;
+	m_c[2] = _g1_g2;
+	m_c[3] = _g0_g3;
+	m_c[4] = _g1_g3;
+	m_c[5] = _g2_g3;
+	m_c[6] = _g0_g1_g2_g3;
+
+}
+
+void pseudoscalar::set(const CoordinateOrder co, const double *A)
+{
+	m_c[0] = A[0];
+
+}
 void vector::set(const CoordinateOrder co, const double *A)
 {
 	m_c[0] = A[0];
 	m_c[1] = A[1];
 	m_c[2] = A[2];
 	m_c[3] = A[3];
+
+}
+void bivector::set(const CoordinateOrder co, const double *A)
+{
+	m_c[0] = A[0];
+	m_c[1] = A[1];
+	m_c[2] = A[2];
+	m_c[3] = A[3];
+	m_c[4] = A[4];
+	m_c[5] = A[5];
+
+}
+void trivector::set(const CoordinateOrder co, const double *A)
+{
+	m_c[0] = A[0];
+	m_c[1] = A[1];
+	m_c[2] = A[2];
+	m_c[3] = A[3];
+
+}
+void rotor::set(const CoordinateOrder co, const double *A)
+{
+	m_c[0] = A[0];
+	m_c[1] = A[1];
+	m_c[2] = A[2];
+	m_c[3] = A[3];
+	m_c[4] = A[4];
+	m_c[5] = A[5];
+	m_c[6] = A[6];
+
+}
+void oddVersor::set(const CoordinateOrder co, const double *A)
+{
+	m_c[0] = A[0];
+	m_c[1] = A[1];
+	m_c[2] = A[2];
+	m_c[3] = A[3];
+	m_c[4] = A[4];
+	m_c[5] = A[5];
+	m_c[6] = A[6];
+	m_c[7] = A[7];
+
+}
+void idk1::set(const CoordinateOrder co, const double *A)
+{
+	m_c[0] = A[0];
+	m_c[1] = A[1];
+	m_c[2] = A[2];
+	m_c[3] = A[3];
+	m_c[4] = A[4];
+	m_c[5] = A[5];
+	m_c[6] = A[6];
+	m_c[7] = A[7];
+
+}
+void idk2::set(const CoordinateOrder co, const double *A)
+{
+	m_c[0] = A[0];
+	m_c[1] = A[1];
+	m_c[2] = A[2];
+	m_c[3] = A[3];
+	m_c[4] = A[4];
+	m_c[5] = A[5];
+	m_c[6] = A[6];
 
 }
 
@@ -1684,12 +2275,81 @@ void I_t::set(const I_t &a)
 {
 
 }
+void pseudoscalar::set(const pseudoscalar &a)
+{
+	m_c[0] = a.m_c[0];
+
+}
 void vector::set(const vector &a)
 {
 	m_c[0] = a.m_c[0];
 	m_c[1] = a.m_c[1];
 	m_c[2] = a.m_c[2];
 	m_c[3] = a.m_c[3];
+
+}
+void bivector::set(const bivector &a)
+{
+	m_c[0] = a.m_c[0];
+	m_c[1] = a.m_c[1];
+	m_c[2] = a.m_c[2];
+	m_c[3] = a.m_c[3];
+	m_c[4] = a.m_c[4];
+	m_c[5] = a.m_c[5];
+
+}
+void trivector::set(const trivector &a)
+{
+	m_c[0] = a.m_c[0];
+	m_c[1] = a.m_c[1];
+	m_c[2] = a.m_c[2];
+	m_c[3] = a.m_c[3];
+
+}
+void rotor::set(const rotor &a)
+{
+	m_c[0] = a.m_c[0];
+	m_c[1] = a.m_c[1];
+	m_c[2] = a.m_c[2];
+	m_c[3] = a.m_c[3];
+	m_c[4] = a.m_c[4];
+	m_c[5] = a.m_c[5];
+	m_c[6] = a.m_c[6];
+
+}
+void oddVersor::set(const oddVersor &a)
+{
+	m_c[0] = a.m_c[0];
+	m_c[1] = a.m_c[1];
+	m_c[2] = a.m_c[2];
+	m_c[3] = a.m_c[3];
+	m_c[4] = a.m_c[4];
+	m_c[5] = a.m_c[5];
+	m_c[6] = a.m_c[6];
+	m_c[7] = a.m_c[7];
+
+}
+void idk1::set(const idk1 &a)
+{
+	m_c[0] = a.m_c[0];
+	m_c[1] = a.m_c[1];
+	m_c[2] = a.m_c[2];
+	m_c[3] = a.m_c[3];
+	m_c[4] = a.m_c[4];
+	m_c[5] = a.m_c[5];
+	m_c[6] = a.m_c[6];
+	m_c[7] = a.m_c[7];
+
+}
+void idk2::set(const idk2 &a)
+{
+	m_c[0] = a.m_c[0];
+	m_c[1] = a.m_c[1];
+	m_c[2] = a.m_c[2];
+	m_c[3] = a.m_c[3];
+	m_c[4] = a.m_c[4];
+	m_c[5] = a.m_c[5];
+	m_c[6] = a.m_c[6];
 
 }
 
@@ -1739,6 +2399,15 @@ double I_t::largestBasisBlade(unsigned int &bm) const {
 	bm = 15;
 	return maxValue;
 }
+double pseudoscalar::largestCoordinate() const {
+	double maxValue = ::fabs(m_c[0]);
+	return maxValue;
+}
+double pseudoscalar::largestBasisBlade(unsigned int &bm) const {
+	double maxValue = ::fabs(m_c[0]);
+	bm = 0;
+	return maxValue;
+}
 double vector::largestCoordinate() const {
 	double maxValue = ::fabs(m_c[0]);
 	if (::fabs(m_c[1]) > maxValue) { maxValue = ::fabs(m_c[1]); }
@@ -1752,6 +2421,128 @@ double vector::largestBasisBlade(unsigned int &bm) const {
 	if (::fabs(m_c[1]) > maxValue) { maxValue = ::fabs(m_c[1]); bm = 2; }
 	if (::fabs(m_c[2]) > maxValue) { maxValue = ::fabs(m_c[2]); bm = 4; }
 	if (::fabs(m_c[3]) > maxValue) { maxValue = ::fabs(m_c[3]); bm = 8; }
+	return maxValue;
+}
+double bivector::largestCoordinate() const {
+	double maxValue = ::fabs(m_c[0]);
+	if (::fabs(m_c[1]) > maxValue) { maxValue = ::fabs(m_c[1]); }
+	if (::fabs(m_c[2]) > maxValue) { maxValue = ::fabs(m_c[2]); }
+	if (::fabs(m_c[3]) > maxValue) { maxValue = ::fabs(m_c[3]); }
+	if (::fabs(m_c[4]) > maxValue) { maxValue = ::fabs(m_c[4]); }
+	if (::fabs(m_c[5]) > maxValue) { maxValue = ::fabs(m_c[5]); }
+	return maxValue;
+}
+double bivector::largestBasisBlade(unsigned int &bm) const {
+	double maxValue = ::fabs(m_c[0]);
+	bm = 0;
+	if (::fabs(m_c[1]) > maxValue) { maxValue = ::fabs(m_c[1]); bm = 5; }
+	if (::fabs(m_c[2]) > maxValue) { maxValue = ::fabs(m_c[2]); bm = 9; }
+	if (::fabs(m_c[3]) > maxValue) { maxValue = ::fabs(m_c[3]); bm = 6; }
+	if (::fabs(m_c[4]) > maxValue) { maxValue = ::fabs(m_c[4]); bm = 10; }
+	if (::fabs(m_c[5]) > maxValue) { maxValue = ::fabs(m_c[5]); bm = 12; }
+	return maxValue;
+}
+double trivector::largestCoordinate() const {
+	double maxValue = ::fabs(m_c[0]);
+	if (::fabs(m_c[1]) > maxValue) { maxValue = ::fabs(m_c[1]); }
+	if (::fabs(m_c[2]) > maxValue) { maxValue = ::fabs(m_c[2]); }
+	if (::fabs(m_c[3]) > maxValue) { maxValue = ::fabs(m_c[3]); }
+	return maxValue;
+}
+double trivector::largestBasisBlade(unsigned int &bm) const {
+	double maxValue = ::fabs(m_c[0]);
+	bm = 0;
+	if (::fabs(m_c[1]) > maxValue) { maxValue = ::fabs(m_c[1]); bm = 7; }
+	if (::fabs(m_c[2]) > maxValue) { maxValue = ::fabs(m_c[2]); bm = 11; }
+	if (::fabs(m_c[3]) > maxValue) { maxValue = ::fabs(m_c[3]); bm = 13; }
+	return maxValue;
+}
+double rotor::largestCoordinate() const {
+	double maxValue = ::fabs(m_c[0]);
+	if (::fabs(m_c[1]) > maxValue) { maxValue = ::fabs(m_c[1]); }
+	if (::fabs(m_c[2]) > maxValue) { maxValue = ::fabs(m_c[2]); }
+	if (::fabs(m_c[3]) > maxValue) { maxValue = ::fabs(m_c[3]); }
+	if (::fabs(m_c[4]) > maxValue) { maxValue = ::fabs(m_c[4]); }
+	if (::fabs(m_c[5]) > maxValue) { maxValue = ::fabs(m_c[5]); }
+	if (::fabs(m_c[6]) > maxValue) { maxValue = ::fabs(m_c[6]); }
+	return maxValue;
+}
+double rotor::largestBasisBlade(unsigned int &bm) const {
+	double maxValue = ::fabs(m_c[0]);
+	bm = 0;
+	if (::fabs(m_c[1]) > maxValue) { maxValue = ::fabs(m_c[1]); bm = 3; }
+	if (::fabs(m_c[2]) > maxValue) { maxValue = ::fabs(m_c[2]); bm = 5; }
+	if (::fabs(m_c[3]) > maxValue) { maxValue = ::fabs(m_c[3]); bm = 6; }
+	if (::fabs(m_c[4]) > maxValue) { maxValue = ::fabs(m_c[4]); bm = 9; }
+	if (::fabs(m_c[5]) > maxValue) { maxValue = ::fabs(m_c[5]); bm = 10; }
+	if (::fabs(m_c[6]) > maxValue) { maxValue = ::fabs(m_c[6]); bm = 12; }
+	return maxValue;
+}
+double oddVersor::largestCoordinate() const {
+	double maxValue = ::fabs(m_c[0]);
+	if (::fabs(m_c[1]) > maxValue) { maxValue = ::fabs(m_c[1]); }
+	if (::fabs(m_c[2]) > maxValue) { maxValue = ::fabs(m_c[2]); }
+	if (::fabs(m_c[3]) > maxValue) { maxValue = ::fabs(m_c[3]); }
+	if (::fabs(m_c[4]) > maxValue) { maxValue = ::fabs(m_c[4]); }
+	if (::fabs(m_c[5]) > maxValue) { maxValue = ::fabs(m_c[5]); }
+	if (::fabs(m_c[6]) > maxValue) { maxValue = ::fabs(m_c[6]); }
+	if (::fabs(m_c[7]) > maxValue) { maxValue = ::fabs(m_c[7]); }
+	return maxValue;
+}
+double oddVersor::largestBasisBlade(unsigned int &bm) const {
+	double maxValue = ::fabs(m_c[0]);
+	bm = 0;
+	if (::fabs(m_c[1]) > maxValue) { maxValue = ::fabs(m_c[1]); bm = 2; }
+	if (::fabs(m_c[2]) > maxValue) { maxValue = ::fabs(m_c[2]); bm = 4; }
+	if (::fabs(m_c[3]) > maxValue) { maxValue = ::fabs(m_c[3]); bm = 8; }
+	if (::fabs(m_c[4]) > maxValue) { maxValue = ::fabs(m_c[4]); bm = 7; }
+	if (::fabs(m_c[5]) > maxValue) { maxValue = ::fabs(m_c[5]); bm = 11; }
+	if (::fabs(m_c[6]) > maxValue) { maxValue = ::fabs(m_c[6]); bm = 13; }
+	if (::fabs(m_c[7]) > maxValue) { maxValue = ::fabs(m_c[7]); bm = 14; }
+	return maxValue;
+}
+double idk1::largestCoordinate() const {
+	double maxValue = ::fabs(m_c[0]);
+	if (::fabs(m_c[1]) > maxValue) { maxValue = ::fabs(m_c[1]); }
+	if (::fabs(m_c[2]) > maxValue) { maxValue = ::fabs(m_c[2]); }
+	if (::fabs(m_c[3]) > maxValue) { maxValue = ::fabs(m_c[3]); }
+	if (::fabs(m_c[4]) > maxValue) { maxValue = ::fabs(m_c[4]); }
+	if (::fabs(m_c[5]) > maxValue) { maxValue = ::fabs(m_c[5]); }
+	if (::fabs(m_c[6]) > maxValue) { maxValue = ::fabs(m_c[6]); }
+	if (::fabs(m_c[7]) > maxValue) { maxValue = ::fabs(m_c[7]); }
+	return maxValue;
+}
+double idk1::largestBasisBlade(unsigned int &bm) const {
+	double maxValue = ::fabs(m_c[0]);
+	bm = 0;
+	if (::fabs(m_c[1]) > maxValue) { maxValue = ::fabs(m_c[1]); bm = 3; }
+	if (::fabs(m_c[2]) > maxValue) { maxValue = ::fabs(m_c[2]); bm = 5; }
+	if (::fabs(m_c[3]) > maxValue) { maxValue = ::fabs(m_c[3]); bm = 6; }
+	if (::fabs(m_c[4]) > maxValue) { maxValue = ::fabs(m_c[4]); bm = 9; }
+	if (::fabs(m_c[5]) > maxValue) { maxValue = ::fabs(m_c[5]); bm = 10; }
+	if (::fabs(m_c[6]) > maxValue) { maxValue = ::fabs(m_c[6]); bm = 12; }
+	if (::fabs(m_c[7]) > maxValue) { maxValue = ::fabs(m_c[7]); bm = 15; }
+	return maxValue;
+}
+double idk2::largestCoordinate() const {
+	double maxValue = ::fabs(m_c[0]);
+	if (::fabs(m_c[1]) > maxValue) { maxValue = ::fabs(m_c[1]); }
+	if (::fabs(m_c[2]) > maxValue) { maxValue = ::fabs(m_c[2]); }
+	if (::fabs(m_c[3]) > maxValue) { maxValue = ::fabs(m_c[3]); }
+	if (::fabs(m_c[4]) > maxValue) { maxValue = ::fabs(m_c[4]); }
+	if (::fabs(m_c[5]) > maxValue) { maxValue = ::fabs(m_c[5]); }
+	if (::fabs(m_c[6]) > maxValue) { maxValue = ::fabs(m_c[6]); }
+	return maxValue;
+}
+double idk2::largestBasisBlade(unsigned int &bm) const {
+	double maxValue = ::fabs(m_c[0]);
+	bm = 0;
+	if (::fabs(m_c[1]) > maxValue) { maxValue = ::fabs(m_c[1]); bm = 5; }
+	if (::fabs(m_c[2]) > maxValue) { maxValue = ::fabs(m_c[2]); bm = 6; }
+	if (::fabs(m_c[3]) > maxValue) { maxValue = ::fabs(m_c[3]); bm = 9; }
+	if (::fabs(m_c[4]) > maxValue) { maxValue = ::fabs(m_c[4]); bm = 10; }
+	if (::fabs(m_c[5]) > maxValue) { maxValue = ::fabs(m_c[5]); bm = 12; }
+	if (::fabs(m_c[6]) > maxValue) { maxValue = ::fabs(m_c[6]); bm = 15; }
 	return maxValue;
 }
 
@@ -1770,7 +2561,28 @@ double _double(const g3_t &x) {
 double _double(const I_t &x) {
 	return 0.0;
 }
+double _double(const pseudoscalar &x) {
+	return 0.0;
+}
 double _double(const vector &x) {
+	return 0.0;
+}
+double _double(const bivector &x) {
+	return 0.0;
+}
+double _double(const trivector &x) {
+	return 0.0;
+}
+double _double(const rotor &x) {
+	return x.m_c[0];
+}
+double _double(const oddVersor &x) {
+	return 0.0;
+}
+double _double(const idk1 &x) {
+	return x.m_c[0];
+}
+double _double(const idk2 &x) {
 	return 0.0;
 }
 
@@ -1981,6 +2793,38 @@ void om::set(const double *M)
 	om::set_grade_3_3();
 	om::set_grade_4_0();
 }
+bivector _bivector(const rotor &R)
+{
+	return bivector(bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3,
+			R.m_c[1], // g0_g1
+			R.m_c[2], // g0_g2
+			R.m_c[4], // g0_g3
+			R.m_c[3], // g1_g2
+			R.m_c[5], // g1_g3
+			R.m_c[6] // g2_g3
+		);
+
+}
+vector _vector(const oddVersor &V)
+{
+	return vector(vector::coord_g0_g1_g2_g3,
+			V.m_c[0], // g0
+			V.m_c[1], // g1
+			V.m_c[2], // g2
+			V.m_c[3] // g3
+		);
+
+}
+trivector _trivector(const oddVersor &V)
+{
+	return trivector(trivector::coord_g1g2g3_g0g1g2_g0g1g3_g0g2g3,
+			V.m_c[7], // g1_g2_g3
+			V.m_c[4], // g0_g1_g2
+			V.m_c[5], // g0_g1_g3
+			V.m_c[6] // g0_g2_g3
+		);
+
+}
 double genrand() {
 return (double)((double)(rand() & 0x7FFF) / 32768.0) + 
 	(double)((double)(rand() & 0x7FFF) / (32768.0 * 32768.0)) + 
@@ -2074,6 +2918,95 @@ mv add(const mv &a, const mv &b)
 	}
 	return mv(gu, c);
 }
+vector add(const vector &a, const vector &b)
+{
+	return vector(vector::coord_g0_g1_g2_g3,
+			(a.m_c[0]+b.m_c[0]), // g0
+			(a.m_c[1]+b.m_c[1]), // g1
+			(a.m_c[2]+b.m_c[2]), // g2
+			(a.m_c[3]+b.m_c[3]) // g3
+		);
+
+}
+bivector add(const bivector &a, const bivector &b)
+{
+	return bivector(bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3,
+			(a.m_c[0]+b.m_c[0]), // g0_g1
+			(a.m_c[1]+b.m_c[1]), // g0_g2
+			(a.m_c[2]+b.m_c[2]), // g0_g3
+			(a.m_c[3]+b.m_c[3]), // g1_g2
+			(a.m_c[4]+b.m_c[4]), // g1_g3
+			(a.m_c[5]+b.m_c[5]) // g2_g3
+		);
+
+}
+trivector add(const trivector &a, const trivector &b)
+{
+	return trivector(trivector::coord_g1g2g3_g0g1g2_g0g1g3_g0g2g3,
+			(a.m_c[0]+b.m_c[0]), // g1_g2_g3
+			(a.m_c[1]+b.m_c[1]), // g0_g1_g2
+			(a.m_c[2]+b.m_c[2]), // g0_g1_g3
+			(a.m_c[3]+b.m_c[3]) // g0_g2_g3
+		);
+
+}
+oddVersor add(const vector &a, const trivector &b)
+{
+	return oddVersor(oddVersor::coord_g0_g1_g2_g3_g0g1g2_g0g1g3_g0g2g3_g1g2g3,
+			a.m_c[0], // g0
+			a.m_c[1], // g1
+			a.m_c[2], // g2
+			a.m_c[3], // g3
+			b.m_c[1], // g0_g1_g2
+			b.m_c[2], // g0_g1_g3
+			b.m_c[3], // g0_g2_g3
+			b.m_c[0] // g1_g2_g3
+		);
+
+}
+rotor add(const rotor &a, const bivector &b)
+{
+	return rotor(rotor::coord_scalar_g0g1_g0g2_g1g2_g0g3_g1g3_g2g3,
+			a.m_c[0], // scalar
+			(a.m_c[1]+b.m_c[0]), // g0_g1
+			(a.m_c[2]+b.m_c[1]), // g0_g2
+			(a.m_c[3]+b.m_c[3]), // g1_g2
+			(a.m_c[4]+b.m_c[2]), // g0_g3
+			(a.m_c[5]+b.m_c[4]), // g1_g3
+			(a.m_c[6]+b.m_c[5]) // g2_g3
+		);
+
+}
+vector add(const g0_t &a, const g1_t &b)
+{
+	return vector(vector::coord_g0_g1_g2_g3,
+			1.0, // g0
+			1.0, // g1
+			0.0, // g2
+			0.0 // g3
+		);
+
+}
+vector add(const g0_t &a, const g2_t &b)
+{
+	return vector(vector::coord_g0_g1_g2_g3,
+			1.0, // g0
+			0.0, // g1
+			1.0, // g2
+			0.0 // g3
+		);
+
+}
+vector add(const g0_t &a, const g3_t &b)
+{
+	return vector(vector::coord_g0_g1_g2_g3,
+			1.0, // g0
+			0.0, // g1
+			0.0, // g2
+			1.0 // g3
+		);
+
+}
 mv subtract(const mv &a, const mv &b)
 {
 	int aidx = 0, bidx = 0, cidx = 0;
@@ -2153,6 +3086,65 @@ mv subtract(const mv &a, const mv &b)
 	}
 	return mv(gu, c);
 }
+vector subtract(const vector &a, const vector &b)
+{
+	return vector(vector::coord_g0_g1_g2_g3,
+			(a.m_c[0]-b.m_c[0]), // g0
+			(a.m_c[1]-b.m_c[1]), // g1
+			(a.m_c[2]-b.m_c[2]), // g2
+			(a.m_c[3]-b.m_c[3]) // g3
+		);
+
+}
+bivector subtract(const bivector &a, const bivector &b)
+{
+	return bivector(bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3,
+			(a.m_c[0]-b.m_c[0]), // g0_g1
+			(a.m_c[1]-b.m_c[1]), // g0_g2
+			(a.m_c[2]-b.m_c[2]), // g0_g3
+			(a.m_c[3]-b.m_c[3]), // g1_g2
+			(a.m_c[4]-b.m_c[4]), // g1_g3
+			(a.m_c[5]-b.m_c[5]) // g2_g3
+		);
+
+}
+trivector subtract(const trivector &a, const trivector &b)
+{
+	return trivector(trivector::coord_g1g2g3_g0g1g2_g0g1g3_g0g2g3,
+			(a.m_c[0]-b.m_c[0]), // g1_g2_g3
+			(a.m_c[1]-b.m_c[1]), // g0_g1_g2
+			(a.m_c[2]-b.m_c[2]), // g0_g1_g3
+			(a.m_c[3]-b.m_c[3]) // g0_g2_g3
+		);
+
+}
+rotor subtract(const bivector &a, const rotor &b)
+{
+	return rotor(rotor::coord_scalar_g0g1_g0g2_g1g2_g0g3_g1g3_g2g3,
+			-b.m_c[0], // scalar
+			(a.m_c[0]-b.m_c[1]), // g0_g1
+			(a.m_c[1]-b.m_c[2]), // g0_g2
+			(a.m_c[3]-b.m_c[3]), // g1_g2
+			(a.m_c[2]-b.m_c[4]), // g0_g3
+			(a.m_c[4]-b.m_c[5]), // g1_g3
+			(a.m_c[5]-b.m_c[6]) // g2_g3
+		);
+
+}
+oddVersor subtract(const vector &a, const trivector &b)
+{
+	return oddVersor(oddVersor::coord_g0_g1_g2_g3_g0g1g2_g0g1g3_g0g2g3_g1g2g3,
+			a.m_c[0], // g0
+			a.m_c[1], // g1
+			a.m_c[2], // g2
+			a.m_c[3], // g3
+			-b.m_c[1], // g0_g1_g2
+			-b.m_c[2], // g0_g1_g3
+			-b.m_c[3], // g0_g2_g3
+			-b.m_c[0] // g1_g2_g3
+		);
+
+}
 mv div(const mv &a, const double b)
 {
 	int idx = 0;
@@ -2183,6 +3175,62 @@ mv div(const mv &a, const double b)
 		copyDiv_4(a.getC() + idx, c + idx, b);
 	}
 	return mv(gu, c);
+}
+vector div(const vector &a, const double b)
+{
+	return vector(vector::coord_g0_g1_g2_g3,
+			a.m_c[0]/((b)), // g0
+			a.m_c[1]/((b)), // g1
+			a.m_c[2]/((b)), // g2
+			a.m_c[3]/((b)) // g3
+		);
+}
+bivector div(const bivector &a, const double b)
+{
+	return bivector(bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3,
+			a.m_c[0]/((b)), // g0_g1
+			a.m_c[1]/((b)), // g0_g2
+			a.m_c[2]/((b)), // g0_g3
+			a.m_c[3]/((b)), // g1_g2
+			a.m_c[4]/((b)), // g1_g3
+			a.m_c[5]/((b)) // g2_g3
+		);
+}
+trivector div(const trivector &a, const double b)
+{
+	return trivector(trivector::coord_g1g2g3_g0g1g2_g0g1g3_g0g2g3,
+			a.m_c[0]/((b)), // g1_g2_g3
+			a.m_c[1]/((b)), // g0_g1_g2
+			a.m_c[2]/((b)), // g0_g1_g3
+			a.m_c[3]/((b)) // g0_g2_g3
+		);
+}
+rotor div(const rotor &a, const double b)
+{
+	return rotor(rotor::coord_scalar_g0g1_g0g2_g1g2_g0g3_g1g3_g2g3,
+			a.m_c[0]/((b)), // scalar
+			a.m_c[1]/((b)), // g0_g1
+			a.m_c[2]/((b)), // g0_g2
+			a.m_c[3]/((b)), // g1_g2
+			a.m_c[4]/((b)), // g0_g3
+			a.m_c[5]/((b)), // g1_g3
+			a.m_c[6]/((b)) // g2_g3
+		);
+}
+vector div(const g0_t &a, const double b)
+{
+	return vector(vector::coord_g0_g1_g2_g3,
+			1.0 / (b), // g0
+			0.0, // g1
+			0.0, // g2
+			0.0 // g3
+		);
+}
+pseudoscalar div(const I_t &a, const double b)
+{
+	return pseudoscalar(pseudoscalar::coord_g0g1g2g3,
+			1.0 / (b) // g0_g1_g2_g3
+		);
 }
 mv dual(const mv &a)
 {
@@ -2215,6 +3263,104 @@ mv dual(const mv &a)
 	
 	return mv_compress(c, 0.0, 31);
 }
+pseudoscalar dual(const double a)
+{
+	return pseudoscalar(pseudoscalar::coord_g0g1g2g3,
+			-a // g0_g1_g2_g3
+		);
+
+}
+trivector dual(const vector &a)
+{
+	return trivector(trivector::coord_g1g2g3_g0g1g2_g0g1g3_g0g2g3,
+			-a.m_c[0], // g1_g2_g3
+			-a.m_c[3], // g0_g1_g2
+			a.m_c[2], // g0_g1_g3
+			-a.m_c[1] // g0_g2_g3
+		);
+
+}
+bivector dual(const bivector &a)
+{
+	return bivector(bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3,
+			a.m_c[5], // g0_g1
+			-a.m_c[4], // g0_g2
+			a.m_c[3], // g0_g3
+			-a.m_c[2], // g1_g2
+			a.m_c[1], // g1_g3
+			-a.m_c[0] // g2_g3
+		);
+
+}
+vector dual(const trivector &a)
+{
+	return vector(vector::coord_g0_g1_g2_g3,
+			a.m_c[0], // g0
+			a.m_c[3], // g1
+			-a.m_c[2], // g2
+			a.m_c[1] // g3
+		);
+
+}
+oddVersor dual(const oddVersor &a)
+{
+	return oddVersor(oddVersor::coord_g0_g1_g2_g3_g0g1g2_g0g1g3_g0g2g3_g1g2g3,
+			a.m_c[7], // g0
+			a.m_c[6], // g1
+			-a.m_c[5], // g2
+			a.m_c[4], // g3
+			-a.m_c[3], // g0_g1_g2
+			a.m_c[2], // g0_g1_g3
+			-a.m_c[1], // g0_g2_g3
+			-a.m_c[0] // g1_g2_g3
+		);
+
+}
+trivector dual(const g0_t &a)
+{
+	return trivector(trivector::coord_g1g2g3_g0g1g2_g0g1g3_g0g2g3,
+			-1.0, // g1_g2_g3
+			0.0, // g0_g1_g2
+			0.0, // g0_g1_g3
+			0.0 // g0_g2_g3
+		);
+
+}
+trivector dual(const g1_t &a)
+{
+	return trivector(trivector::coord_g1g2g3_g0g1g2_g0g1g3_g0g2g3,
+			0.0, // g1_g2_g3
+			0.0, // g0_g1_g2
+			0.0, // g0_g1_g3
+			-1.0 // g0_g2_g3
+		);
+
+}
+trivector dual(const g2_t &a)
+{
+	return trivector(trivector::coord_g1g2g3_g0g1g2_g0g1g3_g0g2g3,
+			0.0, // g1_g2_g3
+			0.0, // g0_g1_g2
+			1.0, // g0_g1_g3
+			0.0 // g0_g2_g3
+		);
+
+}
+trivector dual(const g3_t &a)
+{
+	return trivector(trivector::coord_g1g2g3_g0g1g2_g0g1g3_g0g2g3,
+			0.0, // g1_g2_g3
+			-1.0, // g0_g1_g2
+			0.0, // g0_g1_g3
+			0.0 // g0_g2_g3
+		);
+
+}
+double dual(const I_t &a)
+{
+	return 1.0;
+
+}
 mv undual(const mv &a)
 {
 	int idx = 0;
@@ -2245,6 +3391,104 @@ mv undual(const mv &a)
 	}
 	
 	return mv_compress(c, 0.0, 31);
+}
+pseudoscalar undual(const double a)
+{
+	return pseudoscalar(pseudoscalar::coord_g0g1g2g3,
+			a // g0_g1_g2_g3
+		);
+
+}
+trivector undual(const vector &a)
+{
+	return trivector(trivector::coord_g1g2g3_g0g1g2_g0g1g3_g0g2g3,
+			a.m_c[0], // g1_g2_g3
+			a.m_c[3], // g0_g1_g2
+			-a.m_c[2], // g0_g1_g3
+			a.m_c[1] // g0_g2_g3
+		);
+
+}
+bivector undual(const bivector &a)
+{
+	return bivector(bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3,
+			-a.m_c[5], // g0_g1
+			a.m_c[4], // g0_g2
+			-a.m_c[3], // g0_g3
+			a.m_c[2], // g1_g2
+			-a.m_c[1], // g1_g3
+			a.m_c[0] // g2_g3
+		);
+
+}
+vector undual(const trivector &a)
+{
+	return vector(vector::coord_g0_g1_g2_g3,
+			-a.m_c[0], // g0
+			-a.m_c[3], // g1
+			a.m_c[2], // g2
+			-a.m_c[1] // g3
+		);
+
+}
+oddVersor undual(const oddVersor &a)
+{
+	return oddVersor(oddVersor::coord_g0_g1_g2_g3_g0g1g2_g0g1g3_g0g2g3_g1g2g3,
+			-a.m_c[7], // g0
+			-a.m_c[6], // g1
+			a.m_c[5], // g2
+			-a.m_c[4], // g3
+			a.m_c[3], // g0_g1_g2
+			-a.m_c[2], // g0_g1_g3
+			a.m_c[1], // g0_g2_g3
+			a.m_c[0] // g1_g2_g3
+		);
+
+}
+trivector undual(const g0_t &a)
+{
+	return trivector(trivector::coord_g1g2g3_g0g1g2_g0g1g3_g0g2g3,
+			1.0, // g1_g2_g3
+			0.0, // g0_g1_g2
+			0.0, // g0_g1_g3
+			0.0 // g0_g2_g3
+		);
+
+}
+trivector undual(const g1_t &a)
+{
+	return trivector(trivector::coord_g1g2g3_g0g1g2_g0g1g3_g0g2g3,
+			0.0, // g1_g2_g3
+			0.0, // g0_g1_g2
+			0.0, // g0_g1_g3
+			1.0 // g0_g2_g3
+		);
+
+}
+trivector undual(const g2_t &a)
+{
+	return trivector(trivector::coord_g1g2g3_g0g1g2_g0g1g3_g0g2g3,
+			0.0, // g1_g2_g3
+			0.0, // g0_g1_g2
+			-1.0, // g0_g1_g3
+			0.0 // g0_g2_g3
+		);
+
+}
+trivector undual(const g3_t &a)
+{
+	return trivector(trivector::coord_g1g2g3_g0g1g2_g0g1g3_g0g2g3,
+			0.0, // g1_g2_g3
+			1.0, // g0_g1_g2
+			0.0, // g0_g1_g3
+			0.0 // g0_g2_g3
+		);
+
+}
+double undual(const I_t &a)
+{
+	return -1.0;
+
 }
 bool equals(const mv &a, const mv &b, const double c)
 {
@@ -2313,6 +3557,83 @@ bool equals(const mv &a, const mv &b, const double c)
 	}
 	return true;
 }
+bool equals(const vector &a, const vector &b, const double c)
+{
+	double d;
+	d = a.m_c[0] - b.m_c[0]; if ((d < -c) || (d > c)) return false; /* g0 */
+	d = a.m_c[1] - b.m_c[1]; if ((d < -c) || (d > c)) return false; /* g1 */
+	d = a.m_c[2] - b.m_c[2]; if ((d < -c) || (d > c)) return false; /* g2 */
+	d = a.m_c[3] - b.m_c[3]; if ((d < -c) || (d > c)) return false; /* g3 */
+	return true;
+}
+bool equals(const bivector &a, const bivector &b, const double c)
+{
+	double d;
+	d = a.m_c[0] - b.m_c[0]; if ((d < -c) || (d > c)) return false; /* g0^g1 */
+	d = a.m_c[1] - b.m_c[1]; if ((d < -c) || (d > c)) return false; /* g0^g2 */
+	d = a.m_c[3] - b.m_c[3]; if ((d < -c) || (d > c)) return false; /* g1^g2 */
+	d = a.m_c[2] - b.m_c[2]; if ((d < -c) || (d > c)) return false; /* g0^g3 */
+	d = a.m_c[4] - b.m_c[4]; if ((d < -c) || (d > c)) return false; /* g1^g3 */
+	d = a.m_c[5] - b.m_c[5]; if ((d < -c) || (d > c)) return false; /* g2^g3 */
+	return true;
+}
+bool equals(const trivector &a, const trivector &b, const double c)
+{
+	double d;
+	d = a.m_c[1] - b.m_c[1]; if ((d < -c) || (d > c)) return false; /* g0^g1^g2 */
+	d = a.m_c[2] - b.m_c[2]; if ((d < -c) || (d > c)) return false; /* g0^g1^g3 */
+	d = a.m_c[3] - b.m_c[3]; if ((d < -c) || (d > c)) return false; /* g0^g2^g3 */
+	d = a.m_c[0] - b.m_c[0]; if ((d < -c) || (d > c)) return false; /* g1^g2^g3 */
+	return true;
+}
+bool equals(const rotor &a, const rotor &b, const double c)
+{
+	double d;
+	d = a.m_c[0] - b.m_c[0]; if ((d < -c) || (d > c)) return false; /* 1 */
+	d = a.m_c[1] - b.m_c[1]; if ((d < -c) || (d > c)) return false; /* g0^g1 */
+	d = a.m_c[2] - b.m_c[2]; if ((d < -c) || (d > c)) return false; /* g0^g2 */
+	d = a.m_c[3] - b.m_c[3]; if ((d < -c) || (d > c)) return false; /* g1^g2 */
+	d = a.m_c[4] - b.m_c[4]; if ((d < -c) || (d > c)) return false; /* g0^g3 */
+	d = a.m_c[5] - b.m_c[5]; if ((d < -c) || (d > c)) return false; /* g1^g3 */
+	d = a.m_c[6] - b.m_c[6]; if ((d < -c) || (d > c)) return false; /* g2^g3 */
+	return true;
+}
+bool equals(const bivector &a, const rotor &b, const double c)
+{
+	double d;
+	if ((b.m_c[0] < -c) || (b.m_c[0] > c)) return false; /* 1 */
+	d = a.m_c[0] - b.m_c[1]; if ((d < -c) || (d > c)) return false; /* g0^g1 */
+	d = a.m_c[1] - b.m_c[2]; if ((d < -c) || (d > c)) return false; /* g0^g2 */
+	d = a.m_c[3] - b.m_c[3]; if ((d < -c) || (d > c)) return false; /* g1^g2 */
+	d = a.m_c[2] - b.m_c[4]; if ((d < -c) || (d > c)) return false; /* g0^g3 */
+	d = a.m_c[4] - b.m_c[5]; if ((d < -c) || (d > c)) return false; /* g1^g3 */
+	d = a.m_c[5] - b.m_c[6]; if ((d < -c) || (d > c)) return false; /* g2^g3 */
+	return true;
+}
+bool equals(const rotor &a, const bivector &b, const double c)
+{
+	double d;
+	if ((a.m_c[0] < -c) || (a.m_c[0] > c)) return false; /* 1 */
+	d = a.m_c[1] - b.m_c[0]; if ((d < -c) || (d > c)) return false; /* g0^g1 */
+	d = a.m_c[2] - b.m_c[1]; if ((d < -c) || (d > c)) return false; /* g0^g2 */
+	d = a.m_c[3] - b.m_c[3]; if ((d < -c) || (d > c)) return false; /* g1^g2 */
+	d = a.m_c[4] - b.m_c[2]; if ((d < -c) || (d > c)) return false; /* g0^g3 */
+	d = a.m_c[5] - b.m_c[4]; if ((d < -c) || (d > c)) return false; /* g1^g3 */
+	d = a.m_c[6] - b.m_c[5]; if ((d < -c) || (d > c)) return false; /* g2^g3 */
+	return true;
+}
+bool equals(const g0_t &a, const g0_t &b, const double c)
+{
+	double d;
+	d = 1.0 - 1.0; if ((d < -c) || (d > c)) return false; /* g0 */
+	return true;
+}
+bool equals(const g1_t &a, const I_t &b, const double c)
+{
+	if ((1.0 < -c) || (1.0 > c)) return false; /* g1 */
+	if ((1.0 < -c) || (1.0 > c)) return false; /* g0^g1^g2^g3 */
+	return true;
+}
 mv extractGrade(const mv &a, int groupBitmap)
 {
 	int aidx = 0, cidx = 0;
@@ -2377,6 +3698,67 @@ mv extractGrade3(const mv &a)
 mv extractGrade4(const mv &a)
 {
 	return extractGrade(a, 16);
+}
+double extractGrade0(const I_t &a)
+{
+	return 0.0;
+}
+double extractGrade1(const I_t &a)
+{
+	return 0.0;
+}
+double extractGrade2(const I_t &a)
+{
+	return 0.0;
+}
+double extractGrade3(const I_t &a)
+{
+	return 0.0;
+}
+I_t extractGrade4(const I_t &a)
+{
+	return I_t(		);
+}
+double extractGrade0(const rotor &a)
+{
+	return a.m_c[0];
+}
+bivector extractGrade2(const rotor &a)
+{
+	return bivector(bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3,
+			a.m_c[1], // g0_g1
+			a.m_c[2], // g0_g2
+			a.m_c[4], // g0_g3
+			a.m_c[3], // g1_g2
+			a.m_c[5], // g1_g3
+			a.m_c[6] // g2_g3
+		);
+}
+double extractGrade0(const oddVersor &a)
+{
+	return 0.0;
+}
+vector extractGrade1(const oddVersor &a)
+{
+	return vector(vector::coord_g0_g1_g2_g3,
+			a.m_c[0], // g0
+			a.m_c[1], // g1
+			a.m_c[2], // g2
+			a.m_c[3] // g3
+		);
+}
+double extractGrade2(const oddVersor &a)
+{
+	return 0.0;
+}
+trivector extractGrade3(const oddVersor &a)
+{
+	return trivector(trivector::coord_g1g2g3_g0g1g2_g0g1g3_g0g2g3,
+			a.m_c[7], // g1_g2_g3
+			a.m_c[4], // g0_g1_g2
+			a.m_c[5], // g0_g1_g3
+			a.m_c[6] // g0_g2_g3
+		);
 }
 mv gp(const mv &a, const mv &b)
 {
@@ -2506,6 +3888,116 @@ mv gp_dont_mangle_1(const mv &a, const double b)
 			gp_default_4_0_4(_a[4], _b[0], c + 15);
 	}
 	return mv_compress(c, 0.0, 31);
+}
+rotor gp(const vector &a, const vector &b)
+{
+	return rotor(rotor::coord_scalar_g0g1_g0g2_g1g2_g0g3_g1g3_g2g3,
+			(a.m_c[0]*b.m_c[0]-a.m_c[1]*b.m_c[1]-a.m_c[2]*b.m_c[2]-a.m_c[3]*b.m_c[3]), // scalar
+			(a.m_c[0]*b.m_c[1]-a.m_c[1]*b.m_c[0]), // g0_g1
+			(a.m_c[0]*b.m_c[2]-a.m_c[2]*b.m_c[0]), // g0_g2
+			(a.m_c[1]*b.m_c[2]-a.m_c[2]*b.m_c[1]), // g1_g2
+			(a.m_c[0]*b.m_c[3]-a.m_c[3]*b.m_c[0]), // g0_g3
+			(a.m_c[1]*b.m_c[3]-a.m_c[3]*b.m_c[1]), // g1_g3
+			(a.m_c[2]*b.m_c[3]-a.m_c[3]*b.m_c[2]) // g2_g3
+		);
+
+}
+oddVersor gp(const rotor &a, const vector &b)
+{
+	return oddVersor(oddVersor::coord_g0_g1_g2_g3_g0g1g2_g0g1g3_g0g2g3_g1g2g3,
+			(a.m_c[0]*b.m_c[0]-a.m_c[1]*b.m_c[1]-a.m_c[2]*b.m_c[2]-a.m_c[4]*b.m_c[3]), // g0
+			(a.m_c[0]*b.m_c[1]-a.m_c[1]*b.m_c[0]-a.m_c[3]*b.m_c[2]-a.m_c[5]*b.m_c[3]), // g1
+			(a.m_c[0]*b.m_c[2]-a.m_c[2]*b.m_c[0]+a.m_c[3]*b.m_c[1]-a.m_c[6]*b.m_c[3]), // g2
+			(a.m_c[0]*b.m_c[3]-a.m_c[4]*b.m_c[0]+a.m_c[5]*b.m_c[1]+a.m_c[6]*b.m_c[2]), // g3
+			(a.m_c[1]*b.m_c[2]-a.m_c[2]*b.m_c[1]+a.m_c[3]*b.m_c[0]), // g0_g1_g2
+			(a.m_c[1]*b.m_c[3]-a.m_c[4]*b.m_c[1]+a.m_c[5]*b.m_c[0]), // g0_g1_g3
+			(a.m_c[2]*b.m_c[3]-a.m_c[4]*b.m_c[2]+a.m_c[6]*b.m_c[0]), // g0_g2_g3
+			(a.m_c[3]*b.m_c[3]-a.m_c[5]*b.m_c[2]+a.m_c[6]*b.m_c[1]) // g1_g2_g3
+		);
+
+}
+oddVersor gp(const vector &a, const rotor &b)
+{
+	return oddVersor(oddVersor::coord_g0_g1_g2_g3_g0g1g2_g0g1g3_g0g2g3_g1g2g3,
+			(a.m_c[0]*b.m_c[0]+a.m_c[1]*b.m_c[1]+a.m_c[2]*b.m_c[2]+a.m_c[3]*b.m_c[4]), // g0
+			(a.m_c[0]*b.m_c[1]+a.m_c[1]*b.m_c[0]+a.m_c[2]*b.m_c[3]+a.m_c[3]*b.m_c[5]), // g1
+			(a.m_c[0]*b.m_c[2]-a.m_c[1]*b.m_c[3]+a.m_c[2]*b.m_c[0]+a.m_c[3]*b.m_c[6]), // g2
+			(a.m_c[0]*b.m_c[4]-a.m_c[1]*b.m_c[5]-a.m_c[2]*b.m_c[6]+a.m_c[3]*b.m_c[0]), // g3
+			(a.m_c[0]*b.m_c[3]-a.m_c[1]*b.m_c[2]+a.m_c[2]*b.m_c[1]), // g0_g1_g2
+			(a.m_c[0]*b.m_c[5]-a.m_c[1]*b.m_c[4]+a.m_c[3]*b.m_c[1]), // g0_g1_g3
+			(a.m_c[0]*b.m_c[6]-a.m_c[2]*b.m_c[4]+a.m_c[3]*b.m_c[2]), // g0_g2_g3
+			(a.m_c[1]*b.m_c[6]-a.m_c[2]*b.m_c[5]+a.m_c[3]*b.m_c[3]) // g1_g2_g3
+		);
+
+}
+idk1 gp(const rotor &a, const rotor &b)
+{
+	return idk1(idk1::coord_scalar_g0g1_g0g2_g1g2_g0g3_g1g3_g2g3_g0g1g2g3,
+			(a.m_c[0]*b.m_c[0]+a.m_c[1]*b.m_c[1]+a.m_c[2]*b.m_c[2]-a.m_c[3]*b.m_c[3]+a.m_c[4]*b.m_c[4]-a.m_c[5]*b.m_c[5]-a.m_c[6]*b.m_c[6]), // scalar
+			(a.m_c[0]*b.m_c[1]+a.m_c[1]*b.m_c[0]+a.m_c[2]*b.m_c[3]-a.m_c[3]*b.m_c[2]+a.m_c[4]*b.m_c[5]-a.m_c[5]*b.m_c[4]), // g0_g1
+			(a.m_c[0]*b.m_c[2]-a.m_c[1]*b.m_c[3]+a.m_c[2]*b.m_c[0]+a.m_c[3]*b.m_c[1]+a.m_c[4]*b.m_c[6]-a.m_c[6]*b.m_c[4]), // g0_g2
+			(a.m_c[0]*b.m_c[3]-a.m_c[1]*b.m_c[2]+a.m_c[2]*b.m_c[1]+a.m_c[3]*b.m_c[0]+a.m_c[5]*b.m_c[6]-a.m_c[6]*b.m_c[5]), // g1_g2
+			(a.m_c[0]*b.m_c[4]-a.m_c[1]*b.m_c[5]-a.m_c[2]*b.m_c[6]+a.m_c[4]*b.m_c[0]+a.m_c[5]*b.m_c[1]+a.m_c[6]*b.m_c[2]), // g0_g3
+			(a.m_c[0]*b.m_c[5]-a.m_c[1]*b.m_c[4]-a.m_c[3]*b.m_c[6]+a.m_c[4]*b.m_c[1]+a.m_c[5]*b.m_c[0]+a.m_c[6]*b.m_c[3]), // g1_g3
+			(a.m_c[0]*b.m_c[6]-a.m_c[2]*b.m_c[4]+a.m_c[3]*b.m_c[5]+a.m_c[4]*b.m_c[2]-a.m_c[5]*b.m_c[3]+a.m_c[6]*b.m_c[0]), // g2_g3
+			(a.m_c[1]*b.m_c[6]-a.m_c[2]*b.m_c[5]+a.m_c[3]*b.m_c[4]+a.m_c[4]*b.m_c[3]-a.m_c[5]*b.m_c[2]+a.m_c[6]*b.m_c[1]) // g0_g1_g2_g3
+		);
+
+}
+idk1 gp(const bivector &a, const bivector &b)
+{
+	return idk1(idk1::coord_scalar_g0g1_g0g2_g1g2_g0g3_g1g3_g2g3_g0g1g2g3,
+			(a.m_c[0]*b.m_c[0]+a.m_c[1]*b.m_c[1]+a.m_c[2]*b.m_c[2]-a.m_c[3]*b.m_c[3]-a.m_c[4]*b.m_c[4]-a.m_c[5]*b.m_c[5]), // scalar
+			(a.m_c[1]*b.m_c[3]+a.m_c[2]*b.m_c[4]-a.m_c[3]*b.m_c[1]-a.m_c[4]*b.m_c[2]), // g0_g1
+			(-a.m_c[0]*b.m_c[3]+a.m_c[2]*b.m_c[5]+a.m_c[3]*b.m_c[0]-a.m_c[5]*b.m_c[2]), // g0_g2
+			(-a.m_c[0]*b.m_c[1]+a.m_c[1]*b.m_c[0]+a.m_c[4]*b.m_c[5]-a.m_c[5]*b.m_c[4]), // g1_g2
+			(-a.m_c[0]*b.m_c[4]-a.m_c[1]*b.m_c[5]+a.m_c[4]*b.m_c[0]+a.m_c[5]*b.m_c[1]), // g0_g3
+			(-a.m_c[0]*b.m_c[2]+a.m_c[2]*b.m_c[0]-a.m_c[3]*b.m_c[5]+a.m_c[5]*b.m_c[3]), // g1_g3
+			(-a.m_c[1]*b.m_c[2]+a.m_c[2]*b.m_c[1]+a.m_c[3]*b.m_c[4]-a.m_c[4]*b.m_c[3]), // g2_g3
+			(a.m_c[0]*b.m_c[5]-a.m_c[1]*b.m_c[4]+a.m_c[2]*b.m_c[3]+a.m_c[3]*b.m_c[2]-a.m_c[4]*b.m_c[1]+a.m_c[5]*b.m_c[0]) // g0_g1_g2_g3
+		);
+
+}
+oddVersor gp(const g0_t &a, const rotor &b)
+{
+	return oddVersor(oddVersor::coord_g0_g1_g2_g3_g0g1g2_g0g1g3_g0g2g3_g1g2g3,
+			b.m_c[0], // g0
+			b.m_c[1], // g1
+			b.m_c[2], // g2
+			b.m_c[4], // g3
+			b.m_c[3], // g0_g1_g2
+			b.m_c[5], // g0_g1_g3
+			b.m_c[6], // g0_g2_g3
+			0.0 // g1_g2_g3
+		);
+
+}
+idk2 gp(const I_t &a, const rotor &b)
+{
+	return idk2(idk2::coord_g0g1_g0g2_g1g2_g0g3_g1g3_g2g3_g0g1g2g3,
+			-b.m_c[6], // g0_g1
+			b.m_c[5], // g0_g2
+			b.m_c[4], // g1_g2
+			-b.m_c[3], // g0_g3
+			-b.m_c[2], // g1_g3
+			b.m_c[1], // g2_g3
+			b.m_c[0] // g0_g1_g2_g3
+		);
+
+}
+oddVersor gp(const bivector &a, const g0_t &b)
+{
+	return oddVersor(oddVersor::coord_g0_g1_g2_g3_g0g1g2_g0g1g3_g0g2g3_g1g2g3,
+			0.0, // g0
+			-a.m_c[0], // g1
+			-a.m_c[1], // g2
+			-a.m_c[2], // g3
+			a.m_c[3], // g0_g1_g2
+			a.m_c[4], // g0_g1_g3
+			a.m_c[5], // g0_g2_g3
+			0.0 // g1_g2_g3
+		);
+
 }
 mv igp(const mv &a, const mv &b)
 {

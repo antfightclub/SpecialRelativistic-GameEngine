@@ -587,13 +587,17 @@ namespace mve {
 
 
 	glm::mat4 RelativityApp::m4sta_to_glm_Lorentz(m4sta::mv PlayerU) {
-		double lorentzfactor = _double(PlayerU * m4sta::g0); // Spacetime split gives a relative scalar and three 
-		//std::cout << "scalar part of PlayerU    = " << lorentzfactor << "\n";
-		//std::cout << "PlayerU spacetime split   = " << (PlayerU*m4sta::g0).toString() << "\n";
-		std::cout << "getg0g1                   = " << (PlayerU * m4sta::g0).get_g0_g1() << "\n";
-		std::cout << "g0g1*g0g2*g0g3            = " << ((m4sta::g0 * m4sta::g1) * (m4sta::g0 * m4sta::g2) * (m4sta::g0 * m4sta::g3)).toString() << "\n";
-		std::cout << "g0g1g2g3                  = " << (m4sta::I).toString() << "\n";
+		//double lorentzfactor = _double(PlayerU * m4sta::g0); // Spacetime split gives a relative scalar and three 
+		////std::cout << "scalar part of PlayerU    = " << lorentzfactor << "\n";
+		////std::cout << "PlayerU spacetime split   = " << (PlayerU*m4sta::g0).toString() << "\n";
+		//std::cout << "getg0g1                   = " << (PlayerU * m4sta::g0).get_g0_g1() << "\n";
+		//std::cout << "g0g1*g0g2*g0g3            = " << ((m4sta::g0 * m4sta::g1) * (m4sta::g0 * m4sta::g2) * (m4sta::g0 * m4sta::g3)).toString() << "\n";
+		//std::cout << "g0g1g2g3                  = " << (m4sta::I).toString() << "\n";
 		//std::cout << "" <<)
+		//std::cout << "g0 + g1                   = " << (m4sta::g0 + m4sta::g1).toString() << "\n";
+		//std::cout << "g1 + g0                   = " << (m4sta::g1 + m4sta::g0).toString() << "\n";
+		//std::cout << "g0123                     = " << m4sta::I.toString() << "\n";
+		
 		
 		// reminder to write a specification that handles rotors
 		// I think if I were to define a quaternion using a specialized multivector, it would just be 
@@ -610,15 +614,27 @@ namespace mve {
 
 		glm::mat4 m{ 1.0f };
 
+		m4sta::mv split = PlayerU * m4sta::g0;
+
+		glm::mat4 K1 = m4sta_g01_K1_glm(split.get_g0_g1());
+		glm::mat4 K2 = m4sta_g02_K2_glm(split.get_g0_g2());
+		glm::mat4 K3 = m4sta_g03_K3_glm(split.get_g0_g3());
+		glm::mat4 K_combination = K3 * K2 * K1;
+		
+		m4sta::mv rapidity = 0.0;
+		// WAWA
+
+		return m;
+		/*
 		double x, y, z, x2, y2, z2, r, g, xy, yz, zx;
 		// Spacetime split: geometric product between player velocity and timelike direction
 		// The metrics currently clash; monaengine has been using (+---) and m4sta uses (-+++).
 		// It would be most convenient to make sure they line up, but to fix the discrepancy,
 		// you can just negate the result of the spacetime split or you can use -m4sta::g0
-		x = (PlayerU * (-m4sta::g0)).get_g0_g1();
-		y = (PlayerU * (-m4sta::g0)).get_g0_g2();
-		z = (PlayerU * (-m4sta::g0)).get_g0_g3();
-	
+		x = 1.0;//(PlayerU * (-m4sta::g0)).get_g0_g1();
+		y = 1.0;//(PlayerU * (-m4sta::g0)).get_g0_g2();
+		z = 1.0;//(PlayerU * (-m4sta::g0)).get_g0_g3();
+		
 		x2 = x * x;
 		y2 = y * y;
 		z2 = z * z;
@@ -654,9 +670,52 @@ namespace mve {
 		}
 		else {
 			return m;
-		}
+		}*/
+	}
 
-		
 
+	glm::mat4 RelativityApp::m4sta_g23_J1_glm(double g23) {
+		glm::mat4 m = glm::mat4{ 0.0 };
+		m[1].z = g23;
+		m[2].y = -g23;
+ 		return m;
+	}
+
+	glm::mat4 RelativityApp::m4sta_neg_g13_J2_glm(double g13) {
+		glm::mat4 m = glm::mat4{ 0.0 };
+		// Important, we negate g13 because of the choice of basis -> https://en.wikipedia.org/wiki/Representation_theory_of_the_Lorentz_group#Classification_of_representations_of_SO(3,_1) 
+		// J_2 = g_31 = -g_13
+		g13 *= -1.0;
+		m[0].z = -(g13);
+		m[2].x = (g13);
+		return m;
+	}
+
+	glm::mat4 RelativityApp::m4sta_g12_J3_glm(double g12) {
+		glm::mat4 m = glm::mat4{ 0.0 };
+		m[0].y = g12;
+		m[1].x = -g12;
+		return m;
+	}
+
+	glm::mat4 RelativityApp::m4sta_g01_K1_glm(double g01) {
+		glm::mat4 m = glm::mat4{ 0.0 };
+		m[0].t = g01;
+		m[3].x = g01;
+		return m;
+	}
+
+	glm::mat4 RelativityApp::m4sta_g02_K2_glm(double g02) {
+		glm::mat4 m = glm::mat4{ 0.0 };
+		m[1].t = g02;
+		m[3].y = g02;
+		return m;
+	}
+
+	glm::mat4 RelativityApp::m4sta_g03_K3_glm(double g03) {
+		glm::mat4 m = glm::mat4{ 0.0 };
+		m[2].t = g03;
+		m[3].z = g03;
+		return m;
 	}
 }
