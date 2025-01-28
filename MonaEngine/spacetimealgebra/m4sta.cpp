@@ -245,10 +245,22 @@ mv operator+(const mv &a, const mv &b) {
 mv &operator+=(mv &a, const mv &b) {
 	return (a = add(a, b));
 }
+bivector operator+(const bivector &a, const bivector &b) {
+	return add(a, b);
+}
+bivector &operator+=(bivector &a, const bivector &b) {
+	return (a = add(a, b));
+}
 mv operator-(const mv &a, const mv &b) {
 	return subtract(a, b);
 }
 mv &operator-=(mv &a, const mv &b) {
+	return (a = subtract(a, b));
+}
+bivector operator-(const bivector &a, const bivector &b) {
+	return subtract(a, b);
+}
+bivector &operator-=(bivector &a, const bivector &b) {
 	return (a = subtract(a, b));
 }
 mv operator*(const mv &a, const mv &b) {
@@ -2556,6 +2568,18 @@ mv add(const mv &a, const mv &b)
 	}
 	return mv(gu, c);
 }
+bivector add(const bivector &a, const bivector &b)
+{
+	return bivector(bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3,
+			(a.m_c[0]+b.m_c[0]), // g0_g1
+			(a.m_c[1]+b.m_c[1]), // g0_g2
+			(a.m_c[2]+b.m_c[2]), // g0_g3
+			(a.m_c[3]+b.m_c[3]), // g1_g2
+			(a.m_c[4]+b.m_c[4]), // g1_g3
+			(a.m_c[5]+b.m_c[5]) // g2_g3
+		);
+
+}
 mv subtract(const mv &a, const mv &b)
 {
 	int aidx = 0, bidx = 0, cidx = 0;
@@ -2634,6 +2658,18 @@ mv subtract(const mv &a, const mv &b)
 		cidx += 1;
 	}
 	return mv(gu, c);
+}
+bivector subtract(const bivector &a, const bivector &b)
+{
+	return bivector(bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3,
+			(a.m_c[0]-b.m_c[0]), // g0_g1
+			(a.m_c[1]-b.m_c[1]), // g0_g2
+			(a.m_c[2]-b.m_c[2]), // g0_g3
+			(a.m_c[3]-b.m_c[3]), // g1_g2
+			(a.m_c[4]-b.m_c[4]), // g1_g3
+			(a.m_c[5]-b.m_c[5]) // g2_g3
+		);
+
 }
 mv gp(const mv &a, const mv &b)
 {

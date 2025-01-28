@@ -31,14 +31,22 @@ mv random_versor_dont_mangle_1_returns_mv_ex(double scale, int grade, int basisV
 
 /// Returns negation of mv.
 mv negate_dont_mangle_2_returns_mv(const mv &a);
+/// Returns random bivector with a scale in the interval [0, scale)
+bivector random_bivector_dont_mangle_3_ex(const double scale, const double minimumNorm, const double largestCoordinate);
+/// Returns random bivector with a scale in the interval [0, scale)
+bivector random_bivector_dont_mangle_3(const double scale);
 /// Returns geometric product of mv and mv.
-mv gp_dont_mangle_7_returns_mv(const mv &a, const mv &b);
-/// Returns norm of mv using default metric.
-scalar norm_dont_mangle_8(const mv &a);
+mv gp_dont_mangle_11_returns_mv(const mv &a, const mv &b);
+/// Returns norm of bivector using default metric.
+scalar norm_dont_mangle_12(const bivector &a);
 /// internal conversion function (this is just a pass through)
-double norm_dont_mangle_8_returns_scalar(const mv &a);
+double norm_dont_mangle_12_returns_scalar(const bivector &a);
+/// Returns norm of mv using default metric.
+scalar norm_dont_mangle_13(const mv &a);
+/// internal conversion function (this is just a pass through)
+double norm_dont_mangle_13_returns_scalar(const mv &a);
 /// Returns geometric product of mv and double.
-mv gp_dont_mangle_9(const mv &a, const double b);
+mv gp_dont_mangle_14(const mv &a, const double b);
 // Missing dependencies inline definitions:
 // Missing dependencies definitions:
 /// Computes the partial geometric product of two multivectors (group 0  x  group 0 -> group 0)
@@ -396,12 +404,12 @@ mv random_versor_dont_mangle_1_returns_mv_ex(double scale, int _grade, int basis
 	}
 	
 	// compute norm/multiplier, apply it, or recurse if we happened to create a near-null versor
-	n2 = norm_dont_mangle_8_returns_scalar(*IR1);
+	n2 = norm_dont_mangle_13_returns_scalar(*IR1);
 	if ((double)fabs(n2) > minimumNorm * minimumNorm) {
 		if (n2 != 0.0) {
 			mul = scale * genrand() / n2;
 			if (IR1->largestCoordinate() * mul < largestCoordinate)
-				return gp_dont_mangle_9(*IR1, mul);
+				return gp_dont_mangle_14(*IR1, mul);
 		}
 		else if (IR1->largestCoordinate() < largestCoordinate)
 			return *IR1;
@@ -441,7 +449,55 @@ mv negate_dont_mangle_2_returns_mv(const mv &a)
 	}
 	return mv(gu, c);
 }
-mv gp_dont_mangle_7_returns_mv(const mv &a, const mv &b)
+bivector random_bivector_dont_mangle_3_ex(const double scale, const double minimumNorm, const double largestCoordinate)
+{
+	bivector tmp;
+	double n, mul, lc;
+	bool nullBlade;
+	double r0_g0 = -1.0 + 2.0 * genrand(), r0_g1 = -1.0 + 2.0 * genrand(), r0_g2 = -1.0 + 2.0 * genrand(), r0_g3 = -1.0 + 2.0 * genrand(), 
+			r1_g0 = -1.0 + 2.0 * genrand(), r1_g1 = -1.0 + 2.0 * genrand(), r1_g2 = -1.0 + 2.0 * genrand(), r1_g3 = -1.0 + 2.0 * genrand();
+	tmp.m_c[0] = (r0_g0*r1_g1-r0_g1*r1_g0);
+	tmp.m_c[1] = (r0_g0*r1_g2-r0_g2*r1_g0);
+	tmp.m_c[2] = (r0_g0*r1_g3-r0_g3*r1_g0);
+	tmp.m_c[3] = (r0_g1*r1_g2-r0_g2*r1_g1);
+	tmp.m_c[4] = (r0_g1*r1_g3-r0_g3*r1_g1);
+	tmp.m_c[5] = (r0_g2*r1_g3-r0_g3*r1_g2);
+
+	n = norm_dont_mangle_12_returns_scalar(tmp);
+	lc = tmp.largestCoordinate();
+	nullBlade = ((n == 0.0) && (lc != 0.0));
+	// Recurse if generated random value has a norm below user-supplied limit, unless this is a null blade
+	if ((n < minimumNorm) && (!nullBlade)) {
+		return random_bivector_dont_mangle_3_ex(scale, minimumNorm, largestCoordinate);
+	}
+	// Compute multiplier
+	if (n < 0,0001.0) {
+		mul = 1.0;
+	}
+	else {
+		mul = scale * (-1.0 + 2.0 * genrand()) / n;
+		// Test largest coordinate
+		if ((lc * ::fabs(mul)) > largestCoordinate ) {
+			return random_bivector_dont_mangle_3_ex(scale, minimumNorm, largestCoordinate);
+		}
+	}
+	// Apply multiplier, return
+	return bivector(bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3,
+			mul*tmp.m_c[0], // g0_g1
+			mul*tmp.m_c[1], // g0_g2
+			mul*tmp.m_c[2], // g0_g3
+			mul*tmp.m_c[3], // g1_g2
+			mul*tmp.m_c[4], // g1_g3
+			mul*tmp.m_c[5] // g2_g3
+		);
+}
+bivector random_bivector_dont_mangle_3(const double scale)
+{
+	double minimumNorm = 0,0001.0;
+	double largestCoordinate = 4.0;
+	return random_bivector_dont_mangle_3_ex(scale, minimumNorm, scale * largestCoordinate);
+}
+mv gp_dont_mangle_11_returns_mv(const mv &a, const mv &b)
 {
 	double c[16];
 	const double* _a[5];
@@ -546,7 +602,18 @@ mv gp_dont_mangle_7_returns_mv(const mv &a, const mv &b)
 	}
 	return mv_compress(c, 0.0, 31);
 }
-scalar norm_dont_mangle_8(const mv &a)
+scalar norm_dont_mangle_12(const bivector &a)
+{
+	return scalar(scalar::coord_scalar,
+			::fabs(::sqrt(::fabs((-a.m_c[0]*a.m_c[0]-a.m_c[1]*a.m_c[1]-a.m_c[2]*a.m_c[2]+a.m_c[3]*a.m_c[3]+a.m_c[4]*a.m_c[4]+a.m_c[5]*a.m_c[5])))) // scalar
+		);
+
+}
+double norm_dont_mangle_12_returns_scalar(const bivector &a) {
+	scalar tmp(norm_dont_mangle_12(a));
+	return tmp.m_c[0];
+}
+scalar norm_dont_mangle_13(const mv &a)
 {
 	double c[1];
 	double n2 = 0.0;
@@ -589,11 +656,11 @@ scalar norm_dont_mangle_8(const mv &a)
 			((n2 < 0.0) ? ::sqrt(-n2) : ::sqrt(n2)) // scalar
 		);
 }
-double norm_dont_mangle_8_returns_scalar(const mv &a) {
-	scalar tmp(norm_dont_mangle_8(a));
+double norm_dont_mangle_13_returns_scalar(const mv &a) {
+	scalar tmp(norm_dont_mangle_13(a));
 	return tmp.m_c[0];
 }
-mv gp_dont_mangle_9(const mv &a, const double b)
+mv gp_dont_mangle_14(const mv &a, const double b)
 {
 	double c[16];
 	const double* _a[5];
@@ -689,7 +756,7 @@ int test_metric__internal_euclidean_metric__mv(int NB_TESTS_SCALER)
 
 	for (i = 0; i < 4; i++) {
 		for (j = 0; j < 4; j++) {
-			A = gp_dont_mangle_7_returns_mv(bv[i], bv[j]);
+			A = gp_dont_mangle_11_returns_mv(bv[i], bv[j]);
 			dif = M[i * 4 + j] - A.get_scalar();
 			if ((dif < -1E-14) || (dif > 1E-14)) {
 				printf("test_metric__internal_euclidean_metric__mv() test failed for %s %s\n", m4sta_basisVectorNames[i], m4sta_basisVectorNames[j]);
@@ -771,7 +838,7 @@ int test_genrand_double(int NB_TESTS_SCALER)
 	return 1; // success
 }
 
-int test_add_dont_mangle_11(int NB_TESTS_SCALER) 
+int test_add_dont_mangle_17(int NB_TESTS_SCALER) 
 {
 	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 16;
 	mv A, B, C;
@@ -799,7 +866,44 @@ int test_add_dont_mangle_11(int NB_TESTS_SCALER)
 	return 1; // success
 }
 
-int test_subtract_dont_mangle_12(int NB_TESTS_SCALER) 
+int test_add_dont_mangle_18(int NB_TESTS_SCALER) 
+{
+	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 12;
+	bivector A;
+	bivector B;
+	bivector C;
+	mv gA, gB, gC1, gC2;
+	
+	double s, eps = 0,5.0; // note the really large epsilon
+	int i;
+	int basisVectorBitmap = -1;
+	
+	for (i = 0; i < NB_LOOPS; i++) {
+		s = genrand();
+		A = random_bivector_dont_mangle_3(s);
+		B = random_bivector_dont_mangle_3(s);
+		
+		// add/subtract A and B
+		
+		C = add(A, B);
+		gC1 = C;
+		
+		// convert all A and B to gmv and add/subtract as GMVs
+		gA = A; //bivector_to_mv(&gA, &A);
+		gB = B; //bivector_to_mv(&gB, &B);
+		gC2 = add(gA, gB);
+		
+		// see if result is equal up to precision:
+		gA = subtract(gC1, gC2);
+		if (gA.largestCoordinate() > 1E-13) {
+			printf("add() test failed\n");
+			return 0; // failure
+		}		
+	}
+	return 1; // success
+}
+
+int test_subtract_dont_mangle_19(int NB_TESTS_SCALER) 
 {
 	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 16;
 	mv A, B, C;
@@ -826,7 +930,44 @@ int test_subtract_dont_mangle_12(int NB_TESTS_SCALER)
 	return 1; // success
 }
 
-int test_gp_dont_mangle_10(int NB_TESTS_SCALER) 
+int test_subtract_dont_mangle_15(int NB_TESTS_SCALER) 
+{
+	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 12;
+	bivector A;
+	bivector B;
+	bivector C;
+	mv gA, gB, gC1, gC2;
+	
+	double s, eps = 0,5.0; // note the really large epsilon
+	int i;
+	int basisVectorBitmap = -1;
+	
+	for (i = 0; i < NB_LOOPS; i++) {
+		s = genrand();
+		A = random_bivector_dont_mangle_3(s);
+		B = random_bivector_dont_mangle_3(s);
+		
+		// add/subtract A and B
+		
+		C = subtract(A, B);
+		gC1 = C;
+		
+		// convert all A and B to gmv and add/subtract as GMVs
+		gA = A; //bivector_to_mv(&gA, &A);
+		gB = B; //bivector_to_mv(&gB, &B);
+		gC2 = subtract(gA, gB);
+		
+		// see if result is equal up to precision:
+		gA = subtract(gC1, gC2);
+		if (gA.largestCoordinate() > 1E-13) {
+			printf("subtract() test failed\n");
+			return 0; // failure
+		}		
+	}
+	return 1; // success
+}
+
+int test_gp_dont_mangle_16(int NB_TESTS_SCALER) 
 {
 	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 64;
 	mv A, B, C, D, E, V1, V2;
@@ -916,9 +1057,11 @@ int main(int argc, char *argv[]) {
 	if (!m4sta::test_metric__internal_euclidean_metric__mv(NB_TESTS_SCALER)) retVal = -1;
 	if (!m4sta::test_parse_mv(NB_TESTS_SCALER)) retVal = -1;
 	if (!m4sta::test_genrand_double(NB_TESTS_SCALER)) retVal = -1;
-	if (!m4sta::test_add_dont_mangle_11(NB_TESTS_SCALER)) retVal = -1;
-	if (!m4sta::test_subtract_dont_mangle_12(NB_TESTS_SCALER)) retVal = -1;
-	if (!m4sta::test_gp_dont_mangle_10(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_add_dont_mangle_17(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_add_dont_mangle_18(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_subtract_dont_mangle_19(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_subtract_dont_mangle_15(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_gp_dont_mangle_16(NB_TESTS_SCALER)) retVal = -1;
 
 	if (retVal != 0) printf("Test failed.\n");
 	else printf("Done.\n");	

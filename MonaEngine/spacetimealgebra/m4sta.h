@@ -2459,18 +2459,30 @@ void genrand_seed(unsigned int seed);
 void genrand_timeSeed();
 /// Returns mv + mv.
 mv add(const mv &a, const mv &b);
+/// Returns bivector + bivector.
+bivector add(const bivector &a, const bivector &b);
 /// Returns mv - mv.
 mv subtract(const mv &a, const mv &b);
+/// Returns bivector - bivector.
+bivector subtract(const bivector &a, const bivector &b);
 /// Returns geometric product of mv and mv.
 mv gp(const mv &a, const mv &b);
 /// returns add(a, b)
 mv operator+(const mv &a, const mv &b);
 /// returns (a = add(a, b))
 mv &operator+=(mv &a, const mv &b);
+/// returns add(a, b)
+bivector operator+(const bivector &a, const bivector &b);
+/// returns (a = add(a, b))
+bivector &operator+=(bivector &a, const bivector &b);
 /// returns subtract(a, b)
 mv operator-(const mv &a, const mv &b);
 /// returns (a = subtract(a, b))
 mv &operator-=(mv &a, const mv &b);
+/// returns subtract(a, b)
+bivector operator-(const bivector &a, const bivector &b);
+/// returns (a = subtract(a, b))
+bivector &operator-=(bivector &a, const bivector &b);
 /// returns gp(a, b)
 mv operator*(const mv &a, const mv &b);
 /// returns (a = gp(a, b))

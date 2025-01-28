@@ -116,7 +116,10 @@ g1^g2^g3 g0^g2^g3 g3^g1^g0 g0^g1^g2
 <-->
 
 <function name="add" arg1="mv" arg2="mv"/>
+<function name="add" arg1="bivector" arg2="bivector"/>
+
 <function name="subtract" arg1="mv" arg2="mv"/>
+<function name="subtract" arg1="bivector" arg2="bivector"/>
 
 <function name="gp" arg1="mv" arg2="mv"/>
 
