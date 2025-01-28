@@ -2,8 +2,6 @@
 #include "m4sta.h"
 namespace m4sta {
 // Missing dependencies declarations:
-/// Returns mv - mv.
-mv subtract_dont_mangle_1_returns_mv(const mv &a, const mv &b);
 
 /**
 Generates a random versor.
@@ -12,12 +10,12 @@ The maximum non-zero grade-part is 'grade'.
 Only the basis vectors marked in 'basisVectorBitmap' will be used to generate the
 versor/blade. Use 'basisVectorBitmap = -1' (the default) to use all basisvectors.
 
-Returns random_versor_dont_mangle_2_returns_mv_ex(arg1, scale, grade, basisVectorBitmap, 0.01, scale * 4.0);
+Returns random_versor_dont_mangle_1_returns_mv_ex(arg1, scale, grade, basisVectorBitmap, 0.01, scale * 4.0);
 */
-mv random_versor_dont_mangle_2_returns_mv(double scale, int grade, int basisVectorBitmap = -1);
+mv random_versor_dont_mangle_1_returns_mv(double scale, int grade, int basisVectorBitmap = -1);
 
 /**
-This version of random_versor_dont_mangle_2_returns_mv() has extra arguments which help to avoid 
+This version of random_versor_dont_mangle_1_returns_mv() has extra arguments which help to avoid 
 near-singular blades / versors.
 
 Near-singular blades / versors are avoid by testing the norm and largest coordinate
@@ -29,18 +27,18 @@ tries to generate another random blade / versor.
 
 'largestCoordinate' is the largest coordinate allowed after scaling.
 */
-mv random_versor_dont_mangle_2_returns_mv_ex(double scale, int grade, int basisVectorBitmap, double minimumNorm, double largestCoordinate);
+mv random_versor_dont_mangle_1_returns_mv_ex(double scale, int grade, int basisVectorBitmap, double minimumNorm, double largestCoordinate);
 
-/// Returns mv + mv.
-mv add_dont_mangle_3_returns_mv(const mv &a, const mv &b);
+/// Returns negation of mv.
+mv negate_dont_mangle_2_returns_mv(const mv &a);
 /// Returns geometric product of mv and mv.
-mv gp_dont_mangle_6_returns_mv(const mv &a, const mv &b);
+mv gp_dont_mangle_7_returns_mv(const mv &a, const mv &b);
 /// Returns norm of mv using default metric.
-scalar norm_dont_mangle_7(const mv &a);
+scalar norm_dont_mangle_8(const mv &a);
 /// internal conversion function (this is just a pass through)
-double norm_dont_mangle_7_returns_scalar(const mv &a);
+double norm_dont_mangle_8_returns_scalar(const mv &a);
 /// Returns geometric product of mv and double.
-mv gp_dont_mangle_8(const mv &a, const double b);
+mv gp_dont_mangle_9(const mv &a, const double b);
 // Missing dependencies inline definitions:
 // Missing dependencies definitions:
 /// Computes the partial geometric product of two multivectors (group 0  x  group 0 -> group 0)
@@ -356,94 +354,15 @@ void applyGomGmv_2_2(const om &O, const double *A, double *C);
 void applyGomGmv_3_3(const om &O, const double *A, double *C);
 /// Computes the partial application of a general outermorphism to a general multivector
 void applyGomGmv_4_4(const om &O, const double *A, double *C);
-mv subtract_dont_mangle_1_returns_mv(const mv &a, const mv &b)
-{
-	int aidx = 0, bidx = 0, cidx = 0;
-	int gu = a.gu() | b.gu();
-	double c[16];
-	
-	if (a.gu() & 1) {
-		if (b.gu() & 1) {
-			sub2_0_0(a.getC() + aidx, b.getC() + bidx, c + cidx);
-			bidx += 1;
-		}
-		else copyGroup_0(a.getC() + aidx, c + cidx);
-		aidx += 1;
-		cidx += 1;
-	}
-	else if (b.gu() & 1) {
-		neg_0(b.getC() + bidx, c + cidx);
-		bidx += 1;
-		cidx += 1;
-	}
-	
-	if (a.gu() & 2) {
-		if (b.gu() & 2) {
-			sub2_1_1(a.getC() + aidx, b.getC() + bidx, c + cidx);
-			bidx += 4;
-		}
-		else copyGroup_1(a.getC() + aidx, c + cidx);
-		aidx += 4;
-		cidx += 4;
-	}
-	else if (b.gu() & 2) {
-		neg_1(b.getC() + bidx, c + cidx);
-		bidx += 4;
-		cidx += 4;
-	}
-	
-	if (a.gu() & 4) {
-		if (b.gu() & 4) {
-			sub2_2_2(a.getC() + aidx, b.getC() + bidx, c + cidx);
-			bidx += 6;
-		}
-		else copyGroup_2(a.getC() + aidx, c + cidx);
-		aidx += 6;
-		cidx += 6;
-	}
-	else if (b.gu() & 4) {
-		neg_2(b.getC() + bidx, c + cidx);
-		bidx += 6;
-		cidx += 6;
-	}
-	
-	if (a.gu() & 8) {
-		if (b.gu() & 8) {
-			sub2_3_3(a.getC() + aidx, b.getC() + bidx, c + cidx);
-			bidx += 4;
-		}
-		else copyGroup_3(a.getC() + aidx, c + cidx);
-		aidx += 4;
-		cidx += 4;
-	}
-	else if (b.gu() & 8) {
-		neg_3(b.getC() + bidx, c + cidx);
-		bidx += 4;
-		cidx += 4;
-	}
-	
-	if (a.gu() & 16) {
-		if (b.gu() & 16) {
-			sub2_4_4(a.getC() + aidx, b.getC() + bidx, c + cidx);
-		}
-		else copyGroup_4(a.getC() + aidx, c + cidx);
-		cidx += 1;
-	}
-	else if (b.gu() & 16) {
-		neg_4(b.getC() + bidx, c + cidx);
-		cidx += 1;
-	}
-	return mv(gu, c);
-}
 
 
-mv random_versor_dont_mangle_2_returns_mv(double scale, int grade, int basisVectorBitmap) {
+mv random_versor_dont_mangle_1_returns_mv(double scale, int grade, int basisVectorBitmap) {
 	double minimumNorm = 0,01.0;
 	double largestCoordinate = 4.0;
-	return random_versor_dont_mangle_2_returns_mv_ex(scale, grade, basisVectorBitmap, minimumNorm, scale * largestCoordinate);
+	return random_versor_dont_mangle_1_returns_mv_ex(scale, grade, basisVectorBitmap, minimumNorm, scale * largestCoordinate);
 }
 
-mv random_versor_dont_mangle_2_returns_mv_ex(double scale, int _grade, int basisVectorBitmap, 
+mv random_versor_dont_mangle_1_returns_mv_ex(double scale, int _grade, int basisVectorBitmap, 
 		double minimumNorm, double largestCoordinate) 
 {
 	mv randomVector, tmp1, tmp2;
@@ -477,100 +396,52 @@ mv random_versor_dont_mangle_2_returns_mv_ex(double scale, int _grade, int basis
 	}
 	
 	// compute norm/multiplier, apply it, or recurse if we happened to create a near-null versor
-	n2 = norm_dont_mangle_7_returns_scalar(*IR1);
+	n2 = norm_dont_mangle_8_returns_scalar(*IR1);
 	if ((double)fabs(n2) > minimumNorm * minimumNorm) {
 		if (n2 != 0.0) {
 			mul = scale * genrand() / n2;
 			if (IR1->largestCoordinate() * mul < largestCoordinate)
-				return gp_dont_mangle_8(*IR1, mul);
+				return gp_dont_mangle_9(*IR1, mul);
 		}
 		else if (IR1->largestCoordinate() < largestCoordinate)
 			return *IR1;
 	}
 	
 	// try again:
-	return random_versor_dont_mangle_2_returns_mv_ex(scale, _grade, basisVectorBitmap, minimumNorm, largestCoordinate); 
+	return random_versor_dont_mangle_1_returns_mv_ex(scale, _grade, basisVectorBitmap, minimumNorm, largestCoordinate); 
 }
-mv add_dont_mangle_3_returns_mv(const mv &a, const mv &b)
+mv negate_dont_mangle_2_returns_mv(const mv &a)
 {
-	int aidx = 0, bidx = 0, cidx = 0;
-	int gu = a.gu() | b.gu();
+	int idx = 0;
+	int gu = a.gu();
 	double c[16];
 	
 	if (a.gu() & 1) {
-		if (b.gu() & 1) {
-			add2_0_0(a.getC() + aidx, b.getC() + bidx, c + cidx);
-			bidx += 1;
-		}
-		else copyGroup_0(a.getC() + aidx, c + cidx);
-		aidx += 1;
-		cidx += 1;
-	}
-	else if (b.gu() & 1) {
-		copyGroup_0(b.getC() + bidx, c + cidx);
-		bidx += 1;
-		cidx += 1;
+		neg_0(a.getC() + idx, c + idx);
+		idx += 1;
 	}
 	
 	if (a.gu() & 2) {
-		if (b.gu() & 2) {
-			add2_1_1(a.getC() + aidx, b.getC() + bidx, c + cidx);
-			bidx += 4;
-		}
-		else copyGroup_1(a.getC() + aidx, c + cidx);
-		aidx += 4;
-		cidx += 4;
-	}
-	else if (b.gu() & 2) {
-		copyGroup_1(b.getC() + bidx, c + cidx);
-		bidx += 4;
-		cidx += 4;
+		neg_1(a.getC() + idx, c + idx);
+		idx += 4;
 	}
 	
 	if (a.gu() & 4) {
-		if (b.gu() & 4) {
-			add2_2_2(a.getC() + aidx, b.getC() + bidx, c + cidx);
-			bidx += 6;
-		}
-		else copyGroup_2(a.getC() + aidx, c + cidx);
-		aidx += 6;
-		cidx += 6;
-	}
-	else if (b.gu() & 4) {
-		copyGroup_2(b.getC() + bidx, c + cidx);
-		bidx += 6;
-		cidx += 6;
+		neg_2(a.getC() + idx, c + idx);
+		idx += 6;
 	}
 	
 	if (a.gu() & 8) {
-		if (b.gu() & 8) {
-			add2_3_3(a.getC() + aidx, b.getC() + bidx, c + cidx);
-			bidx += 4;
-		}
-		else copyGroup_3(a.getC() + aidx, c + cidx);
-		aidx += 4;
-		cidx += 4;
-	}
-	else if (b.gu() & 8) {
-		copyGroup_3(b.getC() + bidx, c + cidx);
-		bidx += 4;
-		cidx += 4;
+		neg_3(a.getC() + idx, c + idx);
+		idx += 4;
 	}
 	
 	if (a.gu() & 16) {
-		if (b.gu() & 16) {
-			add2_4_4(a.getC() + aidx, b.getC() + bidx, c + cidx);
-		}
-		else copyGroup_4(a.getC() + aidx, c + cidx);
-		cidx += 1;
-	}
-	else if (b.gu() & 16) {
-		copyGroup_4(b.getC() + bidx, c + cidx);
-		cidx += 1;
+		neg_4(a.getC() + idx, c + idx);
 	}
 	return mv(gu, c);
 }
-mv gp_dont_mangle_6_returns_mv(const mv &a, const mv &b)
+mv gp_dont_mangle_7_returns_mv(const mv &a, const mv &b)
 {
 	double c[16];
 	const double* _a[5];
@@ -675,7 +546,7 @@ mv gp_dont_mangle_6_returns_mv(const mv &a, const mv &b)
 	}
 	return mv_compress(c, 0.0, 31);
 }
-scalar norm_dont_mangle_7(const mv &a)
+scalar norm_dont_mangle_8(const mv &a)
 {
 	double c[1];
 	double n2 = 0.0;
@@ -718,11 +589,11 @@ scalar norm_dont_mangle_7(const mv &a)
 			((n2 < 0.0) ? ::sqrt(-n2) : ::sqrt(n2)) // scalar
 		);
 }
-double norm_dont_mangle_7_returns_scalar(const mv &a) {
-	scalar tmp(norm_dont_mangle_7(a));
+double norm_dont_mangle_8_returns_scalar(const mv &a) {
+	scalar tmp(norm_dont_mangle_8(a));
 	return tmp.m_c[0];
 }
-mv gp_dont_mangle_8(const mv &a, const double b)
+mv gp_dont_mangle_9(const mv &a, const double b)
 {
 	double c[16];
 	const double* _a[5];
@@ -818,7 +689,7 @@ int test_metric__internal_euclidean_metric__mv(int NB_TESTS_SCALER)
 
 	for (i = 0; i < 4; i++) {
 		for (j = 0; j < 4; j++) {
-			A = gp_dont_mangle_6_returns_mv(bv[i], bv[j]);
+			A = gp_dont_mangle_7_returns_mv(bv[i], bv[j]);
 			dif = M[i * 4 + j] - A.get_scalar();
 			if ((dif < -1E-14) || (dif > 1E-14)) {
 				printf("test_metric__internal_euclidean_metric__mv() test failed for %s %s\n", m4sta_basisVectorNames[i], m4sta_basisVectorNames[j]);
@@ -839,7 +710,7 @@ int test_parse_mv(int NB_TESTS_SCALER)
 	int i, basisVectorBitmap = -1;
 
 	for (i = 0; i < NB_LOOPS; i++) {
-		A = random_versor_dont_mangle_2_returns_mv(genrand(), (int)(genrand() * 4,5.0), basisVectorBitmap);
+		A = random_versor_dont_mangle_1_returns_mv(genrand(), (int)(genrand() * 4,5.0), basisVectorBitmap);
 		
 		str = A.toString("%2.20e");
 		
@@ -850,7 +721,7 @@ int test_parse_mv(int NB_TESTS_SCALER)
 			return 0; // failure
 		}
 		
-		C = subtract_dont_mangle_1_returns_mv(A, B);
+		C = subtract(A, B);
 
 		if (C.largestCoordinate() > 1E-14) {
 			printf("parse() test failed (%s)\n", str.c_str());
@@ -900,7 +771,62 @@ int test_genrand_double(int NB_TESTS_SCALER)
 	return 1; // success
 }
 
-int test_gp_dont_mangle_9(int NB_TESTS_SCALER) 
+int test_add_dont_mangle_11(int NB_TESTS_SCALER) 
+{
+	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 16;
+	mv A, B, C;
+	int i, g;
+	double s;
+	int basisVectorBitmap = -1;
+	
+	for (i = 0; i < NB_LOOPS; i++) {
+		s = genrand();
+		g = (int)(genrand() * 4,5.0);
+		A = random_versor_dont_mangle_1_returns_mv(s, g, basisVectorBitmap);
+		
+		// B = -A
+		B = negate_dont_mangle_2_returns_mv(A);
+		
+		C = add(A, B);
+		
+		// use mv_largestCoordinate() to verify
+		if (C.largestCoordinate() > 1E-13) {
+			printf("add() test failed\n");
+			return 0; // failure
+		}
+		
+	}
+	return 1; // success
+}
+
+int test_subtract_dont_mangle_12(int NB_TESTS_SCALER) 
+{
+	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 16;
+	mv A, B, C;
+	int i, g;
+	double s;
+	int basisVectorBitmap = -1;
+	
+	for (i = 0; i < NB_LOOPS; i++) {
+		s = genrand();
+		g = (int)(genrand() * 4,5.0);
+		A = random_versor_dont_mangle_1_returns_mv(s, g, basisVectorBitmap);
+		
+		B = A;
+		
+		C = subtract(A, B);
+		
+		// use mv_largestCoordinate() to verify
+		if (C.largestCoordinate() > 1E-13) {
+			printf("subtract() test failed\n");
+			return 0; // failure
+		}
+		
+	}
+	return 1; // success
+}
+
+int test_gp_dont_mangle_10(int NB_TESTS_SCALER) 
 {
 	const int NB_LOOPS = 100 + NB_TESTS_SCALER / 64;
 	mv A, B, C, D, E, V1, V2;
@@ -910,13 +836,13 @@ int test_gp_dont_mangle_9(int NB_TESTS_SCALER)
 	
 	for (i = 0; i < NB_LOOPS; i++) {
 		o = (genrand() < 0,5.0) ? 0 : 1; // even or odd?
-		A = random_versor_dont_mangle_2_returns_mv(genrand(), ((int)(genrand() * 4,5.0) & 0xFFFE) + o, basisVectorBitmap);
-		B = random_versor_dont_mangle_2_returns_mv(genrand(), ((int)(genrand() * 4,5.0) & 0xFFFE) + o, basisVectorBitmap);
-		C = random_versor_dont_mangle_2_returns_mv(genrand(), ((int)(genrand() * 4,5.0) & 0xFFFE) + o, basisVectorBitmap);
+		A = random_versor_dont_mangle_1_returns_mv(genrand(), ((int)(genrand() * 4,5.0) & 0xFFFE) + o, basisVectorBitmap);
+		B = random_versor_dont_mangle_1_returns_mv(genrand(), ((int)(genrand() * 4,5.0) & 0xFFFE) + o, basisVectorBitmap);
+		C = random_versor_dont_mangle_1_returns_mv(genrand(), ((int)(genrand() * 4,5.0) & 0xFFFE) + o, basisVectorBitmap);
 		
 		{ // test (A+B) C = A C + B C
 			// D = A + B
-			D = add_dont_mangle_3_returns_mv(A, B);
+			D = add(A, B);
 			// V1 = D C
 			V1 = gp(D, C);
 			// D = A C
@@ -924,9 +850,9 @@ int test_gp_dont_mangle_9(int NB_TESTS_SCALER)
 			// E = B C
 			E = gp(B, C);
 			// V2 = D + E
-			V2 = add_dont_mangle_3_returns_mv(D, E);
+			V2 = add(D, E);
 			// test equality
-			D = subtract_dont_mangle_1_returns_mv(V1, V2);
+			D = subtract(V1, V2);
 			// use mv_largestCoordinate() to verify
 			if (D.largestCoordinate() > 1E-11) {
 				printf("gp() test failed on '(A+B) C = A C + B C' (dif=%e)\n", (double)D.largestCoordinate());
@@ -936,7 +862,7 @@ int test_gp_dont_mangle_9(int NB_TESTS_SCALER)
 		
 		{ // test A (B+C) = A B + A C
 			// D = B + C
-			D = add_dont_mangle_3_returns_mv(B, C);
+			D = add(B, C);
 			// V1 = A D
 			V1 = gp(A, D);
 			// D = A B
@@ -944,9 +870,9 @@ int test_gp_dont_mangle_9(int NB_TESTS_SCALER)
 			// E = A C
 			E = gp(A, C);
 			// V2 = D + E
-			V2 = add_dont_mangle_3_returns_mv(D, E);
+			V2 = add(D, E);
 			// test equality
-			D = subtract_dont_mangle_1_returns_mv(V1, V2);
+			D = subtract(V1, V2);
 			// use largestCoordinate() to verify
 			if (D.largestCoordinate() > 1E-12) {
 				printf("gp() test failed on 'A (B+C) = A B + A C' (dif=%e)\n", (double)D.largestCoordinate());
@@ -964,7 +890,7 @@ int test_gp_dont_mangle_9(int NB_TESTS_SCALER)
 			// V2 = D C
 			V2 = gp(D, C);
 			// test equality
-			D = subtract_dont_mangle_1_returns_mv(V1, V2);
+			D = subtract(V1, V2);
 			// use largestCoordinate() to verify
 			if (D.largestCoordinate() > 1E-12) {
 				printf("gp() test failed on 'A (B C) = (A B) C' (dif=%e)\n", (double)D.largestCoordinate());
@@ -990,7 +916,9 @@ int main(int argc, char *argv[]) {
 	if (!m4sta::test_metric__internal_euclidean_metric__mv(NB_TESTS_SCALER)) retVal = -1;
 	if (!m4sta::test_parse_mv(NB_TESTS_SCALER)) retVal = -1;
 	if (!m4sta::test_genrand_double(NB_TESTS_SCALER)) retVal = -1;
-	if (!m4sta::test_gp_dont_mangle_9(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_add_dont_mangle_11(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_subtract_dont_mangle_12(NB_TESTS_SCALER)) retVal = -1;
+	if (!m4sta::test_gp_dont_mangle_10(NB_TESTS_SCALER)) retVal = -1;
 
 	if (retVal != 0) printf("Test failed.\n");
 	else printf("Done.\n");	

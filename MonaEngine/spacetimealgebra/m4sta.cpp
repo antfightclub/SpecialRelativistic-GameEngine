@@ -239,6 +239,18 @@ std::string toString(const mv & obj, const char *fp /* = NULL */) {
 	return str;
 }
 
+mv operator+(const mv &a, const mv &b) {
+	return add(a, b);
+}
+mv &operator+=(mv &a, const mv &b) {
+	return (a = add(a, b));
+}
+mv operator-(const mv &a, const mv &b) {
+	return subtract(a, b);
+}
+mv &operator-=(mv &a, const mv &b) {
+	return (a = subtract(a, b));
+}
 mv operator*(const mv &a, const mv &b) {
 	return gp(a, b);
 }
@@ -2465,6 +2477,164 @@ void genrand_timeSeed() {
 	genrand_seed((unsigned int)time(NULL));
 }
 
+mv add(const mv &a, const mv &b)
+{
+	int aidx = 0, bidx = 0, cidx = 0;
+	int gu = a.gu() | b.gu();
+	double c[16];
+	
+	if (a.gu() & 1) {
+		if (b.gu() & 1) {
+			add2_0_0(a.getC() + aidx, b.getC() + bidx, c + cidx);
+			bidx += 1;
+		}
+		else copyGroup_0(a.getC() + aidx, c + cidx);
+		aidx += 1;
+		cidx += 1;
+	}
+	else if (b.gu() & 1) {
+		copyGroup_0(b.getC() + bidx, c + cidx);
+		bidx += 1;
+		cidx += 1;
+	}
+	
+	if (a.gu() & 2) {
+		if (b.gu() & 2) {
+			add2_1_1(a.getC() + aidx, b.getC() + bidx, c + cidx);
+			bidx += 4;
+		}
+		else copyGroup_1(a.getC() + aidx, c + cidx);
+		aidx += 4;
+		cidx += 4;
+	}
+	else if (b.gu() & 2) {
+		copyGroup_1(b.getC() + bidx, c + cidx);
+		bidx += 4;
+		cidx += 4;
+	}
+	
+	if (a.gu() & 4) {
+		if (b.gu() & 4) {
+			add2_2_2(a.getC() + aidx, b.getC() + bidx, c + cidx);
+			bidx += 6;
+		}
+		else copyGroup_2(a.getC() + aidx, c + cidx);
+		aidx += 6;
+		cidx += 6;
+	}
+	else if (b.gu() & 4) {
+		copyGroup_2(b.getC() + bidx, c + cidx);
+		bidx += 6;
+		cidx += 6;
+	}
+	
+	if (a.gu() & 8) {
+		if (b.gu() & 8) {
+			add2_3_3(a.getC() + aidx, b.getC() + bidx, c + cidx);
+			bidx += 4;
+		}
+		else copyGroup_3(a.getC() + aidx, c + cidx);
+		aidx += 4;
+		cidx += 4;
+	}
+	else if (b.gu() & 8) {
+		copyGroup_3(b.getC() + bidx, c + cidx);
+		bidx += 4;
+		cidx += 4;
+	}
+	
+	if (a.gu() & 16) {
+		if (b.gu() & 16) {
+			add2_4_4(a.getC() + aidx, b.getC() + bidx, c + cidx);
+		}
+		else copyGroup_4(a.getC() + aidx, c + cidx);
+		cidx += 1;
+	}
+	else if (b.gu() & 16) {
+		copyGroup_4(b.getC() + bidx, c + cidx);
+		cidx += 1;
+	}
+	return mv(gu, c);
+}
+mv subtract(const mv &a, const mv &b)
+{
+	int aidx = 0, bidx = 0, cidx = 0;
+	int gu = a.gu() | b.gu();
+	double c[16];
+	
+	if (a.gu() & 1) {
+		if (b.gu() & 1) {
+			sub2_0_0(a.getC() + aidx, b.getC() + bidx, c + cidx);
+			bidx += 1;
+		}
+		else copyGroup_0(a.getC() + aidx, c + cidx);
+		aidx += 1;
+		cidx += 1;
+	}
+	else if (b.gu() & 1) {
+		neg_0(b.getC() + bidx, c + cidx);
+		bidx += 1;
+		cidx += 1;
+	}
+	
+	if (a.gu() & 2) {
+		if (b.gu() & 2) {
+			sub2_1_1(a.getC() + aidx, b.getC() + bidx, c + cidx);
+			bidx += 4;
+		}
+		else copyGroup_1(a.getC() + aidx, c + cidx);
+		aidx += 4;
+		cidx += 4;
+	}
+	else if (b.gu() & 2) {
+		neg_1(b.getC() + bidx, c + cidx);
+		bidx += 4;
+		cidx += 4;
+	}
+	
+	if (a.gu() & 4) {
+		if (b.gu() & 4) {
+			sub2_2_2(a.getC() + aidx, b.getC() + bidx, c + cidx);
+			bidx += 6;
+		}
+		else copyGroup_2(a.getC() + aidx, c + cidx);
+		aidx += 6;
+		cidx += 6;
+	}
+	else if (b.gu() & 4) {
+		neg_2(b.getC() + bidx, c + cidx);
+		bidx += 6;
+		cidx += 6;
+	}
+	
+	if (a.gu() & 8) {
+		if (b.gu() & 8) {
+			sub2_3_3(a.getC() + aidx, b.getC() + bidx, c + cidx);
+			bidx += 4;
+		}
+		else copyGroup_3(a.getC() + aidx, c + cidx);
+		aidx += 4;
+		cidx += 4;
+	}
+	else if (b.gu() & 8) {
+		neg_3(b.getC() + bidx, c + cidx);
+		bidx += 4;
+		cidx += 4;
+	}
+	
+	if (a.gu() & 16) {
+		if (b.gu() & 16) {
+			sub2_4_4(a.getC() + aidx, b.getC() + bidx, c + cidx);
+		}
+		else copyGroup_4(a.getC() + aidx, c + cidx);
+		cidx += 1;
+	}
+	else if (b.gu() & 16) {
+		neg_4(b.getC() + bidx, c + cidx);
+		cidx += 1;
+	}
+	return mv(gu, c);
+}
 mv gp(const mv &a, const mv &b)
 {
 	double c[16];

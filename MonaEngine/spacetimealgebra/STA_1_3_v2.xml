@@ -115,6 +115,9 @@ g1^g2^g3 g0^g2^g3 g3^g1^g0 g0^g1^g2
 <function name="_trivector" arg1="oddVersor" argName1="V" comment="Extracts the trivector part of an oddVersor."/>
 <-->
 
+<function name="add" arg1="mv" arg2="mv"/>
+<function name="subtract" arg1="mv" arg2="mv"/>
+
 <function name="gp" arg1="mv" arg2="mv"/>
 
 

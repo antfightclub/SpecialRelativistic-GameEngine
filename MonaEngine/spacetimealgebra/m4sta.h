@@ -2457,8 +2457,20 @@ double genrand();
 void genrand_seed(unsigned int seed);
 /// Seeds the random number generator for  double with the current time
 void genrand_timeSeed();
+/// Returns mv + mv.
+mv add(const mv &a, const mv &b);
+/// Returns mv - mv.
+mv subtract(const mv &a, const mv &b);
 /// Returns geometric product of mv and mv.
 mv gp(const mv &a, const mv &b);
+/// returns add(a, b)
+mv operator+(const mv &a, const mv &b);
+/// returns (a = add(a, b))
+mv &operator+=(mv &a, const mv &b);
+/// returns subtract(a, b)
+mv operator-(const mv &a, const mv &b);
+/// returns (a = subtract(a, b))
+mv &operator-=(mv &a, const mv &b);
 /// returns gp(a, b)
 mv operator*(const mv &a, const mv &b);
 /// returns (a = gp(a, b))
