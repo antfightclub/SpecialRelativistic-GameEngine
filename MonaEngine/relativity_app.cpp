@@ -745,6 +745,20 @@ namespace mve {
 		std::cout << "g13 = " << g13.toString() << " |		g31 = " << g31.toString() << "\n";
 		std::cout << "g23 = " << g23.toString() << " |		g32 = " << g32.toString() << "\n\n";
 
+		m4sta::bivector bi01{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; 	m4sta::bivector bi10{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+		m4sta::bivector bi02{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0 };		m4sta::bivector bi20{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0 };
+		m4sta::bivector bi03{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0 };		m4sta::bivector bi30{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0 };
+		
+		m4sta::bivector bi12{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0 };		m4sta::bivector bi21{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0 };
+		m4sta::bivector bi13{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0 };		m4sta::bivector bi31{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0 };
+		m4sta::bivector bi23{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 };		m4sta::bivector bi32{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0 };
+
+		std::cout << "bi01 = " << bi01.toString() << " |		bi10 = " << bi10.toString() << "\n";
+		std::cout << "bi02 = " << bi02.toString() << " |		bi20 = " << bi20.toString() << "\n";
+		std::cout << "bi03 = " << bi03.toString() << " |		bi30 = " << bi30.toString() << "\n\n";
+		std::cout << "bi12 = " << bi12.toString() << " |		bi21 = " << bi21.toString() << "\n";
+		std::cout << "bi13 = " << bi13.toString() << " |		bi31 = " << bi31.toString() << "\n";
+		std::cout << "bi23 = " << bi23.toString() << " |		bi32 = " << bi32.toString() << "\n\n";
 
 	}
 
