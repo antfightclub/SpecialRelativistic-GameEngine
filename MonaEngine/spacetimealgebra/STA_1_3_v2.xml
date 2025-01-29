@@ -102,10 +102,6 @@ g1^g2^g3 g0^g2^g3 g3^g1^g0 g0^g1^g2
 <smv name="idk2" type="multivector">g0^g1 g0^g2 g1^g2 g0^g3 g1^g3 g2^g3 g0^g1^g2^g3  <comment>MISSING; PLEASE ADD TO SPECIFICATION</comment></smv>
 <-->
 
-
-
-<!--><smv name="rotor"     type="versor">scalar g0^g1 g0^g2 g0^g3</smv><--> <!--> I am unsure whether this "rotor" would be "correct", hence, I am commenting it out.<-->
-
 	<om name="om" coordinateOrder="default" />
 	<function name="random_double" outputName="genrand" optionGen="libc"/>
 
@@ -118,11 +114,98 @@ g1^g2^g3 g0^g2^g3 g3^g1^g0 g0^g1^g2
 <function name="add" arg1="mv" arg2="mv"/>
 <function name="add" arg1="bivector" arg2="bivector"/>
 
-<function name="subtract" arg1="mv" arg2="mv"/>
-<function name="subtract" arg1="bivector" arg2="bivector"/>
-
-<function name="gp" arg1="mv" arg2="mv"/>
+<function name="subtract" arg1="mv" arg2="mv" returnType="mv"/>
+<function name="subtract" arg1="bivector" arg2="bivector" returnType="bivector"/>
 
 
+
+<function name="applyOM" arg1="om" arg2="mv"/>
+
+<function name="applyVersor" arg1="mv" arg2="mv"/>
+<function name="applyVersor" arg1="bivector" arg2="bivector"/>
+
+<function name="applyUnitVersor" arg1="mv" arg2="mv"/>
+<function name="applyUnitVersor" arg1="bivector" arg2="bivector"/>
+
+<function name="applyVersorWI" arg1="mv" arg2="mv" arg3="mv"/>
+
+<function name="div" arg1="mv" arg2="double" floatType="double"/>
+
+<function name="dual" arg1="mv"/>
+
+<function name="undual" arg1="mv"/>
+
+<function name="equals" arg1="mv" arg2="mv" arg3="double" floatType="double"/>
+
+<function name="extractGrade" arg1="mv"/>
+
+<function name="gp" arg1="mv" arg2="mv" returnType="mv"/>
+<function name="gp" arg1="bivector" arg2="bivector" returnType="bivector"/>
+<function name="gp" arg1="double" arg2="mv" returnType="mv"/>
+<function name="gp" arg1="mv" arg2="double"/>
+<function name="gp" arg1="double" arg2="bivector" returnType="bivector"/>
+
+<function name="igp" arg1="mv" arg2="mv"/>
+
+<function name="hip" arg1="mv" arg2="mv"/>
+<function name="hip" arg1="bivector" arg2="bivector"/>
+<function name="mhip" arg1="mv" arg2="mv"/>
+
+<function name="lc" arg1="mv" arg2="mv"/>
+<function name="rc" arg1="mv" arg2="mv"/>
+
+<function name="sp" arg1="mv" arg2="mv"/>
+<function name="sp" arg1="bivector" arg2="bivector"/>
+<function name="sp" arg1="double" arg2="mv" floatType="double"/>
+
+<function name="norm" arg1="mv"/>
+<function name="norm" arg1="scalar"/>
+<function name="norm" arg1="vector"/>
+<function name="norm" arg1="bivector"/>
+
+<function name="norm2" arg1="mv"/>
+<function name="norm2" arg1="bivector"/>
+
+<function name="op" arg1="mv" arg2="mv"/>
+<function name="op" arg1="bivector" arg2="bivector"/>
+
+<function name="random_blade" floatType="double" optionGen="libc"/>
+
+<function name="random_versor" floatType="double" optionGen="libc"/>
+
+<function name="random_scalar" floatType="double" optionGen="libc"/>
+
+<function name="random_bivector" floatType="double" optionGen="libc"/>
+
+<function name="random_vector" floatType="double" optionGen="libc"/>
+
+<function name="sas" arg1="mv" arg2="double" arg3="double" floatType="double"/>
+
+<function name="exp" arg1="mv"/>
+
+<function name="sin" arg1="mv"/>
+
+<function name="cos" arg1="mv"/>
+
+<function name="sinh" arg1="mv"/>
+
+<function name="cosh" arg1="mv"/>
+
+<function name="negate" arg1="mv"/>
+
+<function name="reverse" arg1="mv"/>
+<function name="reverse" arg1="bivector"/>
+
+<function name="cliffordConjugate" arg1="mv"/>
+<function name="cliffordConjugate" arg1="bivector"/>
+
+<function name="gradeInvolution" arg1="mv"/>
+
+<function name="unit" arg1="mv"/>
+<function name="unit" arg1="bivector"/>
+
+<function name="versorInverse" arg1="mv"/>
+
+<function name="zero" arg1="mv" arg2="double" floatType="double"/>
 
 </g25spec>

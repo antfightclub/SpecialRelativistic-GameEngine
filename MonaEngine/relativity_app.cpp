@@ -178,6 +178,8 @@ namespace mve {
 
 		//float sta_vel[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
+		Math::Vector4D playerLastPosition = Math::Vector4D{};
+
 		// Main application update loop
 		while (!mveWindow.shouldClose()) { 
 			glfwPollEvents(); // poll GLFW library for user input
@@ -263,13 +265,8 @@ namespace mve {
 				
 
 				double PlayerU[4] = { player.P.U.getT(), player.P.U.getX(), player.P.U.getY(), player.P.U.getZ() };
-				//STA testing
-				m4sta::mv spacetimeVelocity = m4sta::vector(m4sta::vector::coord_g0_g1_g2_g3, PlayerU);
-				glm::mat4 lorentz_sta = m4sta_to_glm_Lorentz(spacetimeVelocity);
-				m4sta::mv negativeSpacetimeVelocity = m4sta::vector(m4sta::vector::coord_g0_g1_g2_g3, -PlayerU[0], -PlayerU[1], -PlayerU[2], -PlayerU[3]);
-				glm::mat4 lorentz_sta_inv = m4sta_to_glm_Lorentz(negativeSpacetimeVelocity);
-
-				m4sta_testing_stuffs();
+				
+				m4sta_testing_stuffs(player.P.X, playerLastPosition, dt);
 
 				Math::Matrix44 L{};	
 				L = Math::Matrix44::Lorentz(player.P.U); // Lorentz boost matrix : Bg frame -> Player frame
@@ -283,7 +280,7 @@ namespace mve {
 				LatticeUbo latticeUbo{};
 				latticeUbo.Xp = glm::vec3{ Xp.x, Xp.y, Xp.z};
 				latticeUbo.Xo = glm::vec3{ xo,   yo,   zo };
-				latticeUbo.Lorentz = lorentz_sta;
+				latticeUbo.Lorentz = lorentz;
 				latticeUboBuffers[frameIndex]->writeToBuffer(&latticeUbo);
 				latticeUboBuffers[frameIndex]->flush();
 				latticeUboBuffer.flushIndex(frameIndex);
@@ -486,7 +483,7 @@ namespace mve {
 				// Ends both command buffers and submits framebuffer to presentation queue
 				mveRenderer.endFrame();	
 			}
-
+			playerLastPosition = player.P.X;
 			timeSince = frameTime; // assign timeSince to frameTime at beginning of the loop, such that next loop it can be subtracted from frameTime to calculate deltaTime
 		}
 
@@ -721,45 +718,70 @@ namespace mve {
 		return m;
 	}
 
-	void RelativityApp::m4sta_testing_stuffs() {
-		// Currently want to test the bivectors and stuffs.
+	void RelativityApp::m4sta_testing_stuffs(Math::Vector4D X, Math::Vector4D lastX, double dt) {
+		
+
+		// 4-vector / pseudoscalar
+		m4sta::mv I = m4sta::I;
+
+		// 1-vector / spacetime vector 
 		m4sta::mv g0 = m4sta::g0;
 		m4sta::mv g1 = m4sta::g1;
 		m4sta::mv g2 = m4sta::g2;
 		m4sta::mv g3 = m4sta::g3;
+		
+		// 2-vector (on the diagonal)
+		m4sta::mv g00 = g0 * g0;
+		m4sta::mv g11 = g1 * g1;
+		m4sta::mv g22 = g2 * g2;
+		m4sta::mv g33 = g3 * g3;
 
+		// 2-vector / bivector 
 		m4sta::mv g01 = g0 * g1;	m4sta::mv g10 = g1 * g0;
 		m4sta::mv g02 = g0 * g2;	m4sta::mv g20 = g2 * g0;
 		m4sta::mv g03 = g0 * g3;	m4sta::mv g30 = g3 * g0;
-		
 		m4sta::mv g12 = g1 * g2;	m4sta::mv g21 = g2 * g1;
 		m4sta::mv g13 = g1 * g3;	m4sta::mv g31 = g3 * g1;
 		m4sta::mv g23 = g2 * g3;	m4sta::mv g32 = g3 * g2;
+
+		// 3-vector / trivector
+		m4sta::mv g012 = g0 * I;
+		m4sta::mv g013 = g1 * I;
+		m4sta::mv g023 = g2 * I;
+		m4sta::mv g123 = g3 * I;
 		
-		std::cout << "		**********				**********\n";
-		std::cout << "g01 = " << g01.toString() << " |		g10 = " << g10.toString() << "\n";
-		std::cout << "g02 = " << g02.toString() << " |		g20 = " << g20.toString() << "\n";
-		std::cout << "g03 = " << g03.toString() << " |		g30 = " << g30.toString() << "\n\n";
+	    // Pauli basis, sigma_k with k in {1,2,3}
+		m4sta::mv sigma1 = g1 ^ g0;
+		m4sta::mv sigma2 = g2 ^ g0;
+		m4sta::mv sigma3 = g3 ^ g0;
 
-		std::cout << "g12 = " << g12.toString() << " |		g21 = " << g21.toString() << "\n";
-		std::cout << "g13 = " << g13.toString() << " |		g31 = " << g31.toString() << "\n";
-		std::cout << "g23 = " << g23.toString() << " |		g32 = " << g32.toString() << "\n\n";
-
-		m4sta::bivector bi01{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; 	m4sta::bivector bi10{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-		m4sta::bivector bi02{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0 };		m4sta::bivector bi20{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0 };
-		m4sta::bivector bi03{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0 };		m4sta::bivector bi30{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 0.0, 0.0, -1.0, 0.0, 0.0, 0.0 };
 		
-		m4sta::bivector bi12{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0 };		m4sta::bivector bi21{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 0.0, 0.0, 0.0, -1.0, 0.0, 0.0 };
-		m4sta::bivector bi13{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0 };		m4sta::bivector bi31{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0 };
-		m4sta::bivector bi23{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 };		m4sta::bivector bi32{ m4sta::bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0 };
+		m4sta::mv lastProperPos = m4sta::g0 * lastX.getT() + m4sta::g1 * lastX.getX() + m4sta::g2 * lastX.getY() + m4sta::g3 * lastX.getZ();
+		std::cout << "last   proper position   = " << lastProperPos.toString() << "\n";
+		m4sta::mv playerProperPos = m4sta::g0 * X.getT() + m4sta::g1 * X.getX() + m4sta::g2 * X.getY() + m4sta::g3 * X.getZ();
+		std::cout << "player proper position   = " << playerProperPos.toString() << "\n";
+		m4sta::mv properVelocity = (playerProperPos - lastProperPos);
+		std::cout << "player proper velocity   = " << properVelocity.toString() << "\n";
+		m4sta::mv relativeVelocity = (properVelocity ^ g0) / (m4sta::sp(properVelocity, m4sta::g0));
+		std::cout << "player relative velocity = " << relativeVelocity.toString() << "\n";
+		
 
-		std::cout << "bi01 = " << bi01.toString() << " |		bi10 = " << bi10.toString() << "\n";
-		std::cout << "bi02 = " << bi02.toString() << " |		bi20 = " << bi20.toString() << "\n";
-		std::cout << "bi03 = " << bi03.toString() << " |		bi30 = " << bi30.toString() << "\n\n";
-		std::cout << "bi12 = " << bi12.toString() << " |		bi21 = " << bi21.toString() << "\n";
-		std::cout << "bi13 = " << bi13.toString() << " |		bi31 = " << bi31.toString() << "\n";
-		std::cout << "bi23 = " << bi23.toString() << " |		bi32 = " << bi32.toString() << "\n\n";
+		// I cannot verify above but the lorentz factor here is finally correct
+		// HOWEVER it is only because I switcheroo'd the "dt/dtau" term to be "dtau/dt" 
+		// which is obviously because the numbers (player's velocity) is in the player's frame
+		// and the formulas in hestenes are for going from a "reference frame" to a particle's frame
+		// not the other way around. D'oh!
+		m4sta::mv timedilationfactor = (playerProperPos.get_g0() - lastProperPos.get_g0()) / (dt);
+		std::cout << "Lorentz factor		   = " << timedilationfactor.toString_f() << "\n";
+		
 
+
+		std::cout << "\n";
+	
+
+	}
+	m4sta::mv RelativityApp::commutatorProduct(m4sta::mv& a, m4sta::mv& b) {
+		return (0.5) * (a * b - b * a);
 	}
 
 }

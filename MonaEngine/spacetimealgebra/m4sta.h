@@ -2465,8 +2465,195 @@ bivector add(const bivector &a, const bivector &b);
 mv subtract(const mv &a, const mv &b);
 /// Returns bivector - bivector.
 bivector subtract(const bivector &a, const bivector &b);
+/// Returns om * mv.
+mv applyOM(const om &a, const mv &b);
+/// Returns a * b * inverse(a) using default metric.
+mv applyVersor(const mv &a, const mv &b);
+/// Returns a * b * inverse(a) using default metric.
+bivector applyVersor(const bivector &a, const bivector &b);
+/// Returns a * b * reverse(a) using default metric. Only gives the correct result when the versor has a positive squared norm.
+/// 
+mv applyUnitVersor(const mv &a, const mv &b);
+/// Returns a * b * reverse(a) using default metric. Only gives the correct result when the versor has a positive squared norm.
+/// 
+bivector applyUnitVersor(const bivector &a, const bivector &b);
+/// Returns a * b * reverse(a) using default metric. Only gives the correct result when the versor has a positive squared norm.
+/// 
+mv applyVersorWI(const mv &a, const mv &b, const mv &c);
+/// Returns a / b
+mv div(const mv &a, const double b);
+/// Returns dual of mv using default metric.
+mv dual(const mv &a);
+/// Returns undual of mv using default metric.
+mv undual(const mv &a);
+/// Returns whether input multivectors are equal up to an epsilon c.
+bool equals(const mv &a, const mv &b, const double c);
+/// Returns grade groupBitmap of  mv.
+mv extractGrade(const mv &a, int groupBitmap);
 /// Returns geometric product of mv and mv.
 mv gp(const mv &a, const mv &b);
+/// Returns geometric product of bivector and bivector.
+bivector gp(const bivector &a, const bivector &b);
+/// Returns geometric product of double and mv.
+mv gp(const double a, const mv &b);
+/// Returns geometric product of mv and double.
+mv gp(const mv &a, const double b);
+/// Returns geometric product of double and bivector.
+bivector gp(const double a, const bivector &b);
+/// Returns a * versorInverse(b).
+mv igp(const mv &a, const mv &b);
+/// Returns Hestenes inner product of mv and mv.
+mv hip(const mv &a, const mv &b);
+/// Returns Hestenes inner product of bivector and bivector.
+scalar hip(const bivector &a, const bivector &b);
+/// Returns Modified Hestenes inner product of mv and mv.
+mv mhip(const mv &a, const mv &b);
+/// Returns left contraction of mv and mv.
+mv lc(const mv &a, const mv &b);
+/// Returns right contraction of mv and mv.
+mv rc(const mv &a, const mv &b);
+/// Returns scalar product of mv and mv.
+double sp(const mv &a, const mv &b);
+/// Returns scalar product of bivector and bivector.
+double sp(const bivector &a, const bivector &b);
+/// Returns scalar product of double and mv.
+double sp(const double a, const mv &b);
+/// Returns norm of mv using default metric.
+scalar norm(const mv &a);
+/// internal conversion function (this is just a pass through)
+double norm_returns_scalar(const mv &a);
+/// Returns norm of scalar using default metric.
+scalar norm(const scalar &a);
+/// internal conversion function (this is just a pass through)
+double norm_returns_scalar(const scalar &a);
+/// Returns norm of vector using default metric.
+scalar norm(const vector &a);
+/// internal conversion function (this is just a pass through)
+double norm_returns_scalar(const vector &a);
+/// Returns norm of bivector using default metric.
+scalar norm(const bivector &a);
+/// internal conversion function (this is just a pass through)
+double norm_returns_scalar(const bivector &a);
+/// Returns norm2 of mv using default metric.
+scalar norm2(const mv &a);
+/// internal conversion function (this is just a pass through)
+double norm2_returns_scalar(const mv &a);
+/// Returns norm2 of bivector using default metric.
+scalar norm2(const bivector &a);
+/// internal conversion function (this is just a pass through)
+double norm2_returns_scalar(const bivector &a);
+/// Returns outer product of mv and mv.
+mv op(const mv &a, const mv &b);
+/// Returns outer product of bivector and bivector.
+pseudoscalar op(const bivector &a, const bivector &b);
+
+/**
+Generates a random blade.
+The scale is uniformly distributed over the interval [0 1).
+The maximum non-zero grade-part is 'grade'.
+Only the basis vectors marked in 'basisVectorBitmap' will be used to generate the
+versor/blade. Use 'basisVectorBitmap = -1' (the default) to use all basisvectors.
+
+Returns random_blade_ex(arg1, scale, grade, basisVectorBitmap, 0.01, scale * 4.0);
+*/
+mv random_blade(double scale, int grade, int basisVectorBitmap = -1);
+
+/**
+This version of random_blade() has extra arguments which help to avoid 
+near-singular blades / versors.
+
+Near-singular blades / versors are avoid by testing the norm and largest coordinate
+of the random blade / versor. If the test does not pass, the function recursively
+tries to generate another random blade / versor.
+
+'minimumNorm' is the minimum allowed norm of the blade/versor before scaling. 
+'minimumNorm' must be > 0.0 for versors.
+
+'largestCoordinate' is the largest coordinate allowed after scaling.
+*/
+mv random_blade_ex(double scale, int grade, int basisVectorBitmap, double minimumNorm, double largestCoordinate);
+
+
+/**
+Generates a random versor.
+The scale is uniformly distributed over the interval [0 1).
+The maximum non-zero grade-part is 'grade'.
+Only the basis vectors marked in 'basisVectorBitmap' will be used to generate the
+versor/blade. Use 'basisVectorBitmap = -1' (the default) to use all basisvectors.
+
+Returns random_versor_ex(arg1, scale, grade, basisVectorBitmap, 0.01, scale * 4.0);
+*/
+mv random_versor(double scale, int grade, int basisVectorBitmap = -1);
+
+/**
+This version of random_versor() has extra arguments which help to avoid 
+near-singular blades / versors.
+
+Near-singular blades / versors are avoid by testing the norm and largest coordinate
+of the random blade / versor. If the test does not pass, the function recursively
+tries to generate another random blade / versor.
+
+'minimumNorm' is the minimum allowed norm of the blade/versor before scaling. 
+'minimumNorm' must be > 0.0 for versors.
+
+'largestCoordinate' is the largest coordinate allowed after scaling.
+*/
+mv random_versor_ex(double scale, int grade, int basisVectorBitmap, double minimumNorm, double largestCoordinate);
+
+/// Returns random scalar with a scale in the interval [0, scale)
+scalar random_scalar_ex(const double scale, const double minimumNorm, const double largestCoordinate);
+/// Returns random scalar with a scale in the interval [0, scale)
+scalar random_scalar(const double scale);
+/// Returns random bivector with a scale in the interval [0, scale)
+bivector random_bivector_ex(const double scale, const double minimumNorm, const double largestCoordinate);
+/// Returns random bivector with a scale in the interval [0, scale)
+bivector random_bivector(const double scale);
+/// Returns random vector with a scale in the interval [0, scale)
+vector random_vector_ex(const double scale, const double minimumNorm, const double largestCoordinate);
+/// Returns random vector with a scale in the interval [0, scale)
+vector random_vector(const double scale);
+/// Returns double b * mv a + double c.
+mv sas(const mv &a, const double b, const double c);
+
+/** Computes exp of mv.
+ */
+mv exp(const mv &x, int order = 12);
+
+/** Computes sin of mv.
+ */
+mv sin(const mv &x, int order = 12);
+
+/** Computes cos of mv.
+ */
+mv cos(const mv &x, int order = 12);
+
+/** Computes sinh of mv.
+ */
+mv sinh(const mv &x, int order = 12);
+
+/** Computes cosh of mv.
+ */
+mv cosh(const mv &x, int order = 12);
+/// Returns negation of mv.
+mv negate(const mv &a);
+/// Returns reverse of mv.
+mv reverse(const mv &a);
+/// Returns reverse of bivector.
+bivector reverse(const bivector &a);
+/// Returns Clifford conjugate of mv.
+mv cliffordConjugate(const mv &a);
+/// Returns Clifford conjugate of bivector.
+bivector cliffordConjugate(const bivector &a);
+/// Returns grade involution of mv.
+mv gradeInvolution(const mv &a);
+/// Returns unit of mv using default metric.
+mv unit(const mv &a);
+/// Returns unit of bivector using default metric.
+bivector unit(const bivector &a);
+/// Returns versor inverse of a using default metric.
+mv versorInverse(const mv &a);
+/// Returns true if all coordinates of a are abs <= b
+bool zero(const mv &a, const double b);
 /// returns add(a, b)
 mv operator+(const mv &a, const mv &b);
 /// returns (a = add(a, b))
@@ -2483,10 +2670,58 @@ mv &operator-=(mv &a, const mv &b);
 bivector operator-(const bivector &a, const bivector &b);
 /// returns (a = subtract(a, b))
 bivector &operator-=(bivector &a, const bivector &b);
+/// returns dual(a)
+mv operator*(const mv &a);
 /// returns gp(a, b)
 mv operator*(const mv &a, const mv &b);
 /// returns (a = gp(a, b))
 mv &operator*=(mv &a, const mv &b);
+/// returns gp(a, b)
+bivector operator*(const bivector &a, const bivector &b);
+/// returns (a = gp(a, b))
+bivector &operator*=(bivector &a, const bivector &b);
+/// returns gp(a, b)
+mv operator*(const double &a, const mv &b);
+/// returns gp(a, b)
+mv operator*(const mv &a, const double &b);
+/// returns (a = gp(a, b))
+mv &operator*=(mv &a, const double &b);
+/// returns gp(a, b)
+bivector operator*(const double &a, const bivector &b);
+/// returns igp(a, b)
+mv operator/(const mv &a, const mv &b);
+/// returns (a = igp(a, b))
+mv &operator/=(mv &a, const mv &b);
+/// returns lc(a, b)
+mv operator<<(const mv &a, const mv &b);
+/// returns (a = lc(a, b))
+mv &operator<<=(mv &a, const mv &b);
+/// returns rc(a, b)
+mv operator>>(const mv &a, const mv &b);
+/// returns (a = rc(a, b))
+mv &operator>>=(mv &a, const mv &b);
+/// returns sp(a, b)
+mv operator%(const mv &a, const mv &b);
+/// returns (a = sp(a, b))
+mv &operator%=(mv &a, const mv &b);
+/// returns sp(a, b)
+double operator%(const bivector &a, const bivector &b);
+/// returns sp(a, b)
+mv operator%(const double &a, const mv &b);
+/// returns op(a, b)
+mv operator^(const mv &a, const mv &b);
+/// returns (a = op(a, b))
+mv &operator^=(mv &a, const mv &b);
+/// returns op(a, b)
+pseudoscalar operator^(const bivector &a, const bivector &b);
+/// returns negate(a)
+mv operator-(const mv &a);
+/// returns reverse(a)
+mv operator~(const mv &a);
+/// returns reverse(a)
+bivector operator~(const bivector &a);
+/// returns versorInverse(a)
+mv operator!(const mv &a);
 
 inline void zero_1(double *dst) {
 	dst[0]=0.0;

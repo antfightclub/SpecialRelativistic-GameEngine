@@ -52,7 +52,8 @@ namespace mve {
 		glm::mat4 m4sta_g02_K2_glm(double g02);
 		glm::mat4 m4sta_g03_K3_glm(double g03);
 
-		void m4sta_testing_stuffs();
+		void m4sta_testing_stuffs(Math::Vector4D X, Math::Vector4D lastX, double deltaTime);
+		m4sta::mv commutatorProduct(m4sta::mv& a, m4sta::mv& b);
 
 
 		void setupDearImgui();

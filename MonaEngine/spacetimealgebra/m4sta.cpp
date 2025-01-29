@@ -263,11 +263,83 @@ bivector operator-(const bivector &a, const bivector &b) {
 bivector &operator-=(bivector &a, const bivector &b) {
 	return (a = subtract(a, b));
 }
+mv operator*(const mv &a) {
+	return dual(a);
+}
 mv operator*(const mv &a, const mv &b) {
 	return gp(a, b);
 }
 mv &operator*=(mv &a, const mv &b) {
 	return (a = gp(a, b));
+}
+bivector operator*(const bivector &a, const bivector &b) {
+	return gp(a, b);
+}
+bivector &operator*=(bivector &a, const bivector &b) {
+	return (a = gp(a, b));
+}
+mv operator*(const double &a, const mv &b) {
+	return gp(a, b);
+}
+mv operator*(const mv &a, const double &b) {
+	return gp(a, b);
+}
+mv &operator*=(mv &a, const double &b) {
+	return (a = gp(a, b));
+}
+bivector operator*(const double &a, const bivector &b) {
+	return gp(a, b);
+}
+mv operator/(const mv &a, const mv &b) {
+	return igp(a, b);
+}
+mv &operator/=(mv &a, const mv &b) {
+	return (a = igp(a, b));
+}
+mv operator<<(const mv &a, const mv &b) {
+	return lc(a, b);
+}
+mv &operator<<=(mv &a, const mv &b) {
+	return (a = lc(a, b));
+}
+mv operator>>(const mv &a, const mv &b) {
+	return rc(a, b);
+}
+mv &operator>>=(mv &a, const mv &b) {
+	return (a = rc(a, b));
+}
+mv operator%(const mv &a, const mv &b) {
+	return sp(a, b);
+}
+mv &operator%=(mv &a, const mv &b) {
+	return (a = sp(a, b));
+}
+double operator%(const bivector &a, const bivector &b) {
+	return sp(a, b);
+}
+mv operator%(const double &a, const mv &b) {
+	return sp(a, b);
+}
+mv operator^(const mv &a, const mv &b) {
+	return op(a, b);
+}
+mv &operator^=(mv &a, const mv &b) {
+	return (a = op(a, b));
+}
+pseudoscalar operator^(const bivector &a, const bivector &b) {
+	return op(a, b);
+}
+mv operator-(const mv &a) {
+	return negate(a);
+}
+mv operator~(const mv &a) {
+	return reverse(a);
+}
+bivector operator~(const bivector &a) {
+	return reverse(a);
+}
+mv operator!(const mv &a) {
+	return versorInverse(a);
 }
 // def SB:
 /// Computes the partial geometric product of two multivectors (group 0  x  group 0 -> group 0)
@@ -2671,6 +2743,284 @@ bivector subtract(const bivector &a, const bivector &b)
 		);
 
 }
+mv applyOM(const om &a, const mv &b)
+{
+	int idxB = 0, gu = 0, idxC = 0;
+	double c[16];
+	if (b.gu() & 1) {
+		idxB += 1;
+		idxC += 1;
+	
+	}
+	
+	if (b.gu() & 2) {
+		applyGomGmv_1_1(a, b.getC() + idxB, c + idxC + 0);
+		idxB += 4;
+		idxC += 4;
+	
+	}
+	
+	if (b.gu() & 4) {
+		applyGomGmv_2_2(a, b.getC() + idxB, c + idxC + 0);
+		idxB += 6;
+		idxC += 6;
+	
+	}
+	
+	if (b.gu() & 8) {
+		applyGomGmv_3_3(a, b.getC() + idxB, c + idxC + 0);
+		idxB += 4;
+		idxC += 4;
+	
+	}
+	
+	if (b.gu() & 16) {
+		applyGomGmv_4_4(a, b.getC() + idxB, c + idxC + 0);
+	}
+	
+	return mv_compress(c, 0.0, b.gu());
+}
+mv applyVersor(const mv &a, const mv &b)
+{
+	return extractGrade(gp(gp(a, b), versorInverse(a)), b.gu());
+}
+bivector applyVersor(const bivector &a, const bivector &b)
+{
+	double _n2_ = (-a.m_c[0]*a.m_c[0]-a.m_c[1]*a.m_c[1]-a.m_c[2]*a.m_c[2]+a.m_c[3]*a.m_c[3]+a.m_c[4]*a.m_c[4]+a.m_c[5]*a.m_c[5]);
+
+	return bivector(bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3,
+			((-a.m_c[0]*a.m_c[0]*b.m_c[0]+-2.0*a.m_c[0]*a.m_c[1]*b.m_c[1]+-2.0*a.m_c[0]*a.m_c[2]*b.m_c[2]+2.0*a.m_c[0]*a.m_c[3]*b.m_c[3]+2.0*a.m_c[0]*a.m_c[4]*b.m_c[4]+2.0*a.m_c[0]*a.m_c[5]*b.m_c[5]+a.m_c[1]*a.m_c[1]*b.m_c[0]+2.0*a.m_c[1]*a.m_c[4]*b.m_c[5]+-2.0*a.m_c[1]*a.m_c[5]*b.m_c[4]+a.m_c[2]*a.m_c[2]*b.m_c[0]+-2.0*a.m_c[2]*a.m_c[3]*b.m_c[5]+2.0*a.m_c[2]*a.m_c[5]*b.m_c[3]-a.m_c[3]*a.m_c[3]*b.m_c[0]+2.0*a.m_c[3]*a.m_c[5]*b.m_c[2]-a.m_c[4]*a.m_c[4]*b.m_c[0]+-2.0*a.m_c[4]*a.m_c[5]*b.m_c[1]+a.m_c[5]*a.m_c[5]*b.m_c[0]))/(_n2_), // g0_g1
+			((a.m_c[0]*a.m_c[0]*b.m_c[1]+-2.0*a.m_c[0]*a.m_c[1]*b.m_c[0]+-2.0*a.m_c[0]*a.m_c[4]*b.m_c[5]+2.0*a.m_c[0]*a.m_c[5]*b.m_c[4]-a.m_c[1]*a.m_c[1]*b.m_c[1]+-2.0*a.m_c[1]*a.m_c[2]*b.m_c[2]+2.0*a.m_c[1]*a.m_c[3]*b.m_c[3]+2.0*a.m_c[1]*a.m_c[4]*b.m_c[4]+2.0*a.m_c[1]*a.m_c[5]*b.m_c[5]+a.m_c[2]*a.m_c[2]*b.m_c[1]+2.0*a.m_c[2]*a.m_c[3]*b.m_c[4]+-2.0*a.m_c[2]*a.m_c[4]*b.m_c[3]-a.m_c[3]*a.m_c[3]*b.m_c[1]+-2.0*a.m_c[3]*a.m_c[4]*b.m_c[2]+a.m_c[4]*a.m_c[4]*b.m_c[1]+-2.0*a.m_c[4]*a.m_c[5]*b.m_c[0]-a.m_c[5]*a.m_c[5]*b.m_c[1]))/(_n2_), // g0_g2
+			((a.m_c[0]*a.m_c[0]*b.m_c[2]+-2.0*a.m_c[0]*a.m_c[2]*b.m_c[0]+2.0*a.m_c[0]*a.m_c[3]*b.m_c[5]+-2.0*a.m_c[0]*a.m_c[5]*b.m_c[3]+a.m_c[1]*a.m_c[1]*b.m_c[2]+-2.0*a.m_c[1]*a.m_c[2]*b.m_c[1]+-2.0*a.m_c[1]*a.m_c[3]*b.m_c[4]+2.0*a.m_c[1]*a.m_c[4]*b.m_c[3]-a.m_c[2]*a.m_c[2]*b.m_c[2]+2.0*a.m_c[2]*a.m_c[3]*b.m_c[3]+2.0*a.m_c[2]*a.m_c[4]*b.m_c[4]+2.0*a.m_c[2]*a.m_c[5]*b.m_c[5]+a.m_c[3]*a.m_c[3]*b.m_c[2]+-2.0*a.m_c[3]*a.m_c[4]*b.m_c[1]+2.0*a.m_c[3]*a.m_c[5]*b.m_c[0]-a.m_c[4]*a.m_c[4]*b.m_c[2]-a.m_c[5]*a.m_c[5]*b.m_c[2]))/(_n2_), // g0_g3
+			((a.m_c[0]*a.m_c[0]*b.m_c[3]+-2.0*a.m_c[0]*a.m_c[2]*b.m_c[5]+-2.0*a.m_c[0]*a.m_c[3]*b.m_c[0]+2.0*a.m_c[0]*a.m_c[5]*b.m_c[2]+a.m_c[1]*a.m_c[1]*b.m_c[3]+2.0*a.m_c[1]*a.m_c[2]*b.m_c[4]+-2.0*a.m_c[1]*a.m_c[3]*b.m_c[1]+-2.0*a.m_c[1]*a.m_c[4]*b.m_c[2]-a.m_c[2]*a.m_c[2]*b.m_c[3]+-2.0*a.m_c[2]*a.m_c[3]*b.m_c[2]+2.0*a.m_c[2]*a.m_c[4]*b.m_c[1]+-2.0*a.m_c[2]*a.m_c[5]*b.m_c[0]+a.m_c[3]*a.m_c[3]*b.m_c[3]+2.0*a.m_c[3]*a.m_c[4]*b.m_c[4]+2.0*a.m_c[3]*a.m_c[5]*b.m_c[5]-a.m_c[4]*a.m_c[4]*b.m_c[3]-a.m_c[5]*a.m_c[5]*b.m_c[3]))/(_n2_), // g1_g2
+			((a.m_c[0]*a.m_c[0]*b.m_c[4]+2.0*a.m_c[0]*a.m_c[1]*b.m_c[5]+-2.0*a.m_c[0]*a.m_c[4]*b.m_c[0]+-2.0*a.m_c[0]*a.m_c[5]*b.m_c[1]-a.m_c[1]*a.m_c[1]*b.m_c[4]+2.0*a.m_c[1]*a.m_c[2]*b.m_c[3]+2.0*a.m_c[1]*a.m_c[3]*b.m_c[2]+-2.0*a.m_c[1]*a.m_c[4]*b.m_c[1]+2.0*a.m_c[1]*a.m_c[5]*b.m_c[0]+a.m_c[2]*a.m_c[2]*b.m_c[4]+-2.0*a.m_c[2]*a.m_c[3]*b.m_c[1]+-2.0*a.m_c[2]*a.m_c[4]*b.m_c[2]-a.m_c[3]*a.m_c[3]*b.m_c[4]+2.0*a.m_c[3]*a.m_c[4]*b.m_c[3]+a.m_c[4]*a.m_c[4]*b.m_c[4]+2.0*a.m_c[4]*a.m_c[5]*b.m_c[5]-a.m_c[5]*a.m_c[5]*b.m_c[4]))/(_n2_), // g1_g3
+			((-a.m_c[0]*a.m_c[0]*b.m_c[5]+2.0*a.m_c[0]*a.m_c[1]*b.m_c[4]+-2.0*a.m_c[0]*a.m_c[2]*b.m_c[3]+-2.0*a.m_c[0]*a.m_c[3]*b.m_c[2]+2.0*a.m_c[0]*a.m_c[4]*b.m_c[1]+-2.0*a.m_c[0]*a.m_c[5]*b.m_c[0]+a.m_c[1]*a.m_c[1]*b.m_c[5]+-2.0*a.m_c[1]*a.m_c[4]*b.m_c[0]+-2.0*a.m_c[1]*a.m_c[5]*b.m_c[1]+a.m_c[2]*a.m_c[2]*b.m_c[5]+2.0*a.m_c[2]*a.m_c[3]*b.m_c[0]+-2.0*a.m_c[2]*a.m_c[5]*b.m_c[2]-a.m_c[3]*a.m_c[3]*b.m_c[5]+2.0*a.m_c[3]*a.m_c[5]*b.m_c[3]-a.m_c[4]*a.m_c[4]*b.m_c[5]+2.0*a.m_c[4]*a.m_c[5]*b.m_c[4]+a.m_c[5]*a.m_c[5]*b.m_c[5]))/(_n2_) // g2_g3
+		);
+}
+mv applyUnitVersor(const mv &a, const mv &b)
+{
+	return extractGrade(gp(gp(a, b), reverse(a)), b.gu());
+}
+bivector applyUnitVersor(const bivector &a, const bivector &b)
+{
+	return bivector(bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3,
+			(-a.m_c[0]*a.m_c[0]*b.m_c[0]+-2.0*a.m_c[0]*a.m_c[1]*b.m_c[1]+-2.0*a.m_c[0]*a.m_c[2]*b.m_c[2]+2.0*a.m_c[0]*a.m_c[3]*b.m_c[3]+2.0*a.m_c[0]*a.m_c[4]*b.m_c[4]+2.0*a.m_c[0]*a.m_c[5]*b.m_c[5]+a.m_c[1]*a.m_c[1]*b.m_c[0]+2.0*a.m_c[1]*a.m_c[4]*b.m_c[5]+-2.0*a.m_c[1]*a.m_c[5]*b.m_c[4]+a.m_c[2]*a.m_c[2]*b.m_c[0]+-2.0*a.m_c[2]*a.m_c[3]*b.m_c[5]+2.0*a.m_c[2]*a.m_c[5]*b.m_c[3]-a.m_c[3]*a.m_c[3]*b.m_c[0]+2.0*a.m_c[3]*a.m_c[5]*b.m_c[2]-a.m_c[4]*a.m_c[4]*b.m_c[0]+-2.0*a.m_c[4]*a.m_c[5]*b.m_c[1]+a.m_c[5]*a.m_c[5]*b.m_c[0]), // g0_g1
+			(a.m_c[0]*a.m_c[0]*b.m_c[1]+-2.0*a.m_c[0]*a.m_c[1]*b.m_c[0]+-2.0*a.m_c[0]*a.m_c[4]*b.m_c[5]+2.0*a.m_c[0]*a.m_c[5]*b.m_c[4]-a.m_c[1]*a.m_c[1]*b.m_c[1]+-2.0*a.m_c[1]*a.m_c[2]*b.m_c[2]+2.0*a.m_c[1]*a.m_c[3]*b.m_c[3]+2.0*a.m_c[1]*a.m_c[4]*b.m_c[4]+2.0*a.m_c[1]*a.m_c[5]*b.m_c[5]+a.m_c[2]*a.m_c[2]*b.m_c[1]+2.0*a.m_c[2]*a.m_c[3]*b.m_c[4]+-2.0*a.m_c[2]*a.m_c[4]*b.m_c[3]-a.m_c[3]*a.m_c[3]*b.m_c[1]+-2.0*a.m_c[3]*a.m_c[4]*b.m_c[2]+a.m_c[4]*a.m_c[4]*b.m_c[1]+-2.0*a.m_c[4]*a.m_c[5]*b.m_c[0]-a.m_c[5]*a.m_c[5]*b.m_c[1]), // g0_g2
+			(a.m_c[0]*a.m_c[0]*b.m_c[2]+-2.0*a.m_c[0]*a.m_c[2]*b.m_c[0]+2.0*a.m_c[0]*a.m_c[3]*b.m_c[5]+-2.0*a.m_c[0]*a.m_c[5]*b.m_c[3]+a.m_c[1]*a.m_c[1]*b.m_c[2]+-2.0*a.m_c[1]*a.m_c[2]*b.m_c[1]+-2.0*a.m_c[1]*a.m_c[3]*b.m_c[4]+2.0*a.m_c[1]*a.m_c[4]*b.m_c[3]-a.m_c[2]*a.m_c[2]*b.m_c[2]+2.0*a.m_c[2]*a.m_c[3]*b.m_c[3]+2.0*a.m_c[2]*a.m_c[4]*b.m_c[4]+2.0*a.m_c[2]*a.m_c[5]*b.m_c[5]+a.m_c[3]*a.m_c[3]*b.m_c[2]+-2.0*a.m_c[3]*a.m_c[4]*b.m_c[1]+2.0*a.m_c[3]*a.m_c[5]*b.m_c[0]-a.m_c[4]*a.m_c[4]*b.m_c[2]-a.m_c[5]*a.m_c[5]*b.m_c[2]), // g0_g3
+			(a.m_c[0]*a.m_c[0]*b.m_c[3]+-2.0*a.m_c[0]*a.m_c[2]*b.m_c[5]+-2.0*a.m_c[0]*a.m_c[3]*b.m_c[0]+2.0*a.m_c[0]*a.m_c[5]*b.m_c[2]+a.m_c[1]*a.m_c[1]*b.m_c[3]+2.0*a.m_c[1]*a.m_c[2]*b.m_c[4]+-2.0*a.m_c[1]*a.m_c[3]*b.m_c[1]+-2.0*a.m_c[1]*a.m_c[4]*b.m_c[2]-a.m_c[2]*a.m_c[2]*b.m_c[3]+-2.0*a.m_c[2]*a.m_c[3]*b.m_c[2]+2.0*a.m_c[2]*a.m_c[4]*b.m_c[1]+-2.0*a.m_c[2]*a.m_c[5]*b.m_c[0]+a.m_c[3]*a.m_c[3]*b.m_c[3]+2.0*a.m_c[3]*a.m_c[4]*b.m_c[4]+2.0*a.m_c[3]*a.m_c[5]*b.m_c[5]-a.m_c[4]*a.m_c[4]*b.m_c[3]-a.m_c[5]*a.m_c[5]*b.m_c[3]), // g1_g2
+			(a.m_c[0]*a.m_c[0]*b.m_c[4]+2.0*a.m_c[0]*a.m_c[1]*b.m_c[5]+-2.0*a.m_c[0]*a.m_c[4]*b.m_c[0]+-2.0*a.m_c[0]*a.m_c[5]*b.m_c[1]-a.m_c[1]*a.m_c[1]*b.m_c[4]+2.0*a.m_c[1]*a.m_c[2]*b.m_c[3]+2.0*a.m_c[1]*a.m_c[3]*b.m_c[2]+-2.0*a.m_c[1]*a.m_c[4]*b.m_c[1]+2.0*a.m_c[1]*a.m_c[5]*b.m_c[0]+a.m_c[2]*a.m_c[2]*b.m_c[4]+-2.0*a.m_c[2]*a.m_c[3]*b.m_c[1]+-2.0*a.m_c[2]*a.m_c[4]*b.m_c[2]-a.m_c[3]*a.m_c[3]*b.m_c[4]+2.0*a.m_c[3]*a.m_c[4]*b.m_c[3]+a.m_c[4]*a.m_c[4]*b.m_c[4]+2.0*a.m_c[4]*a.m_c[5]*b.m_c[5]-a.m_c[5]*a.m_c[5]*b.m_c[4]), // g1_g3
+			(-a.m_c[0]*a.m_c[0]*b.m_c[5]+2.0*a.m_c[0]*a.m_c[1]*b.m_c[4]+-2.0*a.m_c[0]*a.m_c[2]*b.m_c[3]+-2.0*a.m_c[0]*a.m_c[3]*b.m_c[2]+2.0*a.m_c[0]*a.m_c[4]*b.m_c[1]+-2.0*a.m_c[0]*a.m_c[5]*b.m_c[0]+a.m_c[1]*a.m_c[1]*b.m_c[5]+-2.0*a.m_c[1]*a.m_c[4]*b.m_c[0]+-2.0*a.m_c[1]*a.m_c[5]*b.m_c[1]+a.m_c[2]*a.m_c[2]*b.m_c[5]+2.0*a.m_c[2]*a.m_c[3]*b.m_c[0]+-2.0*a.m_c[2]*a.m_c[5]*b.m_c[2]-a.m_c[3]*a.m_c[3]*b.m_c[5]+2.0*a.m_c[3]*a.m_c[5]*b.m_c[3]-a.m_c[4]*a.m_c[4]*b.m_c[5]+2.0*a.m_c[4]*a.m_c[5]*b.m_c[4]+a.m_c[5]*a.m_c[5]*b.m_c[5]) // g2_g3
+		);
+}
+mv applyVersorWI(const mv &a, const mv &b, const mv &c)
+{
+	return extractGrade(gp(gp(a, b), c), b.gu());
+}
+mv div(const mv &a, const double b)
+{
+	int idx = 0;
+	int gu = a.gu();
+	double c[16];
+	
+	if (a.gu() & 1) {
+		copyDiv_0(a.getC() + idx, c + idx, b);
+		idx += 1;
+	}
+	
+	if (a.gu() & 2) {
+		copyDiv_1(a.getC() + idx, c + idx, b);
+		idx += 4;
+	}
+	
+	if (a.gu() & 4) {
+		copyDiv_2(a.getC() + idx, c + idx, b);
+		idx += 6;
+	}
+	
+	if (a.gu() & 8) {
+		copyDiv_3(a.getC() + idx, c + idx, b);
+		idx += 4;
+	}
+	
+	if (a.gu() & 16) {
+		copyDiv_4(a.getC() + idx, c + idx, b);
+	}
+	return mv(gu, c);
+}
+mv dual(const mv &a)
+{
+	int idx = 0;
+	double c[16];
+	m4sta::zero_16(c);
+	if (a.gu() & 1) {
+		dual_default_0_4(a.getC() + idx, c + 15);
+		idx += 1;
+	}
+	
+	if (a.gu() & 2) {
+		dual_default_1_3(a.getC() + idx, c + 11);
+		idx += 4;
+	}
+	
+	if (a.gu() & 4) {
+		dual_default_2_2(a.getC() + idx, c + 5);
+		idx += 6;
+	}
+	
+	if (a.gu() & 8) {
+		dual_default_3_1(a.getC() + idx, c + 1);
+		idx += 4;
+	}
+	
+	if (a.gu() & 16) {
+		dual_default_4_0(a.getC() + idx, c + 0);
+	}
+	
+	return mv_compress(c, 0.0, 31);
+}
+mv undual(const mv &a)
+{
+	int idx = 0;
+	double c[16];
+	m4sta::zero_16(c);
+	if (a.gu() & 1) {
+		undual_default_0_4(a.getC() + idx, c + 15);
+		idx += 1;
+	}
+	
+	if (a.gu() & 2) {
+		undual_default_1_3(a.getC() + idx, c + 11);
+		idx += 4;
+	}
+	
+	if (a.gu() & 4) {
+		undual_default_2_2(a.getC() + idx, c + 5);
+		idx += 6;
+	}
+	
+	if (a.gu() & 8) {
+		undual_default_3_1(a.getC() + idx, c + 1);
+		idx += 4;
+	}
+	
+	if (a.gu() & 16) {
+		undual_default_4_0(a.getC() + idx, c + 0);
+	}
+	
+	return mv_compress(c, 0.0, 31);
+}
+bool equals(const mv &a, const mv &b, const double c)
+{
+	int aidx = 0, bidx = 0;
+	
+	if (a.gu() & 1) {
+		if (b.gu() & 1) {
+			if (!equals_0_0(a.getC() + aidx, b.getC() + bidx, c)) return false;
+			bidx += 1;
+		}
+		else if (!zeroGroup_0(a.getC() + bidx, c)) return false;
+		aidx += 1;
+	}
+	else if (b.gu() & 1) {
+		if (!zeroGroup_0(b.getC() + bidx, c)) return false;
+		bidx += 1;
+	}
+	
+	if (a.gu() & 2) {
+		if (b.gu() & 2) {
+			if (!equals_1_1(a.getC() + aidx, b.getC() + bidx, c)) return false;
+			bidx += 4;
+		}
+		else if (!zeroGroup_1(a.getC() + bidx, c)) return false;
+		aidx += 4;
+	}
+	else if (b.gu() & 2) {
+		if (!zeroGroup_1(b.getC() + bidx, c)) return false;
+		bidx += 4;
+	}
+	
+	if (a.gu() & 4) {
+		if (b.gu() & 4) {
+			if (!equals_2_2(a.getC() + aidx, b.getC() + bidx, c)) return false;
+			bidx += 6;
+		}
+		else if (!zeroGroup_2(a.getC() + bidx, c)) return false;
+		aidx += 6;
+	}
+	else if (b.gu() & 4) {
+		if (!zeroGroup_2(b.getC() + bidx, c)) return false;
+		bidx += 6;
+	}
+	
+	if (a.gu() & 8) {
+		if (b.gu() & 8) {
+			if (!equals_3_3(a.getC() + aidx, b.getC() + bidx, c)) return false;
+			bidx += 4;
+		}
+		else if (!zeroGroup_3(a.getC() + bidx, c)) return false;
+		aidx += 4;
+	}
+	else if (b.gu() & 8) {
+		if (!zeroGroup_3(b.getC() + bidx, c)) return false;
+		bidx += 4;
+	}
+	
+	if (a.gu() & 16) {
+		if (b.gu() & 16) {
+			if (!equals_4_4(a.getC() + aidx, b.getC() + bidx, c)) return false;
+		}
+		else if (!zeroGroup_4(a.getC() + bidx, c)) return false;
+	}
+	else if (b.gu() & 16) {
+		if (!zeroGroup_4(b.getC() + bidx, c)) return false;
+	}
+	return true;
+}
+mv extractGrade(const mv &a, int groupBitmap)
+{
+	int aidx = 0, cidx = 0;
+	int gu =  a.gu() & groupBitmap;
+	double c[16];
+	
+	if (a.gu() & 1) {
+		if (groupBitmap & 1) {
+			copyGroup_0(a.getC() + aidx, c + cidx);
+			cidx += 1;
+		}
+		aidx += 1;
+	}
+	
+	if (a.gu() & 2) {
+		if (groupBitmap & 2) {
+			copyGroup_1(a.getC() + aidx, c + cidx);
+			cidx += 4;
+		}
+		aidx += 4;
+	}
+	
+	if (a.gu() & 4) {
+		if (groupBitmap & 4) {
+			copyGroup_2(a.getC() + aidx, c + cidx);
+			cidx += 6;
+		}
+		aidx += 6;
+	}
+	
+	if (a.gu() & 8) {
+		if (groupBitmap & 8) {
+			copyGroup_3(a.getC() + aidx, c + cidx);
+			cidx += 4;
+		}
+		aidx += 4;
+	}
+	
+	if (a.gu() & 16) {
+		if (groupBitmap & 16) {
+			copyGroup_4(a.getC() + aidx, c + cidx);
+		}
+	}
+	return mv(gu, c);
+}
 mv gp(const mv &a, const mv &b)
 {
 	double c[16];
@@ -2775,5 +3125,1445 @@ mv gp(const mv &a, const mv &b)
 		}
 	}
 	return mv_compress(c, 0.0, 31);
+}
+bivector gp(const bivector &a, const bivector &b)
+{
+	return bivector(bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3,
+			(a.m_c[1]*b.m_c[3]+a.m_c[2]*b.m_c[4]-a.m_c[3]*b.m_c[1]-a.m_c[4]*b.m_c[2]), // g0_g1
+			(-a.m_c[0]*b.m_c[3]+a.m_c[2]*b.m_c[5]+a.m_c[3]*b.m_c[0]-a.m_c[5]*b.m_c[2]), // g0_g2
+			(-a.m_c[0]*b.m_c[4]-a.m_c[1]*b.m_c[5]+a.m_c[4]*b.m_c[0]+a.m_c[5]*b.m_c[1]), // g0_g3
+			(-a.m_c[0]*b.m_c[1]+a.m_c[1]*b.m_c[0]+a.m_c[4]*b.m_c[5]-a.m_c[5]*b.m_c[4]), // g1_g2
+			(-a.m_c[0]*b.m_c[2]+a.m_c[2]*b.m_c[0]-a.m_c[3]*b.m_c[5]+a.m_c[5]*b.m_c[3]), // g1_g3
+			(-a.m_c[1]*b.m_c[2]+a.m_c[2]*b.m_c[1]+a.m_c[3]*b.m_c[4]-a.m_c[4]*b.m_c[3]) // g2_g3
+		);
+
+}
+mv gp(const double a, const mv &b)
+{
+	double c[16];
+	const double* _a[1] = {&a};
+	const double* _b[5];
+	b.expand(_b);
+	m4sta::zero_16(c);
+		if (b.gu() & 1) {
+			gp_default_0_0_0(_a[0], _b[0], c + 0);
+		}
+		if (b.gu() & 2) {
+			gp_default_0_1_1(_a[0], _b[1], c + 1);
+		}
+		if (b.gu() & 4) {
+			gp_default_0_2_2(_a[0], _b[2], c + 5);
+		}
+		if (b.gu() & 8) {
+			gp_default_0_3_3(_a[0], _b[3], c + 11);
+		}
+		if (b.gu() & 16) {
+			gp_default_0_4_4(_a[0], _b[4], c + 15);
+		}
+	return mv_compress(c, 0.0, 31);
+}
+mv gp(const mv &a, const double b)
+{
+	double c[16];
+	const double* _a[5];
+	const double* _b[1] = {&b};
+	a.expand(_a);
+	m4sta::zero_16(c);
+	if (a.gu() & 1) {
+			gp_default_0_0_0(_a[0], _b[0], c + 0);
+	}
+	if (a.gu() & 2) {
+			gp_default_1_0_1(_a[1], _b[0], c + 1);
+	}
+	if (a.gu() & 4) {
+			gp_default_2_0_2(_a[2], _b[0], c + 5);
+	}
+	if (a.gu() & 8) {
+			gp_default_3_0_3(_a[3], _b[0], c + 11);
+	}
+	if (a.gu() & 16) {
+			gp_default_4_0_4(_a[4], _b[0], c + 15);
+	}
+	return mv_compress(c, 0.0, 31);
+}
+bivector gp(const double a, const bivector &b)
+{
+	return bivector(bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3,
+			a*b.m_c[0], // g0_g1
+			a*b.m_c[1], // g0_g2
+			a*b.m_c[2], // g0_g3
+			a*b.m_c[3], // g1_g2
+			a*b.m_c[4], // g1_g3
+			a*b.m_c[5] // g2_g3
+		);
+
+}
+mv igp(const mv &a, const mv &b)
+{
+	
+	double _N2_ = norm2_returns_scalar(b);
+	return div(
+		gp(a, reverse(b)),
+		_N2_);
+}
+mv hip(const mv &a, const mv &b)
+{
+	double c[16];
+	const double* _a[5];
+	const double* _b[5];
+	a.expand(_a);
+	b.expand(_b);
+	m4sta::zero_16(c);
+	if (a.gu() & 2) {
+		if (b.gu() & 2) {
+			gp_default_1_1_0(_a[1], _b[1], c + 0);
+		}
+		if (b.gu() & 4) {
+			gp_default_1_2_1(_a[1], _b[2], c + 1);
+		}
+		if (b.gu() & 8) {
+			gp_default_1_3_2(_a[1], _b[3], c + 5);
+		}
+		if (b.gu() & 16) {
+			gp_default_1_4_3(_a[1], _b[4], c + 11);
+		}
+	}
+	if (a.gu() & 4) {
+		if (b.gu() & 2) {
+			gp_default_2_1_1(_a[2], _b[1], c + 1);
+		}
+		if (b.gu() & 4) {
+			gp_default_2_2_0(_a[2], _b[2], c + 0);
+		}
+		if (b.gu() & 8) {
+			gp_default_2_3_1(_a[2], _b[3], c + 1);
+		}
+		if (b.gu() & 16) {
+			gp_default_2_4_2(_a[2], _b[4], c + 5);
+		}
+	}
+	if (a.gu() & 8) {
+		if (b.gu() & 2) {
+			gp_default_3_1_2(_a[3], _b[1], c + 5);
+		}
+		if (b.gu() & 4) {
+			gp_default_3_2_1(_a[3], _b[2], c + 1);
+		}
+		if (b.gu() & 8) {
+			gp_default_3_3_0(_a[3], _b[3], c + 0);
+		}
+		if (b.gu() & 16) {
+			gp_default_3_4_1(_a[3], _b[4], c + 1);
+		}
+	}
+	if (a.gu() & 16) {
+		if (b.gu() & 2) {
+			gp_default_4_1_3(_a[4], _b[1], c + 11);
+		}
+		if (b.gu() & 4) {
+			gp_default_4_2_2(_a[4], _b[2], c + 5);
+		}
+		if (b.gu() & 8) {
+			gp_default_4_3_1(_a[4], _b[3], c + 1);
+		}
+		if (b.gu() & 16) {
+			gp_default_4_4_0(_a[4], _b[4], c + 0);
+		}
+	}
+	return mv_compress(c, 0.0, 31);
+}
+scalar hip(const bivector &a, const bivector &b)
+{
+	return scalar(scalar::coord_scalar,
+			(a.m_c[0]*b.m_c[0]+a.m_c[1]*b.m_c[1]+a.m_c[2]*b.m_c[2]-a.m_c[3]*b.m_c[3]-a.m_c[4]*b.m_c[4]-a.m_c[5]*b.m_c[5]) // scalar
+		);
+
+}
+mv mhip(const mv &a, const mv &b)
+{
+	double c[16];
+	const double* _a[5];
+	const double* _b[5];
+	a.expand(_a);
+	b.expand(_b);
+	m4sta::zero_16(c);
+	if (a.gu() & 1) {
+		if (b.gu() & 1) {
+			gp_default_0_0_0(_a[0], _b[0], c + 0);
+		}
+		if (b.gu() & 2) {
+			gp_default_0_1_1(_a[0], _b[1], c + 1);
+		}
+		if (b.gu() & 4) {
+			gp_default_0_2_2(_a[0], _b[2], c + 5);
+		}
+		if (b.gu() & 8) {
+			gp_default_0_3_3(_a[0], _b[3], c + 11);
+		}
+		if (b.gu() & 16) {
+			gp_default_0_4_4(_a[0], _b[4], c + 15);
+		}
+	}
+	if (a.gu() & 2) {
+		if (b.gu() & 1) {
+			gp_default_1_0_1(_a[1], _b[0], c + 1);
+		}
+		if (b.gu() & 2) {
+			gp_default_1_1_0(_a[1], _b[1], c + 0);
+		}
+		if (b.gu() & 4) {
+			gp_default_1_2_1(_a[1], _b[2], c + 1);
+		}
+		if (b.gu() & 8) {
+			gp_default_1_3_2(_a[1], _b[3], c + 5);
+		}
+		if (b.gu() & 16) {
+			gp_default_1_4_3(_a[1], _b[4], c + 11);
+		}
+	}
+	if (a.gu() & 4) {
+		if (b.gu() & 1) {
+			gp_default_2_0_2(_a[2], _b[0], c + 5);
+		}
+		if (b.gu() & 2) {
+			gp_default_2_1_1(_a[2], _b[1], c + 1);
+		}
+		if (b.gu() & 4) {
+			gp_default_2_2_0(_a[2], _b[2], c + 0);
+		}
+		if (b.gu() & 8) {
+			gp_default_2_3_1(_a[2], _b[3], c + 1);
+		}
+		if (b.gu() & 16) {
+			gp_default_2_4_2(_a[2], _b[4], c + 5);
+		}
+	}
+	if (a.gu() & 8) {
+		if (b.gu() & 1) {
+			gp_default_3_0_3(_a[3], _b[0], c + 11);
+		}
+		if (b.gu() & 2) {
+			gp_default_3_1_2(_a[3], _b[1], c + 5);
+		}
+		if (b.gu() & 4) {
+			gp_default_3_2_1(_a[3], _b[2], c + 1);
+		}
+		if (b.gu() & 8) {
+			gp_default_3_3_0(_a[3], _b[3], c + 0);
+		}
+		if (b.gu() & 16) {
+			gp_default_3_4_1(_a[3], _b[4], c + 1);
+		}
+	}
+	if (a.gu() & 16) {
+		if (b.gu() & 1) {
+			gp_default_4_0_4(_a[4], _b[0], c + 15);
+		}
+		if (b.gu() & 2) {
+			gp_default_4_1_3(_a[4], _b[1], c + 11);
+		}
+		if (b.gu() & 4) {
+			gp_default_4_2_2(_a[4], _b[2], c + 5);
+		}
+		if (b.gu() & 8) {
+			gp_default_4_3_1(_a[4], _b[3], c + 1);
+		}
+		if (b.gu() & 16) {
+			gp_default_4_4_0(_a[4], _b[4], c + 0);
+		}
+	}
+	return mv_compress(c, 0.0, 31);
+}
+mv lc(const mv &a, const mv &b)
+{
+	double c[16];
+	const double* _a[5];
+	const double* _b[5];
+	a.expand(_a);
+	b.expand(_b);
+	m4sta::zero_16(c);
+	if (a.gu() & 1) {
+		if (b.gu() & 1) {
+			gp_default_0_0_0(_a[0], _b[0], c + 0);
+		}
+		if (b.gu() & 2) {
+			gp_default_0_1_1(_a[0], _b[1], c + 1);
+		}
+		if (b.gu() & 4) {
+			gp_default_0_2_2(_a[0], _b[2], c + 5);
+		}
+		if (b.gu() & 8) {
+			gp_default_0_3_3(_a[0], _b[3], c + 11);
+		}
+		if (b.gu() & 16) {
+			gp_default_0_4_4(_a[0], _b[4], c + 15);
+		}
+	}
+	if (a.gu() & 2) {
+		if (b.gu() & 2) {
+			gp_default_1_1_0(_a[1], _b[1], c + 0);
+		}
+		if (b.gu() & 4) {
+			gp_default_1_2_1(_a[1], _b[2], c + 1);
+		}
+		if (b.gu() & 8) {
+			gp_default_1_3_2(_a[1], _b[3], c + 5);
+		}
+		if (b.gu() & 16) {
+			gp_default_1_4_3(_a[1], _b[4], c + 11);
+		}
+	}
+	if (a.gu() & 4) {
+		if (b.gu() & 4) {
+			gp_default_2_2_0(_a[2], _b[2], c + 0);
+		}
+		if (b.gu() & 8) {
+			gp_default_2_3_1(_a[2], _b[3], c + 1);
+		}
+		if (b.gu() & 16) {
+			gp_default_2_4_2(_a[2], _b[4], c + 5);
+		}
+	}
+	if (a.gu() & 8) {
+		if (b.gu() & 8) {
+			gp_default_3_3_0(_a[3], _b[3], c + 0);
+		}
+		if (b.gu() & 16) {
+			gp_default_3_4_1(_a[3], _b[4], c + 1);
+		}
+	}
+	if (a.gu() & 16) {
+		if (b.gu() & 16) {
+			gp_default_4_4_0(_a[4], _b[4], c + 0);
+		}
+	}
+	return mv_compress(c, 0.0, 31);
+}
+mv rc(const mv &a, const mv &b)
+{
+	double c[16];
+	const double* _a[5];
+	const double* _b[5];
+	a.expand(_a);
+	b.expand(_b);
+	m4sta::zero_16(c);
+	if (a.gu() & 1) {
+		if (b.gu() & 1) {
+			gp_default_0_0_0(_a[0], _b[0], c + 0);
+		}
+	}
+	if (a.gu() & 2) {
+		if (b.gu() & 1) {
+			gp_default_1_0_1(_a[1], _b[0], c + 1);
+		}
+		if (b.gu() & 2) {
+			gp_default_1_1_0(_a[1], _b[1], c + 0);
+		}
+	}
+	if (a.gu() & 4) {
+		if (b.gu() & 1) {
+			gp_default_2_0_2(_a[2], _b[0], c + 5);
+		}
+		if (b.gu() & 2) {
+			gp_default_2_1_1(_a[2], _b[1], c + 1);
+		}
+		if (b.gu() & 4) {
+			gp_default_2_2_0(_a[2], _b[2], c + 0);
+		}
+	}
+	if (a.gu() & 8) {
+		if (b.gu() & 1) {
+			gp_default_3_0_3(_a[3], _b[0], c + 11);
+		}
+		if (b.gu() & 2) {
+			gp_default_3_1_2(_a[3], _b[1], c + 5);
+		}
+		if (b.gu() & 4) {
+			gp_default_3_2_1(_a[3], _b[2], c + 1);
+		}
+		if (b.gu() & 8) {
+			gp_default_3_3_0(_a[3], _b[3], c + 0);
+		}
+	}
+	if (a.gu() & 16) {
+		if (b.gu() & 1) {
+			gp_default_4_0_4(_a[4], _b[0], c + 15);
+		}
+		if (b.gu() & 2) {
+			gp_default_4_1_3(_a[4], _b[1], c + 11);
+		}
+		if (b.gu() & 4) {
+			gp_default_4_2_2(_a[4], _b[2], c + 5);
+		}
+		if (b.gu() & 8) {
+			gp_default_4_3_1(_a[4], _b[3], c + 1);
+		}
+		if (b.gu() & 16) {
+			gp_default_4_4_0(_a[4], _b[4], c + 0);
+		}
+	}
+	return mv_compress(c, 0.0, 31);
+}
+double sp(const mv &a, const mv &b)
+{
+	double c[1];
+	const double* _a[5];
+	const double* _b[5];
+	a.expand(_a);
+	b.expand(_b);
+	m4sta::zero_1(c);
+	if (a.gu() & 1) {
+		if (b.gu() & 1) {
+			gp_default_0_0_0(_a[0], _b[0], c + 0);
+		}
+	}
+	if (a.gu() & 2) {
+		if (b.gu() & 2) {
+			gp_default_1_1_0(_a[1], _b[1], c + 0);
+		}
+	}
+	if (a.gu() & 4) {
+		if (b.gu() & 4) {
+			gp_default_2_2_0(_a[2], _b[2], c + 0);
+		}
+	}
+	if (a.gu() & 8) {
+		if (b.gu() & 8) {
+			gp_default_3_3_0(_a[3], _b[3], c + 0);
+		}
+	}
+	if (a.gu() & 16) {
+		if (b.gu() & 16) {
+			gp_default_4_4_0(_a[4], _b[4], c + 0);
+		}
+	}
+	return c[0];
+}
+double sp(const bivector &a, const bivector &b)
+{
+	return (a.m_c[0]*b.m_c[0]+a.m_c[1]*b.m_c[1]+a.m_c[2]*b.m_c[2]-a.m_c[3]*b.m_c[3]-a.m_c[4]*b.m_c[4]-a.m_c[5]*b.m_c[5]);
+
+}
+double sp(const double a, const mv &b)
+{
+	double c[1];
+	const double* _a[1] = {&a};
+	const double* _b[5];
+	b.expand(_b);
+	m4sta::zero_1(c);
+		if (b.gu() & 1) {
+			gp_default_0_0_0(_a[0], _b[0], c + 0);
+		}
+	return c[0];
+}
+scalar norm(const mv &a)
+{
+	double c[1];
+	double n2 = 0.0;
+	int idx = 0;
+	
+	if (a.gu() & 1) { /* group 0 (grade 0) */
+		c[0] = 0.0;
+		gp_default_0_0_0(a.getC() + idx, a.getC() + idx, c);
+		n2 += c[0];
+		idx += 1;
+	}
+	
+	if (a.gu() & 2) { /* group 1 (grade 1) */
+		c[0] = 0.0;
+		gp_default_1_1_0(a.getC() + idx, a.getC() + idx, c);
+		n2 += c[0];
+		idx += 4;
+	}
+	
+	if (a.gu() & 4) { /* group 2 (grade 2) */
+		c[0] = 0.0;
+		gp_default_2_2_0(a.getC() + idx, a.getC() + idx, c);
+		n2 -= c[0];
+		idx += 6;
+	}
+	
+	if (a.gu() & 8) { /* group 3 (grade 3) */
+		c[0] = 0.0;
+		gp_default_3_3_0(a.getC() + idx, a.getC() + idx, c);
+		n2 -= c[0];
+		idx += 4;
+	}
+	
+	if (a.gu() & 16) { /* group 4 (grade 4) */
+		c[0] = 0.0;
+		gp_default_4_4_0(a.getC() + idx, a.getC() + idx, c);
+		n2 += c[0];
+	}
+	return scalar(scalar::coord_scalar,
+			((n2 < 0.0) ? ::sqrt(-n2) : ::sqrt(n2)) // scalar
+		);
+}
+double norm_returns_scalar(const mv &a) {
+	scalar tmp(norm(a));
+	return tmp.m_c[0];
+}
+scalar norm(const scalar &a)
+{
+	return scalar(scalar::coord_scalar,
+			::fabs(::sqrt(::fabs(a.m_c[0]*a.m_c[0]))) // scalar
+		);
+
+}
+double norm_returns_scalar(const scalar &a) {
+	scalar tmp(norm(a));
+	return tmp.m_c[0];
+}
+scalar norm(const vector &a)
+{
+	return scalar(scalar::coord_scalar,
+			::fabs(::sqrt(::fabs((a.m_c[0]*a.m_c[0]-a.m_c[1]*a.m_c[1]-a.m_c[2]*a.m_c[2]-a.m_c[3]*a.m_c[3])))) // scalar
+		);
+
+}
+double norm_returns_scalar(const vector &a) {
+	scalar tmp(norm(a));
+	return tmp.m_c[0];
+}
+scalar norm(const bivector &a)
+{
+	return scalar(scalar::coord_scalar,
+			::fabs(::sqrt(::fabs((-a.m_c[0]*a.m_c[0]-a.m_c[1]*a.m_c[1]-a.m_c[2]*a.m_c[2]+a.m_c[3]*a.m_c[3]+a.m_c[4]*a.m_c[4]+a.m_c[5]*a.m_c[5])))) // scalar
+		);
+
+}
+double norm_returns_scalar(const bivector &a) {
+	scalar tmp(norm(a));
+	return tmp.m_c[0];
+}
+scalar norm2(const mv &a)
+{
+	double c[1];
+	double n2 = 0.0;
+	int idx = 0;
+	
+	if (a.gu() & 1) { /* group 0 (grade 0) */
+		c[0] = 0.0;
+		gp_default_0_0_0(a.getC() + idx, a.getC() + idx, c);
+		n2 += c[0];
+		idx += 1;
+	}
+	
+	if (a.gu() & 2) { /* group 1 (grade 1) */
+		c[0] = 0.0;
+		gp_default_1_1_0(a.getC() + idx, a.getC() + idx, c);
+		n2 += c[0];
+		idx += 4;
+	}
+	
+	if (a.gu() & 4) { /* group 2 (grade 2) */
+		c[0] = 0.0;
+		gp_default_2_2_0(a.getC() + idx, a.getC() + idx, c);
+		n2 -= c[0];
+		idx += 6;
+	}
+	
+	if (a.gu() & 8) { /* group 3 (grade 3) */
+		c[0] = 0.0;
+		gp_default_3_3_0(a.getC() + idx, a.getC() + idx, c);
+		n2 -= c[0];
+		idx += 4;
+	}
+	
+	if (a.gu() & 16) { /* group 4 (grade 4) */
+		c[0] = 0.0;
+		gp_default_4_4_0(a.getC() + idx, a.getC() + idx, c);
+		n2 += c[0];
+	}
+	return scalar(scalar::coord_scalar,
+			n2 // scalar
+		);
+}
+double norm2_returns_scalar(const mv &a) {
+	scalar tmp(norm2(a));
+	return tmp.m_c[0];
+}
+scalar norm2(const bivector &a)
+{
+	return scalar(scalar::coord_scalar,
+			(-a.m_c[0]*a.m_c[0]-a.m_c[1]*a.m_c[1]-a.m_c[2]*a.m_c[2]+a.m_c[3]*a.m_c[3]+a.m_c[4]*a.m_c[4]+a.m_c[5]*a.m_c[5]) // scalar
+		);
+
+}
+double norm2_returns_scalar(const bivector &a) {
+	scalar tmp(norm2(a));
+	return tmp.m_c[0];
+}
+mv op(const mv &a, const mv &b)
+{
+	double c[16];
+	const double* _a[5];
+	const double* _b[5];
+	a.expand(_a);
+	b.expand(_b);
+	m4sta::zero_16(c);
+	if (a.gu() & 1) {
+		if (b.gu() & 1) {
+			gp_default_0_0_0(_a[0], _b[0], c + 0);
+		}
+		if (b.gu() & 2) {
+			gp_default_0_1_1(_a[0], _b[1], c + 1);
+		}
+		if (b.gu() & 4) {
+			gp_default_0_2_2(_a[0], _b[2], c + 5);
+		}
+		if (b.gu() & 8) {
+			gp_default_0_3_3(_a[0], _b[3], c + 11);
+		}
+		if (b.gu() & 16) {
+			gp_default_0_4_4(_a[0], _b[4], c + 15);
+		}
+	}
+	if (a.gu() & 2) {
+		if (b.gu() & 1) {
+			gp_default_1_0_1(_a[1], _b[0], c + 1);
+		}
+		if (b.gu() & 2) {
+			gp_default_1_1_2(_a[1], _b[1], c + 5);
+		}
+		if (b.gu() & 4) {
+			gp_default_1_2_3(_a[1], _b[2], c + 11);
+		}
+		if (b.gu() & 8) {
+			gp_default_1_3_4(_a[1], _b[3], c + 15);
+		}
+	}
+	if (a.gu() & 4) {
+		if (b.gu() & 1) {
+			gp_default_2_0_2(_a[2], _b[0], c + 5);
+		}
+		if (b.gu() & 2) {
+			gp_default_2_1_3(_a[2], _b[1], c + 11);
+		}
+		if (b.gu() & 4) {
+			gp_default_2_2_4(_a[2], _b[2], c + 15);
+		}
+	}
+	if (a.gu() & 8) {
+		if (b.gu() & 1) {
+			gp_default_3_0_3(_a[3], _b[0], c + 11);
+		}
+		if (b.gu() & 2) {
+			gp_default_3_1_4(_a[3], _b[1], c + 15);
+		}
+	}
+	if (a.gu() & 16) {
+		if (b.gu() & 1) {
+			gp_default_4_0_4(_a[4], _b[0], c + 15);
+		}
+	}
+	return mv_compress(c, 0.0, 31);
+}
+pseudoscalar op(const bivector &a, const bivector &b)
+{
+	return pseudoscalar(pseudoscalar::coord_g0g1g2g3,
+			(a.m_c[0]*b.m_c[5]-a.m_c[1]*b.m_c[4]+a.m_c[2]*b.m_c[3]+a.m_c[3]*b.m_c[2]-a.m_c[4]*b.m_c[1]+a.m_c[5]*b.m_c[0]) // g0_g1_g2_g3
+		);
+
+}
+
+
+mv random_blade(double scale, int grade, int basisVectorBitmap) {
+	double minimumNorm = 0.01;
+	double largestCoordinate = 4.0;
+	return random_blade_ex(scale, grade, basisVectorBitmap, minimumNorm, scale * largestCoordinate);
+}
+
+mv random_blade_ex(double scale, int _grade, int basisVectorBitmap, 
+		double minimumNorm, double largestCoordinate) 
+{
+	mv randomVector, tmp1, tmp2;
+	mv *IR1 = &tmp1, *IR2 = &tmp2; // IR = intermediate result
+	double randomValues[4];
+	double n2, mul;
+	int i;
+	int grade = _grade;
+	
+	// set IR1 (intermediate result) to 1
+	IR1->set(1.0);
+
+	while (grade > 0) {	// loop until grade == 0
+		// fill array with random values
+		for (i = 0; i < 4; i++) 
+			randomValues[i] = (basisVectorBitmap & (1 << i))
+				? (-1.0 + 2.0 * genrand())
+				: 0.0;
+		
+		// make it a multivector:
+		randomVector.set(GRADE_1, randomValues);
+		
+		// multiply 
+		(*IR2) = op(*IR1, randomVector);
+		
+		// swap IR pointers: 
+		std::swap(IR1, IR2);
+		
+		// lower grade
+		grade--;
+	}
+	
+	// compute norm/multiplier, apply it, or recurse if we happened to create a near-null versor
+	n2 = norm_returns_scalar(*IR1);
+	if ((double)fabs(n2) > minimumNorm * minimumNorm) {
+		if (n2 != 0.0) {
+			mul = scale * genrand() / n2;
+			if (IR1->largestCoordinate() * mul < largestCoordinate)
+				return gp(*IR1, mul);
+		}
+		else if (IR1->largestCoordinate() < largestCoordinate)
+			return *IR1;
+	}
+	
+	// try again:
+	return random_blade_ex(scale, _grade, basisVectorBitmap, minimumNorm, largestCoordinate); 
+}
+
+
+mv random_versor(double scale, int grade, int basisVectorBitmap) {
+	double minimumNorm = 0.01;
+	double largestCoordinate = 4.0;
+	return random_versor_ex(scale, grade, basisVectorBitmap, minimumNorm, scale * largestCoordinate);
+}
+
+mv random_versor_ex(double scale, int _grade, int basisVectorBitmap, 
+		double minimumNorm, double largestCoordinate) 
+{
+	mv randomVector, tmp1, tmp2;
+	mv *IR1 = &tmp1, *IR2 = &tmp2; // IR = intermediate result
+	double randomValues[4];
+	double n2, mul;
+	int i;
+	int grade = _grade;
+	
+	// set IR1 (intermediate result) to 1
+	IR1->set(1.0);
+
+	while (grade > 0) {	// loop until grade == 0
+		// fill array with random values
+		for (i = 0; i < 4; i++) 
+			randomValues[i] = (basisVectorBitmap & (1 << i))
+				? (-1.0 + 2.0 * genrand())
+				: 0.0;
+		
+		// make it a multivector:
+		randomVector.set(GRADE_1, randomValues);
+		
+		// multiply 
+		(*IR2) = gp(*IR1, randomVector);
+		
+		// swap IR pointers: 
+		std::swap(IR1, IR2);
+		
+		// lower grade
+		grade--;
+	}
+	
+	// compute norm/multiplier, apply it, or recurse if we happened to create a near-null versor
+	n2 = norm_returns_scalar(*IR1);
+	if ((double)fabs(n2) > minimumNorm * minimumNorm) {
+		if (n2 != 0.0) {
+			mul = scale * genrand() / n2;
+			if (IR1->largestCoordinate() * mul < largestCoordinate)
+				return gp(*IR1, mul);
+		}
+		else if (IR1->largestCoordinate() < largestCoordinate)
+			return *IR1;
+	}
+	
+	// try again:
+	return random_versor_ex(scale, _grade, basisVectorBitmap, minimumNorm, largestCoordinate); 
+}
+scalar random_scalar_ex(const double scale, const double minimumNorm, const double largestCoordinate)
+{
+	scalar tmp;
+	double n, mul, lc;
+	bool nullBlade;
+	double rscalar = -1.0 + 2.0 * genrand();
+	tmp.m_c[0] = rscalar;
+
+	n = norm_returns_scalar(tmp);
+	lc = tmp.largestCoordinate();
+	nullBlade = ((n == 0.0) && (lc != 0.0));
+	// Recurse if generated random value has a norm below user-supplied limit, unless this is a null blade
+	if ((n < minimumNorm) && (!nullBlade)) {
+		return random_scalar_ex(scale, minimumNorm, largestCoordinate);
+	}
+	// Compute multiplier
+	if (n < 0,0001.0) {
+		mul = 1.0;
+	}
+	else {
+		mul = scale * (-1.0 + 2.0 * genrand()) / n;
+		// Test largest coordinate
+		if ((lc * ::fabs(mul)) > largestCoordinate ) {
+			return random_scalar_ex(scale, minimumNorm, largestCoordinate);
+		}
+	}
+	// Apply multiplier, return
+	return scalar(scalar::coord_scalar,
+			mul*tmp.m_c[0] // scalar
+		);
+}
+scalar random_scalar(const double scale)
+{
+	double minimumNorm = 0.0001;
+	double largestCoordinate = 4.0;
+	return random_scalar_ex(scale, minimumNorm, scale * largestCoordinate);
+}
+bivector random_bivector_ex(const double scale, const double minimumNorm, const double largestCoordinate)
+{
+	bivector tmp;
+	double n, mul, lc;
+	bool nullBlade;
+	double r0_g0 = -1.0 + 2.0 * genrand(), r0_g1 = -1.0 + 2.0 * genrand(), r0_g2 = -1.0 + 2.0 * genrand(), r0_g3 = -1.0 + 2.0 * genrand(), 
+			r1_g0 = -1.0 + 2.0 * genrand(), r1_g1 = -1.0 + 2.0 * genrand(), r1_g2 = -1.0 + 2.0 * genrand(), r1_g3 = -1.0 + 2.0 * genrand();
+	tmp.m_c[0] = (r0_g0*r1_g1-r0_g1*r1_g0);
+	tmp.m_c[1] = (r0_g0*r1_g2-r0_g2*r1_g0);
+	tmp.m_c[2] = (r0_g0*r1_g3-r0_g3*r1_g0);
+	tmp.m_c[3] = (r0_g1*r1_g2-r0_g2*r1_g1);
+	tmp.m_c[4] = (r0_g1*r1_g3-r0_g3*r1_g1);
+	tmp.m_c[5] = (r0_g2*r1_g3-r0_g3*r1_g2);
+
+	n = norm_returns_scalar(tmp);
+	lc = tmp.largestCoordinate();
+	nullBlade = ((n == 0.0) && (lc != 0.0));
+	// Recurse if generated random value has a norm below user-supplied limit, unless this is a null blade
+	if ((n < minimumNorm) && (!nullBlade)) {
+		return random_bivector_ex(scale, minimumNorm, largestCoordinate);
+	}
+	// Compute multiplier
+	if (n < 0,0001.0) {
+		mul = 1.0;
+	}
+	else {
+		mul = scale * (-1.0 + 2.0 * genrand()) / n;
+		// Test largest coordinate
+		if ((lc * ::fabs(mul)) > largestCoordinate ) {
+			return random_bivector_ex(scale, minimumNorm, largestCoordinate);
+		}
+	}
+	// Apply multiplier, return
+	return bivector(bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3,
+			mul*tmp.m_c[0], // g0_g1
+			mul*tmp.m_c[1], // g0_g2
+			mul*tmp.m_c[2], // g0_g3
+			mul*tmp.m_c[3], // g1_g2
+			mul*tmp.m_c[4], // g1_g3
+			mul*tmp.m_c[5] // g2_g3
+		);
+}
+bivector random_bivector(const double scale)
+{
+	double minimumNorm = 0.0001;
+	double largestCoordinate = 4.0;
+	return random_bivector_ex(scale, minimumNorm, scale * largestCoordinate);
+}
+vector random_vector_ex(const double scale, const double minimumNorm, const double largestCoordinate)
+{
+	vector tmp;
+	double n, mul, lc;
+	bool nullBlade;
+	double rg0 = -1.0 + 2.0 * genrand(), rg1 = -1.0 + 2.0 * genrand(), rg2 = -1.0 + 2.0 * genrand(), rg3 = -1.0 + 2.0 * genrand();
+	tmp.m_c[0] = rg0;
+	tmp.m_c[1] = rg1;
+	tmp.m_c[2] = rg2;
+	tmp.m_c[3] = rg3;
+
+	n = norm_returns_scalar(tmp);
+	lc = tmp.largestCoordinate();
+	nullBlade = ((n == 0.0) && (lc != 0.0));
+	// Recurse if generated random value has a norm below user-supplied limit, unless this is a null blade
+	if ((n < minimumNorm) && (!nullBlade)) {
+		return random_vector_ex(scale, minimumNorm, largestCoordinate);
+	}
+	// Compute multiplier
+	if (n < 0,0001.0) {
+		mul = 1.0;
+	}
+	else {
+		mul = scale * (-1.0 + 2.0 * genrand()) / n;
+		// Test largest coordinate
+		if ((lc * ::fabs(mul)) > largestCoordinate ) {
+			return random_vector_ex(scale, minimumNorm, largestCoordinate);
+		}
+	}
+	// Apply multiplier, return
+	return vector(vector::coord_g0_g1_g2_g3,
+			mul*tmp.m_c[0], // g0
+			mul*tmp.m_c[1], // g1
+			mul*tmp.m_c[2], // g2
+			mul*tmp.m_c[3] // g3
+		);
+}
+vector random_vector(const double scale)
+{
+	double minimumNorm = 0.0001;
+	double largestCoordinate = 4.0;
+	return random_vector_ex(scale, minimumNorm, scale * largestCoordinate);
+}
+mv sas(const mv &a, const double b, const double c)
+{
+	int idxa = 0, idxc = 0;
+	int gu = a.gu() | ((c != 0.0) ? GRADE_0 : 0); // '| GRADE_0' to make sure the scalar part is included
+	double C[16];
+	
+	if (a.gu() & 1) {
+		copyMul_0(a.getC() + idxa, C + idxc, b);
+		if (c != 0.0) C[idxc] += c;
+		idxa += 1;
+		idxc += 1;
+	}
+	else if (c != 0.0) {
+		C[idxc] = c;
+		idxc += 1;
+	}
+	
+	if (a.gu() & 2) {
+		copyMul_1(a.getC() + idxa, C + idxc, b);
+		idxa += 4;
+		idxc += 4;
+	}
+	
+	if (a.gu() & 4) {
+		copyMul_2(a.getC() + idxa, C + idxc, b);
+		idxa += 6;
+		idxc += 6;
+	}
+	
+	if (a.gu() & 8) {
+		copyMul_3(a.getC() + idxa, C + idxc, b);
+		idxa += 4;
+		idxc += 4;
+	}
+	
+	if (a.gu() & 16) {
+		copyMul_4(a.getC() + idxa, C + idxc, b);
+	}
+	return mv(gu, C);
+}
+
+
+mv exp(const mv &x, int order /*  = 12 */) {
+	unsigned long maxC;
+	int scale = 1;
+	mv xScaled;
+	mv tmp1, tmp2; // temp mv used for various purposes
+	mv xPow1, xPow2;
+	mv *result1 = &tmp1, *result2 = &tmp2;
+	double s_x2, a;
+	int i;
+   
+	// First try special cases: check if (x * x) is scalar
+	tmp1 = gp(x, x);
+	s_x2 = _double(tmp1);
+	if ((norm2_returns_scalar(tmp1) - s_x2 * s_x2) < 1E-14) {
+		// OK (x * x == ~scalar), so use special cases:
+		if (s_x2 < 0.0) {
+			a = ::sqrt(-s_x2);
+			return sas(x, ::sin(a) / a, ::cos(a));
+		}
+		else if (s_x2 > 0.0) {
+			a = ::sqrt(s_x2);
+			return sas(x, ::sinh(a) / a, ::cosh(a));
+		}
+		else {
+			return sas(x, 1.0, 1.0);
+		}
+	}
+
+	// else do general series eval . . .
+
+	// result = 1 + ....	
+	*result1 = 1.0;
+	if (order == 0) return *result1;
+
+	// find scale (power of 2) such that its norm is < 1
+	maxC = (unsigned long)x.largestCoordinate(); // unsigned type is fine, because largest coordinate is absolute
+	scale = 1;
+	if (maxC > 1) scale <<= 1;
+	while (maxC)
+	{
+		maxC >>= 1;
+		scale <<= 1;
+	}
+
+	// scale
+	xScaled = gp(x, 1.0 / (double)scale); 
+
+	// taylor series approximation
+	xPow1 = 1.0; 
+	for (i = 1; i <= order; i++) {
+		xPow2 = gp(xPow1, xScaled);
+		xPow1 = gp(xPow2, 1.0 / (double)i);
+		
+		*result2 = add(*result1, xPow1); // result2 = result1 + xPow1
+		std::swap(result1, result2); // result is always in 'result1' at end of loop
+    }
+
+	// undo scaling
+	while (scale > 1)
+	{
+		*result2 = gp(*result1, *result1);
+		std::swap(result1, result2); // result is always in 'result1' at end of loop
+		scale >>= 1;
+	}
+    
+    return *result1;
+} // end of exp()
+
+
+
+mv sin(const mv &x, int order) {
+	mv tmp1, tmp2; // temp mv used for various purposes
+	mv xPow1, xPow2; // xScaled^... goes here
+	mv *result1 = &tmp1, *result2 = &tmp2;
+	double s_x2, a;
+	int i;
+   
+	// First try special cases: check if (x * x) is scalar
+	tmp1 = gp(x, x);
+	s_x2 = _double(tmp1);
+	if ((norm2_returns_scalar(tmp1) - s_x2 * s_x2) < 1E-14) {
+		// OK (x * x == ~scalar), so use special cases:
+		if (s_x2 < 0.0) {
+			a = ::sqrt(-s_x2);
+			return sas(x, ::sinh(a) / a, 0.0);
+		}
+		else if (s_x2 > 0.0) {
+			a = ::sqrt(s_x2);
+			return sas(x, ::sin(a) / a, 0.0);
+		}
+		else {
+			return x;
+		}
+	}
+
+	// else do general series eval . . .
+
+	// result = A -  ....	+ ... - ...
+	result1->set(); // result1 = 0;
+    if (order == 0) return *result1;
+    	
+	// taylor series approximation
+	xPow1 = 1.0; // xPow1 = 1.0
+	for (i = 1; i <= order; i++) {
+		xPow2 = gp(xPow1, x); // xPow2 = xPow1 * x
+		
+		xPow1 = gp(xPow2, 1.0 / (double)i); // xPow1 = xScaled^i / i! 
+		
+		if ((i % 4) == 3)
+		{
+			*result2 = subtract(*result1, xPow1); // result2 = result1 - xPow1
+			std::swap(result1, result2); // result is always in 'result1' at end of loop
+		}
+		else if ((i % 4) == 1) 
+		{
+			*result2 = add(*result1, xPow1); // result2 = result1 + xPow1
+			std::swap(result1, result2); // result is always in 'result1' at end of loop
+		}
+	}
+
+	return *result1;
+} // end of sin()
+
+
+mv cos(const mv &x, int order) {
+	mv tmp1, tmp2; // temp mv used for various purposes
+	mv xPow1, xPow2; // xScaled^... goes here
+	mv *result1 = &tmp1, *result2 = &tmp2; // accumulated result goes here (note: 'result1' = 'R')
+	double s_x2;
+	int i;
+   
+	// First try special cases: check if (x * x) is scalar
+	tmp1 = gp(x, x);
+	s_x2 = _double(tmp1);
+	if ((norm2_returns_scalar(tmp1) - s_x2 * s_x2) < 1E-14) {
+		// OK (x * x == ~scalar), so use special cases:
+		if (s_x2 > 0.0) {
+			return mv(::cos(::sqrt(s_x2)));
+		}
+		else if (s_x2 < 0.0) {
+			return mv(::cosh(::sqrt(-s_x2)));
+		}
+		else {
+			return mv(1.0);
+		}
+	}
+
+	// else do general series eval . . .
+
+
+	*result1 = 1.0;
+	if (order == 0) return *result1;
+
+	// taylor series approximation
+	xPow1 = 1.0; // xPow1 = 1.0
+	for (i = 1; i <= order; i++) {
+		xPow2 = gp(xPow1, x); // xPow2 = xPow1 * x
+		xPow1 = gp(xPow2, 1.0 / (double)i); // xPow1 = xScaled^i / i! 
+		
+		if ((i % 4) == 2)
+		{
+			*result2 = subtract(*result1, xPow1); // result2 = result1 - xPow1
+			std::swap(result1, result2); // result is always in 'result1' at end of loop
+		}
+		else if ((i % 4) == 0) 
+		{
+			*result2 = add(*result1, xPow1); // result2 = result1 + xPow1
+			std::swap(result1, result2); // result is always in 'result1' at end of loop
+		}		
+    }
+
+	return *result1;
+} // end of cos()
+
+mv sinh(const mv &x, int order /*  = 12 */) {
+	mv tmp1, tmp2; // temp mv used for various purposes
+	mv xPow1, xPow2; // xScaled^... goes here
+	mv *result1 = &tmp1, *result2 = &tmp2;
+	double s_x2, a;
+	int i;
+   
+	// First try special cases: check if (x * x) is scalar
+	tmp1 = gp(x, x);
+	s_x2 = _double(tmp1);
+	if ((norm2_returns_scalar(tmp1) - s_x2 * s_x2) < 1E-14) {
+		// OK (x * x == ~scalar), so use special cases:
+		if (s_x2 < 0.0) {
+			a = ::sqrt(-s_x2);
+			return sas(x, ::sin(a) / a, 0.0);
+		}
+		else if (s_x2 > 0.0) {
+			a = ::sqrt(s_x2);
+			return sas(x, ::sinh(a) / a, 0.0);
+		}
+		else {
+			return x;
+		}
+	}
+
+	// else do general series eval . . .
+
+	// result = A +  A^3/3! + A^5/5!
+	result1->set(); // result = 0
+    if (order == 0) return *result1;
+    	
+	// taylor series approximation
+	xPow1 = 1.0;
+	for (i = 1; i <= order; i++) {
+		xPow2 = gp(xPow1, x); // xPow2 = xPow1 * x
+		xPow1 = gp(xPow2, 1.0 / (double)i); // xPow1 = xScaled^i / i! 
+		
+		if ((i % 2) == 1) {
+			*result2 = add(*result1, xPow1); 
+			std::swap(result1, result2); 
+		}
+	}
+
+    return *result1;
+} // end of sinh()
+
+
+mv cosh(const mv &x, int order) {
+	mv tmp1, tmp2; // temp mv used for various purposes
+	mv xPow1, xPow2; // xScaled^... goes here
+	mv *result1 = &tmp1, *result2 = &tmp2;
+	double s_x2;
+	int i;
+   
+	// First try special cases: check if (x * x) is scalar
+	tmp1 = gp(x, x);
+	s_x2 = _double(tmp1);
+	if ((norm2_returns_scalar(tmp1) - s_x2 * s_x2) < 1E-14) {
+		// OK (x * x == ~scalar), so use special cases:
+		if (s_x2 > 0.0) {
+			return mv(::cosh(::sqrt(s_x2)));
+		}
+		else if (s_x2 < 0.0) {
+			return mv(::cos(::sqrt(-s_x2)));
+		}
+		else {
+			return mv(1.0);
+		}
+	}
+
+	// else do general series eval . . .
+
+
+	*result1 = 1.0;
+	if (order == 0) return *result1;
+
+	// taylor series approximation
+	xPow1 = 1.0;
+	for (i = 1; i <= order; i++) {
+		xPow2 = gp(xPow1, x);
+		xPow1 = gp(xPow2, 1.0 / (double)i); // xPow1 = xScaled^i / i! 
+		
+		if ((i % 2) == 0) {
+			*result2 = add(*result1, xPow1); 
+			std::swap(result1, result2); // result is always in 'result1' at end of loop		
+		}
+    }
+
+    return *result1;
+} // end of cosh()
+mv negate(const mv &a)
+{
+	int idx = 0;
+	int gu = a.gu();
+	double c[16];
+	
+	if (a.gu() & 1) {
+		neg_0(a.getC() + idx, c + idx);
+		idx += 1;
+	}
+	
+	if (a.gu() & 2) {
+		neg_1(a.getC() + idx, c + idx);
+		idx += 4;
+	}
+	
+	if (a.gu() & 4) {
+		neg_2(a.getC() + idx, c + idx);
+		idx += 6;
+	}
+	
+	if (a.gu() & 8) {
+		neg_3(a.getC() + idx, c + idx);
+		idx += 4;
+	}
+	
+	if (a.gu() & 16) {
+		neg_4(a.getC() + idx, c + idx);
+	}
+	return mv(gu, c);
+}
+mv reverse(const mv &a)
+{
+	int idx = 0;
+	int gu = a.gu();
+	double c[16];
+	
+	if (a.gu() & 1) {
+		copyGroup_0(a.getC() + idx, c + idx);
+		idx += 1;
+	}
+	
+	if (a.gu() & 2) {
+		copyGroup_1(a.getC() + idx, c + idx);
+		idx += 4;
+	}
+	
+	if (a.gu() & 4) {
+		neg_2(a.getC() + idx, c + idx);
+		idx += 6;
+	}
+	
+	if (a.gu() & 8) {
+		neg_3(a.getC() + idx, c + idx);
+		idx += 4;
+	}
+	
+	if (a.gu() & 16) {
+		copyGroup_4(a.getC() + idx, c + idx);
+	}
+	return mv(gu, c);
+}
+bivector reverse(const bivector &a)
+{
+	return bivector(bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3,
+			-a.m_c[0], // g0_g1
+			-a.m_c[1], // g0_g2
+			-a.m_c[2], // g0_g3
+			-a.m_c[3], // g1_g2
+			-a.m_c[4], // g1_g3
+			-a.m_c[5] // g2_g3
+		);
+
+}
+mv cliffordConjugate(const mv &a)
+{
+	int idx = 0;
+	int gu = a.gu();
+	double c[16];
+	
+	if (a.gu() & 1) {
+		copyGroup_0(a.getC() + idx, c + idx);
+		idx += 1;
+	}
+	
+	if (a.gu() & 2) {
+		neg_1(a.getC() + idx, c + idx);
+		idx += 4;
+	}
+	
+	if (a.gu() & 4) {
+		neg_2(a.getC() + idx, c + idx);
+		idx += 6;
+	}
+	
+	if (a.gu() & 8) {
+		copyGroup_3(a.getC() + idx, c + idx);
+		idx += 4;
+	}
+	
+	if (a.gu() & 16) {
+		copyGroup_4(a.getC() + idx, c + idx);
+	}
+	return mv(gu, c);
+}
+bivector cliffordConjugate(const bivector &a)
+{
+	return bivector(bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3,
+			-a.m_c[0], // g0_g1
+			-a.m_c[1], // g0_g2
+			-a.m_c[2], // g0_g3
+			-a.m_c[3], // g1_g2
+			-a.m_c[4], // g1_g3
+			-a.m_c[5] // g2_g3
+		);
+
+}
+mv gradeInvolution(const mv &a)
+{
+	int idx = 0;
+	int gu = a.gu();
+	double c[16];
+	
+	if (a.gu() & 1) {
+		copyGroup_0(a.getC() + idx, c + idx);
+		idx += 1;
+	}
+	
+	if (a.gu() & 2) {
+		neg_1(a.getC() + idx, c + idx);
+		idx += 4;
+	}
+	
+	if (a.gu() & 4) {
+		copyGroup_2(a.getC() + idx, c + idx);
+		idx += 6;
+	}
+	
+	if (a.gu() & 8) {
+		neg_3(a.getC() + idx, c + idx);
+		idx += 4;
+	}
+	
+	if (a.gu() & 16) {
+		copyGroup_4(a.getC() + idx, c + idx);
+	}
+	return mv(gu, c);
+}
+mv unit(const mv &a)
+{
+	int idx = 0;
+	double n = norm_returns_scalar(a);
+	int gu = a.gu();
+	double c[16];
+	
+	if (a.gu() & 1) {
+		copyDiv_0(a.getC() + idx, c + idx, n);
+		idx += 1;
+	}
+	
+	if (a.gu() & 2) {
+		copyDiv_1(a.getC() + idx, c + idx, n);
+		idx += 4;
+	}
+	
+	if (a.gu() & 4) {
+		copyDiv_2(a.getC() + idx, c + idx, n);
+		idx += 6;
+	}
+	
+	if (a.gu() & 8) {
+		copyDiv_3(a.getC() + idx, c + idx, n);
+		idx += 4;
+	}
+	
+	if (a.gu() & 16) {
+		copyDiv_4(a.getC() + idx, c + idx, n);
+	}
+	return mv(gu, c);
+}
+bivector unit(const bivector &a)
+{
+	double _n_ = ::sqrt(::fabs((-a.m_c[0]*a.m_c[0]-a.m_c[1]*a.m_c[1]-a.m_c[2]*a.m_c[2]+a.m_c[3]*a.m_c[3]+a.m_c[4]*a.m_c[4]+a.m_c[5]*a.m_c[5])));
+
+	return bivector(bivector::coord_g0g1_g0g2_g0g3_g1g2_g1g3_g2g3,
+			a.m_c[0]/((_n_)), // g0_g1
+			a.m_c[1]/((_n_)), // g0_g2
+			a.m_c[2]/((_n_)), // g0_g3
+			a.m_c[3]/((_n_)), // g1_g2
+			a.m_c[4]/((_n_)), // g1_g3
+			a.m_c[5]/((_n_)) // g2_g3
+		);
+}
+mv versorInverse(const mv &a)
+{
+	int idx = 0;
+	double n2 = norm2_returns_scalar(a);
+	int gu = a.gu();
+	double c[16];
+	
+	if (a.gu() & 1) {
+		copyDiv_0(a.getC() + idx, c + idx, n2);
+		idx += 1;
+	}
+	
+	if (a.gu() & 2) {
+		copyDiv_1(a.getC() + idx, c + idx, n2);
+		idx += 4;
+	}
+	
+	if (a.gu() & 4) {
+		copyDiv_2(a.getC() + idx, c + idx, -n2);
+		idx += 6;
+	}
+	
+	if (a.gu() & 8) {
+		copyDiv_3(a.getC() + idx, c + idx, -n2);
+		idx += 4;
+	}
+	
+	if (a.gu() & 16) {
+		copyDiv_4(a.getC() + idx, c + idx, n2);
+	}
+	return mv(gu, c);
+}
+bool zero(const mv &a, const double b)
+{
+	int idx = 0;
+	
+	if (a.gu() & 1) {
+		if (!zeroGroup_0(a.getC() + idx, b)) return false;
+		idx += 1;
+	}
+	
+	if (a.gu() & 2) {
+		if (!zeroGroup_1(a.getC() + idx, b)) return false;
+		idx += 4;
+	}
+	
+	if (a.gu() & 4) {
+		if (!zeroGroup_2(a.getC() + idx, b)) return false;
+		idx += 6;
+	}
+	
+	if (a.gu() & 8) {
+		if (!zeroGroup_3(a.getC() + idx, b)) return false;
+		idx += 4;
+	}
+	
+	if (a.gu() & 16) {
+		if (!zeroGroup_4(a.getC() + idx, b)) return false;
+	}
+	return true;
 }
 } // end of namespace m4sta
