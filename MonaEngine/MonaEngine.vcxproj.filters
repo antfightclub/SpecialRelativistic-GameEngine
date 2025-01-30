@@ -120,6 +120,9 @@
     <ClCompile Include="spacetimealgebra\m4sta_parse_mv.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="entity\dummy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mve_window.hpp">
