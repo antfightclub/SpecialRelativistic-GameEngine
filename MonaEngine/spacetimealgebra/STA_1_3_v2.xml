@@ -91,6 +91,12 @@ g0 g1 g2 g3
 g1^g2^g3 g0^g2^g3 g3^g1^g0 g0^g1^g2
 </smv>
 
+<!-->
+<smv name="paravector" type="multivector">
+scalar
+g0^g1 g0^g2 g0^g3
+</smv>
+<-->
 
 
 

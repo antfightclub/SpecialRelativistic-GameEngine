@@ -16,6 +16,12 @@
 
 namespace mve {
 	// Player entity
+	struct PlayerDrawData {
+		Math::Vector4D X;
+		Math::Vector4D U;
+		Math::Quaternion quaternion;
+	};
+
 
 	struct PlayerState {
 		// Empty for now. For example, guns. Maybe.
@@ -32,6 +38,14 @@ namespace mve {
 		Math::WorldLine worldline;
 
 		void Action(GLFWwindow* window, double deltaTime);
+
+		/// <summary>
+		/// Returns the EnemyDrawData struct which just contains the enemy's X, U in the background frame as well as a rotation matrix.
+		/// </summary>
+		/// <param name="Xp">Player's spacetime coordinate</param>
+		/// <param name="L">Lorentz boost to transform from the background frame to the player's frame</param>
+		/// <param name="LL">Lorentz boost to transform from the player's frame to the background frame</param>
+		PlayerDrawData getDrawData(Math::Vector4D Xp, Math::Matrix44 L, Math::Matrix44 LL);
 
 	private:
 		MveWindow& mveWindow;

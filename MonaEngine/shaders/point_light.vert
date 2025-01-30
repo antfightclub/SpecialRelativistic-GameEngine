@@ -21,9 +21,12 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 	mat4 view;
 	mat4 invView;
 	vec4 ambientLightColor;
+} ubo;
+
+layout(set = 0, binding = 3) uniform PointLightUbo {
 	PointLight pointLights[10];
 	int numLights;
-} ubo;
+} pointLightUbo;
 
 
 layout(push_constant) uniform Push {

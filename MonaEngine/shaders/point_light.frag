@@ -13,9 +13,12 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 	mat4 view;
 	mat4 invView;
 	vec4 ambientLightColor;
+} ubo;
+
+layout(set = 0, binding = 3) uniform PointLightUbo {
 	PointLight pointLights[10];
 	int numLights;
-} ubo;
+} pointLightUbo;
 
 layout(push_constant) uniform Push {
 	vec4 position;
@@ -32,5 +35,5 @@ void main() {
 	}
 
 	float cosDis = 0.5 * (cos(dis * M_PI) + 1.0); // ranges from 1 -> 0
-	outColor = vec4(push.color.xyz + cosDis, cosDis);
+	outColor = vec4(pointLightUbo.pointLights[0].color.xyz + cosDis, cosDis);
 }

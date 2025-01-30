@@ -4,9 +4,11 @@
 #include "mve_camera.hpp"
 #include "systems/lattice_wireframe_system.hpp"
 #include "systems/sr_render_system.hpp"
+#include "systems/point_light_system.hpp"
 #include "mve_buffer.hpp"
 #include "player.hpp"
 #include "enemy.hpp"
+#include "entity/timeclock.hpp"
 
 // Math namespace
 #include "relativity/math/Matrix44.hpp"
@@ -38,7 +40,10 @@ namespace mve {
 		// Initialization: Allocate a descriptor pool for the main rendering system and one for DearImGui.
 		globalPool = MveDescriptorPool::Builder(mveDevice)
 			.setMaxSets(MveSwapChain::MAX_FRAMES_IN_FLIGHT * 2)
-			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MveSwapChain::MAX_FRAMES_IN_FLIGHT * 3) // times 3 due to usage of Global Ubo + Lattice Ubo + specialrelativityUBO
+			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MveSwapChain::MAX_FRAMES_IN_FLIGHT) // GlobalUBO
+			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MveSwapChain::MAX_FRAMES_IN_FLIGHT) // LatticeUBO
+			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MveSwapChain::MAX_FRAMES_IN_FLIGHT) // SpecialRelativityUBO
+			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MveSwapChain::MAX_FRAMES_IN_FLIGHT) // PointLightUBO (time clocks)
 			.build();
 		UIDescriptorPool = MveDescriptorPool::Builder(mveDevice)
 			.setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
@@ -56,6 +61,29 @@ namespace mve {
 	RelativityApp::~RelativityApp() {} // MveWindow, MveDevice, and MveRenderer, as well as MveGameObject map and MveDescriptorPool have their own mechanisms for cleanup
 	
 	void RelativityApp::run() {
+
+		// Create Uniform Buffer Object for PointLightUbo, contains stuff for pointlights (currently timeclocks)
+		std::vector<std::unique_ptr<MveBuffer>> pointLightUboBuffers(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < pointLightUboBuffers.size(); i++) {
+			pointLightUboBuffers[i] = std::make_unique<MveBuffer>(
+				mveDevice,
+				sizeof(PointLightUbo),
+				1,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+			);
+			pointLightUboBuffers[i]->map();
+		}
+
+		MveBuffer pointLightUboBuffer{
+			mveDevice,
+			sizeof(PointLightUbo),
+			MveSwapChain::MAX_FRAMES_IN_FLIGHT,
+			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+			mveDevice.properties.limits.minUniformBufferOffsetAlignment,
+		};
+		pointLightUboBuffer.map();
 
 		// Create Uniform Buffer Object for SpecialRelativityUbo, contains relativity stuff between other entities and player
 		std::vector<std::unique_ptr<MveBuffer>> specialRelativityUboBuffers(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -133,6 +161,7 @@ namespace mve {
 			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U) // GlobalUbo 
 			.addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U) // LatticeUBo
 			.addBinding(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U) // SpecialRelativityUbo
+			.addBinding(3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U) // PointLightUbo
 			.build();
 		
 		// Write the descriptor sets to buffers
@@ -141,17 +170,19 @@ namespace mve {
 			auto globalBufferInfo = globalUboBuffers[i]->descriptorInfo();
 			auto latticeBufferInfo = latticeUboBuffers[i]->descriptorInfo();
 			auto srBufferInfo = specialRelativityUboBuffers[i]->descriptorInfo();
+			auto pointLightBufferInfo = pointLightUboBuffers[i]->descriptorInfo();
 			MveDescriptorWriter(*globalSetLayout, *globalPool)
 				.writeBuffer(0, &globalBufferInfo)
 				.writeBuffer(1, &latticeBufferInfo)
 				.writeBuffer(2, &srBufferInfo)
+				.writeBuffer(3, &pointLightBufferInfo)
 				.build(descriptorSets[i]);
 		}
 
 		// Set up render systems
 		LatticeWireframeSystem latticeRenderSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()};
 		SRRenderSystem srRenderSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
-
+		PointLightSystem pointLightSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
 
 		MveCamera camera{};		
 		glm::mat4 cameraView{ 1.0 }; // This will be updated later in the update loop
@@ -159,9 +190,15 @@ namespace mve {
 		auto viewerObject = MveGameObject::createGameObject(); // Game object to hold camera position
 		Player player{ mveWindow , viewerObject, Math::Vector4D{}, Math::EntityState{} }; // Game player
 
+		auto timeclockObject = MveGameObject::makePointLight(); // Time clock game objct
+		float timeclockColor[3] = { 1.f, 1.f, 1.f };
+		float timeclockPosition[3] = { 1.f, 1.f, 1.f };
+		TimeClock timeclock{ mveWindow, timeclockObject, timeclockColor, 1.0, timeclockPosition[0] * m4sta::g1 + timeclockPosition[1] * m4sta::g2 + timeclockPosition[2] * m4sta::g3 };
+		timeclockObject.transform.translation = glm::vec3{ timeclockPosition[0], timeclockPosition[1], timeclockPosition[2]};
+		gameObjects.emplace(timeclockObject.getId(), std::move(timeclockObject));
+
 
 		std::shared_ptr<MveModel> cubeModel = MveModel::createModelFromFile(mveDevice, "./models/gay_cube.obj");
-
 		auto enemyObject = MveGameObject::createGameObject(); // The enemy's game object
 		enemyObject.model = cubeModel;
 		Enemy enemy{ mveWindow, enemyObject, Math::Vector4D{0.0, 3.0, 0.0, 4.0}, Math::EntityState{} };
@@ -225,6 +262,7 @@ namespace mve {
 
 				player.Action(mveWindow.getGLFWwindow(), dt);
 				enemy.Action(mveWindow.getGLFWwindow(), dt);
+				timeclock.Action(mveWindow.getGLFWwindow(), dt);
 
 				// Should get a GLM rotation matrix directly instead of this, but will require a rewrite of Math:: namespace
 				Math::Quaternion playerOrientation = player.quaternion;
@@ -320,6 +358,34 @@ namespace mve {
 				specialRelativityUboBuffer.flushIndex(frameIndex);
 
 
+				mv observerPosition = player.P.X.getT() * g0 + player.P.X.getX() * g1 + player.P.X.getY() * g2 + player.P.X.getZ() * g3;
+
+				TimeClockDrawData cDrawData = timeclock.getDrawData(observerPosition);
+				glm::vec4 clockPos{ cDrawData.split.get_g0_g1(), cDrawData.split.get_g0_g2(), cDrawData.split.get_g0_g3(), 1.0 };
+
+				glm::vec4 clockColor{};
+
+				if (cDrawData.poweredState == true) {
+					clockColor[0] = cDrawData.color[0];
+					clockColor[1] = cDrawData.color[1]; 
+					clockColor[2] = cDrawData.color[2];
+					clockColor[3] = 1.0;
+				}
+				else if (cDrawData.poweredState == false) {
+					clockColor[0] = 0.1 * cDrawData.color[0];
+					clockColor[1] = 0.1 * cDrawData.color[1];
+					clockColor[2] = 0.1 * cDrawData.color[2];
+					clockColor[3] = 1.0;
+				}
+
+				PointLightUbo plUbo{};
+				plUbo.numLights = 1;
+				plUbo.pointLights[0].position = clockPos;
+				plUbo.pointLights[0].color = clockColor;
+				pointLightUboBuffers[frameIndex]->writeToBuffer(&plUbo);
+				pointLightUboBuffers[frameIndex]->flush();
+				pointLightUboBuffer.flushIndex(frameIndex);
+				
 
 
 
@@ -570,7 +636,7 @@ namespace mve {
 					ImGui::Text("Q = ");
 					ImGui::SameLine();
 					ImGui::Text(Q.c_str());
-					*/
+					
 
 					static float vcoord[4] = { 0.f, 0.f, 0.f, 0.f };
 					ImGui::SliderFloat4("float4 v (vel)", vcoord, 0.f, 10.f);
@@ -591,6 +657,22 @@ namespace mve {
 					mv split = L * g0;
 					ImGui::Text("L split = "); 
 					ImGui::SameLine(); ImGui::Text(split.c_str());
+					*/
+
+					
+					ImGui::Text("cDrawData.poweredState = ");
+					ImGui::SameLine(); 
+					if (cDrawData.poweredState == true) {
+						ImGui::Text("true");
+					}
+					else if(cDrawData.poweredState == false) {
+						ImGui::Text("false");
+					}
+
+					ImGui::Text("cDrawData.split = ");
+					ImGui::SameLine(); ImGui::Text(cDrawData.split.c_str());
+					
+					//ImGui::Text("cDrawData.color = %f );
 				
 				}
 				ImGui::End();
@@ -611,6 +693,7 @@ namespace mve {
 					latticeRenderSystem.renderWireframe(frameInfo, latticeGameObjectID);
 				}
 				srRenderSystem.render(frameInfo, latticeGameObjectID);
+				pointLightSystem.render(frameInfo);
 				mveRenderer.endSwapChainRenderPass(frameCommandBuffers.mainCommandBuffer);
 				
 				// UI rendering happens *after* the ordinary render systems, and uses a separate command buffer

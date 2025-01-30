@@ -24,6 +24,11 @@ namespace mve {
 	//	int numLights;
 	//};
 
+	struct PointLightUbo {
+		PointLight pointLights[MAX_LIGHTS];
+		int numLights;
+	};
+
 	struct GlobalUbo {
 		glm::mat4 projection{ 1.f };
 		glm::mat4 view{ 1.f };
