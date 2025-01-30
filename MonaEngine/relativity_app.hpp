@@ -44,13 +44,6 @@ namespace mve {
 		void run();
 		
 	private:
-		glm::mat4 m4sta_to_glm_Lorentz(m4sta::mv PlayerU);
-		glm::mat4 m4sta_g23_J1_glm(double g23);
-		glm::mat4 m4sta_neg_g13_J2_glm(double neg_g13);
-		glm::mat4 m4sta_g12_J3_glm(double g12);
-		glm::mat4 m4sta_g01_K1_glm(double g01);
-		glm::mat4 m4sta_g02_K2_glm(double g02);
-		glm::mat4 m4sta_g03_K3_glm(double g03);
 
 		void m4sta_testing_stuffs(Math::Vector4D X, Math::Vector4D lastX, double deltaTime);
 		m4sta::mv commutatorProduct(m4sta::mv& a, m4sta::mv& b);
