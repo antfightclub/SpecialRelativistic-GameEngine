@@ -190,17 +190,29 @@ namespace mve {
 		auto viewerObject = MveGameObject::createGameObject(); // Game object to hold camera position
 		Player player{ mveWindow , viewerObject, Math::Vector4D{}, Math::EntityState{} }; // Game player
 
-		auto timeclockObject = MveGameObject::makePointLight(); // Time clock game objct
-		float timeclockColor[3] = { 1.f, 1.f, 1.f };
-		float timeclockPosition[3] = { 1.f, 1.f, 1.f };
-		TimeClock timeclock{ mveWindow, timeclockObject, timeclockColor, 1.0, timeclockPosition[0] * m4sta::g1 + timeclockPosition[1] * m4sta::g2 + timeclockPosition[2] * m4sta::g3 };
-		timeclockObject.transform.translation = glm::vec3{ timeclockPosition[0], timeclockPosition[1], timeclockPosition[2]};
-		gameObjects.emplace(timeclockObject.getId(), std::move(timeclockObject));
+		std::vector<TimeClock> timeClocks;
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < 5; j++) {
+				auto timeclockObject = MveGameObject::makePointLight(); // Time clock game objct
+				float timeclockColor[3] = { 1.f, 1.f, 1.f };
+				float timeclockPosition[3] = { 1.f, 1.f, 1.f };
+				TimeClock timeclock{ mveWindow, timeclockObject, timeclockColor, 1.0, timeclockPosition[0] * m4sta::g1 + timeclockPosition[1] * m4sta::g2 + timeclockPosition[2] * m4sta::g3 };
+				timeClocks.push_back(timeclock);
+				timeclockObject.transform.translation = glm::vec3{ timeclockPosition[0], timeclockPosition[1], timeclockPosition[2] };
+				gameObjects.emplace(timeclockObject.getId(), std::move(timeclockObject));
+			}
+		}
+		//auto timeclockObject = MveGameObject::makePointLight(); // Time clock game objct
+		//float timeclockColor[3] = { 1.f, 1.f, 1.f };
+		//float timeclockPosition[3] = { 1.f, 1.f, 1.f };
+		//TimeClock timeclock{ mveWindow, timeclockObject, timeclockColor, 1.0, timeclockPosition[0] * m4sta::g1 + timeclockPosition[1] * m4sta::g2 + timeclockPosition[2] * m4sta::g3 };
+		//timeclockObject.transform.translation = glm::vec3{ timeclockPosition[0], timeclockPosition[1], timeclockPosition[2]};
+		//gameObjects.emplace(timeclockObject.getId(), std::move(timeclockObject));
 
 
 		std::shared_ptr<MveModel> cubeModel = MveModel::createModelFromFile(mveDevice, "./models/gay_cube.obj");
 		auto enemyObject = MveGameObject::createGameObject(); // The enemy's game object
-		enemyObject.model = cubeModel;
+		enemyObject.model = nullptr;//cubeModel;
 		Enemy enemy{ mveWindow, enemyObject, Math::Vector4D{0.0, 3.0, 0.0, 4.0}, Math::EntityState{} };
 		enemyObject.transform.translation = { 3.0f, 0.0f, 4.0f };
 		gameObjects.emplace(enemyObject.getId(), std::move(enemyObject));
@@ -264,7 +276,10 @@ namespace mve {
 
 				player.Action(mveWindow.getGLFWwindow(), dt);
 				enemy.Action(mveWindow.getGLFWwindow(), dt);
-				timeclock.Action(mveWindow.getGLFWwindow(), dt);
+				for (auto clock : timeClocks) {
+					clock.Action(mveWindow.getGLFWwindow(), dt);
+				}
+				
 
 				// Should get a GLM rotation matrix directly instead of this, but will require a rewrite of Math:: namespace
 				Math::Quaternion playerOrientation = player.quaternion;
@@ -362,33 +377,41 @@ namespace mve {
 
 				mv observerPosition = player.P.X.getT() * g0 + player.P.X.getX() * g1 + player.P.X.getY() * g2 + player.P.X.getZ() * g3;
 
-				TimeClockDrawData cDrawData = timeclock.getDrawData(observerPosition);
+				std::vector<TimeClockDrawData> clocksDrawData;
+
+				for (auto timeclock : timeClocks) {
+					TimeClockDrawData cDrawData = timeclock.getDrawData(observerPosition);
+					clocksDrawData.push_back(cDrawData);
+				}
+				
 				glm::vec4 clockPos{};
 				
 				//glm::vec4 clockPos{ cDrawData.split.get_g0_g1(), cDrawData.split.get_g0_g2(), cDrawData.split.get_g0_g3(), 1.0 };
 				//std::cout << cDrawData.phaseSpace.position.toString() << "\n";
 
-				glm::vec4 clockColor{1.f, 1.f, 1.f, 1.f};
+				//glm::vec4 clockColor{ cDrawData.color[0], cDrawData.color[1], cDrawData.color[2], 1.0 };
+				glm::vec4 clockColor{clocksDrawData[0].color[0], clocksDrawData[0].color[1], clocksDrawData[0].color[2], 1.0};
 
-				testAccumulator += (cDrawData.phaseSpace.position.get_g0() - clockLastTime);
+				
+				testAccumulator += (clocksDrawData[0].phaseSpace.position.get_g0() - clockLastTime);
 				if (testAccumulator >= 1.0) {
 					clockPoweredState = !clockPoweredState;
 					testAccumulator = 0.0;
 				}
 
 				if (clockPoweredState == true) {
-					clockColor[0] = cDrawData.color[0];
-					clockColor[1] = cDrawData.color[1]; 
-					clockColor[2] = cDrawData.color[2];
+					clockColor[0] = clocksDrawData[0].color[0];
+					clockColor[1] = clocksDrawData[0].color[1]; 
+					clockColor[2] = clocksDrawData[0].color[2];
 					clockColor[3] = 1.0;
 				}
 				else if (clockPoweredState == false) {
-					clockColor[0] = 0.1 * cDrawData.color[0];
-					clockColor[1] = 0.1 * cDrawData.color[1];
-					clockColor[2] = 0.1 * cDrawData.color[2];
+					clockColor[0] = 0.01 * clocksDrawData[0].color[0];
+					clockColor[1] = 0.01 * clocksDrawData[0].color[1];
+					clockColor[2] = 0.01 * clocksDrawData[0].color[2];
 					clockColor[3] = 1.0;
 				}
-				clockLastTime = cDrawData.phaseSpace.position.get_g0();
+				clockLastTime = clocksDrawData[0].phaseSpace.position.get_g0();
 				PointLightUbo plUbo{};
 				plUbo.numLights = 1;
 				plUbo.pointLights[0].position = clockPos;
@@ -528,9 +551,9 @@ namespace mve {
 					ImGui::Text(observerPosition.c_str_f());
 
 					ImGui::Text("cDrawData.PhaseSpace.pos");
-					ImGui::Text(cDrawData.phaseSpace.position.c_str());
+					ImGui::Text(clocksDrawData[0].phaseSpace.position.c_str());
 					ImGui::Text("cDrawData.PhaseSpace.vel");
-					ImGui::Text(cDrawData.phaseSpace.velocity.c_str());
+					ImGui::Text(clocksDrawData[0].phaseSpace.velocity.c_str());
 					ImGui::Text("The clockPoweredState is = ");
 					if (clockPoweredState == true) {
 						ImGui::SameLine(); ImGui::Text("true");

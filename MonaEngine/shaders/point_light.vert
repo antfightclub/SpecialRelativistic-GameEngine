@@ -23,6 +23,14 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 	vec4 ambientLightColor;
 } ubo;
 
+layout(set = 0, binding = 2) uniform SRUbo {
+	mat4 L;
+	mat4 L_p2e;
+	mat4 Rotate;
+	vec4 dX;
+	vec4 xp;
+} srUbo;
+
 layout(set = 0, binding = 3) uniform PointLightUbo {
 	PointLight pointLights[10];
 	vec4 observerPosition;
@@ -45,5 +53,13 @@ void main() {
 		+ push.radius * fragOffset.x * cameraRightWorld
 		+ push.radius * fragOffset.y * cameraUpWorld;
 
-	gl_Position = ubo.projection * ubo.view * vec4(positionWorld-pointLightUbo.observerPosition.xyz, 1.0);
+	//gl_Position = ubo.projection * ubo.view * vec4(positionWorld-pointLightUbo.observerPosition.xyz, 1.0);
+
+
+	vec3 v = vec3(positionWorld - pointLightUbo.observerPosition.xyz);
+	vec4 vertex = srUbo.L * vec4(v, -length(v));
+	vertex.w = 1.0;
+
+	gl_Position = (ubo.projection * ubo.view) * vertex;
+	
 }
