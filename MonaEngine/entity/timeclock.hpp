@@ -5,11 +5,11 @@
 #include "../mve_game_object.hpp"
 #include "../mve_model.hpp"
 #include "../spacetimealgebra/m4sta.h"
+#include "../spacetimealgebra/mve_worldline.hpp"
 
 namespace mve {
 	struct TimeClockDrawData {
-		m4sta::mv split; // Importantly, this position should be the spacetime split!!
-		bool poweredState;
+		MvePhaseSpace phaseSpace;
 		float color[3];
 	};
 
@@ -25,9 +25,10 @@ namespace mve {
 	private:
 		MveWindow& mveWindow;
 		MveGameObject::id_t id;
-		double blinktime = 1.0;
-		double accumulator = 0.0;
-		bool poweredState = true;
+		//double blinktime = 1.0;
+		//double accumulator = 0.0;
+		//bool poweredState = true;
+		MveWorldLine worldline;
 
 		void init(mve::MveGameObject& gameObject) { this->id = gameObject.getId(); }
 

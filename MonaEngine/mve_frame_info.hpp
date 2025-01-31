@@ -26,6 +26,7 @@ namespace mve {
 
 	struct PointLightUbo {
 		PointLight pointLights[MAX_LIGHTS];
+		glm::vec4 observerPosition;
 		int numLights;
 	};
 

@@ -168,6 +168,8 @@
     <ClCompile Include="relativity_app.cpp" />
     <ClCompile Include="spacetimealgebra\m4sta.cpp" />
     <ClCompile Include="spacetimealgebra\m4sta_parse_mv.cpp" />
+    <ClCompile Include="spacetimealgebra\mve_phasespace.cpp" />
+    <ClCompile Include="spacetimealgebra\mve_worldline.cpp" />
     <ClCompile Include="systems\imgui_render_system.cpp" />
     <ClCompile Include="systems\lattice_wireframe_system.cpp" />
     <ClCompile Include="systems\point_light_system.cpp" />
@@ -208,6 +210,8 @@
     <ClInclude Include="relativity\math\WorldLine.hpp" />
     <ClInclude Include="relativity_app.hpp" />
     <ClInclude Include="spacetimealgebra\m4sta.h" />
+    <ClInclude Include="spacetimealgebra\mve_phasespace.hpp" />
+    <ClInclude Include="spacetimealgebra\mve_worldline.hpp" />
     <ClInclude Include="systems\imgui_render_system.hpp" />
     <ClInclude Include="systems\lattice_wireframe_system.hpp" />
     <ClInclude Include="systems\point_light_system.hpp" />

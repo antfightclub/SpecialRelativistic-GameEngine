@@ -25,6 +25,7 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 
 layout(set = 0, binding = 3) uniform PointLightUbo {
 	PointLight pointLights[10];
+	vec4 observerPosition;
 	int numLights;
 } pointLightUbo;
 
@@ -44,5 +45,5 @@ void main() {
 		+ push.radius * fragOffset.x * cameraRightWorld
 		+ push.radius * fragOffset.y * cameraUpWorld;
 
-	gl_Position = ubo.projection * ubo.view * vec4(positionWorld, 1.0);
+	gl_Position = ubo.projection * ubo.view * vec4(positionWorld-pointLightUbo.observerPosition.xyz, 1.0);
 }

@@ -217,7 +217,9 @@ namespace mve {
 
 		//float sta_vel[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
-		
+		double testAccumulator = 0.0;
+		double clockLastTime = 0.0;
+		bool clockPoweredState = false;
 
 		// Main application update loop
 		while (!mveWindow.shouldClose()) { 
@@ -361,27 +363,37 @@ namespace mve {
 				mv observerPosition = player.P.X.getT() * g0 + player.P.X.getX() * g1 + player.P.X.getY() * g2 + player.P.X.getZ() * g3;
 
 				TimeClockDrawData cDrawData = timeclock.getDrawData(observerPosition);
-				glm::vec4 clockPos{ cDrawData.split.get_g0_g1(), cDrawData.split.get_g0_g2(), cDrawData.split.get_g0_g3(), 1.0 };
+				glm::vec4 clockPos{};
+				
+				//glm::vec4 clockPos{ cDrawData.split.get_g0_g1(), cDrawData.split.get_g0_g2(), cDrawData.split.get_g0_g3(), 1.0 };
+				//std::cout << cDrawData.phaseSpace.position.toString() << "\n";
 
-				glm::vec4 clockColor{};
+				glm::vec4 clockColor{1.f, 1.f, 1.f, 1.f};
 
-				if (cDrawData.poweredState == true) {
+				testAccumulator += (cDrawData.phaseSpace.position.get_g0() - clockLastTime);
+				if (testAccumulator >= 1.0) {
+					clockPoweredState = !clockPoweredState;
+					testAccumulator = 0.0;
+				}
+
+				if (clockPoweredState == true) {
 					clockColor[0] = cDrawData.color[0];
 					clockColor[1] = cDrawData.color[1]; 
 					clockColor[2] = cDrawData.color[2];
 					clockColor[3] = 1.0;
 				}
-				else if (cDrawData.poweredState == false) {
+				else if (clockPoweredState == false) {
 					clockColor[0] = 0.1 * cDrawData.color[0];
 					clockColor[1] = 0.1 * cDrawData.color[1];
 					clockColor[2] = 0.1 * cDrawData.color[2];
 					clockColor[3] = 1.0;
 				}
-
+				clockLastTime = cDrawData.phaseSpace.position.get_g0();
 				PointLightUbo plUbo{};
 				plUbo.numLights = 1;
 				plUbo.pointLights[0].position = clockPos;
 				plUbo.pointLights[0].color = clockColor;
+				plUbo.observerPosition = xp;
 				pointLightUboBuffers[frameIndex]->writeToBuffer(&plUbo);
 				pointLightUboBuffers[frameIndex]->flush();
 				pointLightUboBuffer.flushIndex(frameIndex);
@@ -512,167 +524,20 @@ namespace mve {
 				ImGui::End();
 				if (ImGui::Begin("Spacetime Algebra", &sta_open)) {
 					
-					/*
-					ImGui::Text("For v1 and v2 make sure they are *timelike* only.");
-					ImGui::Text("Just make sure the absolute value of the sum of  ");
-					ImGui::Text("the spatial components don't exceed the absolute ");
-					ImGui::Text("value of the time component. Note that v1 and v2 ");
-					ImGui::Text("DO NOT get normalized.");
+					ImGui::Text("Observer position: ");
+					ImGui::Text(observerPosition.c_str_f());
 
-					static float v1coord[4] = { 1.f, 0.f, 0.f, 0.f };
-					ImGui::SliderFloat4("float4 v1", v1coord, 0.f, 10.f);
-					//ImGui::DragFloat4("input float4 v1", v1coord);
-					mv v1 =
-						(double)v1coord[0] * g0 +
-						(double)v1coord[1] * g1 +
-						(double)v1coord[2] * g2 +
-						(double)v1coord[3] * g3;
-
-					static float v2coord[4] = { 1.f, 0.f, 0.f, 0.f };
-					ImGui::SliderFloat4("float4 v2", v2coord, 0.f, 10.f);
-					mv v2 =
-						(double)v2coord[0] * g0 +
-						(double)v2coord[1] * g1 +
-						(double)v2coord[2] * g2 +
-						(double)v2coord[3] * g3;
-
-					//v1 = unit(v1);
-					//v2 = unit(v2);
-					mv V = v2 * v1;
-
-					ImGui::Text(v1.c_str());
-
-					if (norm2(v1).get_scalar() >= 0.001f) {
-						ImGui::SameLine();
-						ImGui::Text(" timelike");
+					ImGui::Text("cDrawData.PhaseSpace.pos");
+					ImGui::Text(cDrawData.phaseSpace.position.c_str());
+					ImGui::Text("cDrawData.PhaseSpace.vel");
+					ImGui::Text(cDrawData.phaseSpace.velocity.c_str());
+					ImGui::Text("The clockPoweredState is = ");
+					if (clockPoweredState == true) {
+						ImGui::SameLine(); ImGui::Text("true");
 					}
-					else if (norm2(v1).get_scalar() <= 0.001f) {
-						ImGui::SameLine();
-						ImGui::Text(" spacelike");
+					else if (clockPoweredState == false) {
+						ImGui::SameLine(); ImGui::Text("false");
 					}
-					else {
-						ImGui::SameLine();
-						ImGui::Text(" lightlike");
-					}
-
-					ImGui::Text(v2.c_str());
-
-					if (norm2(v2).get_scalar() >= 0.001f) {
-						ImGui::SameLine();
-						ImGui::Text(" timelike");
-					}
-					else if (norm2(v2).get_scalar() <= 0.001f) {
-						ImGui::SameLine();
-						ImGui::Text(" spacelike");
-					}
-					else {
-						ImGui::SameLine();
-						ImGui::Text(" lightlike");
-					}
-
-					ImGui::Text("V = "); 
-					ImGui::SameLine();
-					ImGui::Text(V.c_str());
-
-
-					ImGui::NewLine();
-					ImGui::Text("For n1 and n2 make sure they are *spacelike* only.");
-					ImGui::Text("Just make sure the absolute value of the sum of   ");
-					ImGui::Text("the spatial components don't less than the absolute");
-					ImGui::Text("value of the time component. Note that n1 and n2  ");
-					ImGui::Text("get normalized.");
-
-					static float n1coord[4] = { 0.f, 5.f, 5.f, 5.f };
-					ImGui::SliderFloat4("float4 n1", n1coord, 0.f, 10.f);
-					//ImGui::DragFloat4("input float4 v1", v1coord);
-					mv n1 =
-						(double)n1coord[0] * g0 +
-						(double)n1coord[1] * g1 +
-						(double)n1coord[2] * g2 +
-						(double)n1coord[3] * g3;
-
-					static float n2coord[4] = { 0.f, 5.f, 5.f, 5.f };
-					ImGui::SliderFloat4("float4 n2", n2coord, 0.f, 10.f);
-					mv n2 =
-						(double)n2coord[0] * g0 +
-						(double)n2coord[1] * g1 +
-						(double)n2coord[2] * g2 +
-						(double)n2coord[3] * g3;
-
-					n1 = unit(n1);
-					n2 = unit(n2);
-					mv Q = n2 * n1;
-
-					ImGui::Text(n1.c_str());
-
-					if (norm2(n1).get_scalar() >= 0.001f) {
-						ImGui::SameLine();
-						ImGui::Text(" timelike");
-					}
-					else if (norm2(n1).get_scalar() <= 0.001f) {
-						ImGui::SameLine();
-						ImGui::Text(" spacelike");
-					}
-					else {
-						ImGui::SameLine();
-						ImGui::Text(" lightlike");
-					}
-
-					ImGui::Text(n2.c_str());
-
-					if (norm2(n2).get_scalar() >= 0.001f) {
-						ImGui::SameLine();
-						ImGui::Text(" timelike");
-					}
-					else if (norm2(n2).get_scalar() <= 0.001f) {
-						ImGui::SameLine();
-						ImGui::Text(" spacelike");
-					}
-					else {
-						ImGui::SameLine();
-						ImGui::Text(" lightlike");
-					}
-
-					ImGui::Text("Q = ");
-					ImGui::SameLine();
-					ImGui::Text(Q.c_str());
-					
-
-					static float vcoord[4] = { 0.f, 0.f, 0.f, 0.f };
-					ImGui::SliderFloat4("float4 v (vel)", vcoord, 0.f, 10.f);
-					//ImGui::DragFloat4("input float4 v1", v1coord);
-					mv v =
-						(double)vcoord[0] * g0 +
-						(double)vcoord[1] * g1 +
-						(double)vcoord[2] * g2 +
-						(double)vcoord[3] * g3;
-					static float gammaprime0 = 1.0f;
-					ImGui::SliderFloat("gammaprime0", &gammaprime0, 1.f, 10.f);
-					mv L = v * (gammaprime0 * g0) * (g0);
-					
-					ImGui::Text("v       = ");
-					ImGui::SameLine(); ImGui::Text(v.c_str());
-					ImGui::Text("L       = ");
-					ImGui::SameLine(); ImGui::Text(L.c_str());
-					mv split = L * g0;
-					ImGui::Text("L split = "); 
-					ImGui::SameLine(); ImGui::Text(split.c_str());
-					*/
-
-					
-					ImGui::Text("cDrawData.poweredState = ");
-					ImGui::SameLine(); 
-					if (cDrawData.poweredState == true) {
-						ImGui::Text("true");
-					}
-					else if(cDrawData.poweredState == false) {
-						ImGui::Text("false");
-					}
-
-					ImGui::Text("cDrawData.split = ");
-					ImGui::SameLine(); ImGui::Text(cDrawData.split.c_str());
-					
-					//ImGui::Text("cDrawData.color = %f );
 				
 				}
 				ImGui::End();
