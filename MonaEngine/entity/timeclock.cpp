@@ -25,6 +25,7 @@ namespace mve {
 	}
 
 	TimeClockDrawData TimeClock::getDrawData(m4sta::mv observerPosition) {
+		//std::cout << "getDrawData called on gameobject ID " << id << "\n";
 		MvePhaseSpace P = this->worldline.get_pos_vel_on_PLC(observerPosition);
 		return {
 			P,

@@ -4,43 +4,54 @@
 namespace mve {
 
 	void MveWorldLine::add(m4sta::mv lineEntry) {
-		this->Line.push_back(lineEntry);
+		LineContainer entry{
+			lineEntry.get_g0(),
+			lineEntry.get_g1(),
+			lineEntry.get_g2(),
+			lineEntry.get_g3()
+		};
+		this->Line.push_back(entry);
 		//std::cout << "adding new line entry   = " << lineEntry.toString() << "\n";
-		this->n += 1;
+		//this->n = this->Line.size();
 	}
 
-	void MveWorldLine::cut() {
-		throw std::runtime_error("MveWorldline::Cut() not yet implemented!");
+	void MveWorldLine::cut(int i) {
+		if (this->Line.size() >= 4000) { 
+			this->Line.erase(Line.begin(), Line.begin());
+		}
 	}
 
 	int MveWorldLine::searchPositionOnPLC(m4sta::mv Observer) {
-		//double observerTime = Observer.get_g0();
-		//std::cout << "observer time =  " << observerTime << "\n";
-		//m4sta::mv O = Observer;
-		//m4sta::mv temp = m4sta::mv{};
-		//std::cout << " ******  \n";
-		for (int i = 1; i < this->n; i++) {
-			m4sta::mv temp = this->Line[i];
-			m4sta::mv difference = Observer - temp;
+		//std::cout << "line.size() = " << Line.size() << "\n";
+		for (int i = 1; i < Line.size(); i++) {
+			LineContainer temp = this->Line[i];
+			//m4sta::mv difference = Observer - temp;
 			//std::cout << "value of temp  = " << temp.toString() << "\n";
 			//std::cout << "value of diff  = " << difference.toString() << "\n";
 
-			double g0 = Observer.get_g0() - temp.get_g0();
-			double g1 = Observer.get_g1() - temp.get_g1();
-			double g2 = Observer.get_g2() - temp.get_g2();
-			double g3 = Observer.get_g3() - temp.get_g3();
+			double g0 = Observer.get_g0() - temp.g0;
+			double g1 = Observer.get_g1() - temp.g1;
+			double g2 = Observer.get_g2() - temp.g2;
+			double g3 = Observer.get_g3() - temp.g3;
 			
 
 			//double normTo = m4sta::norm2(Observer - temp).get_scalar();
 			double normTo = g0 * g0 - g1 * g1 - g2 * g2 - g3 * g3;
 			//std::cout << "normTo   = " << normTo << "\n";
 			//std::cout << "temp time = " << temp.get_g0() << " and observer time = " << observerTime << "\n";
-			if (temp.get_g0() > Observer.get_g0() || normTo < 0.0) {
-				//std::cout << "returning i = " << i << "\n\n";
+			bool condition1 = Observer.get_g0() < temp.g0;
+			bool condition2 = normTo > 0.0;
+			//std::cout << "i = "  << i <<  ", condition 1 = " << condition1 << " and condition 2 = " << condition2 << "normto = " << normTo << "\n";
+
+			if (!(condition1) && !(condition2)) {
+				//std::cout << "i = " << i << "\n";
 				return i;
 			}
+			else {
+				return Line.size()-1; // ... if you go too fast (I think somewhere like 0.9c?) the above condition will fail... Can just reply with the newest instead.
+			}
 		}
-		//std::cout << "returning -1!\n\n";
+		
 		return -1;
 	}
 
@@ -49,12 +60,16 @@ namespace mve {
 		int i = searchPositionOnPLC(O);
 		//std::cout << "searchPositionOnPLC returned int = " << i << "\n";
 		if (i == -1) {
+			
 			return MvePhaseSpace{ m4sta::mv{}, m4sta::mv{ } };
 		}
 		//std::cout << "position on PLC   = " << i << "\n";
 
-		m4sta::mv X0 = this->Line[i - 1];
-		m4sta::mv X1 = this->Line[i];
+		LineContainer zero = this->Line[i - 1];
+		LineContainer one  = this->Line[i];
+
+		m4sta::mv X0 = m4sta::g0 * zero.g0 + m4sta::g1 * zero.g1 + m4sta::g2 * zero.g2 + m4sta::g3 * zero.g3;
+		m4sta::mv X1 = m4sta::g0 *  one.g0 + m4sta::g1 *  one.g1 + m4sta::g2 *  one.g2 + m4sta::g3 *  one.g3;
 		m4sta::mv dX = X1 - X0;
 		m4sta::mv dY = O  - X0;
 
@@ -79,6 +94,7 @@ namespace mve {
 			retur, //X0 * (1 - sigma) + X1,
 			dX
 		};
+		//cut(i);
 		return ret;
 	}
 

@@ -21,6 +21,8 @@ namespace mve {
 
 		void Action(GLFWwindow* window, double deltaTime);
 		TimeClockDrawData getDrawData(m4sta::mv observerPosition);
+		MveGameObject::id_t getGameObjectID() { return this->id; }
+		size_t getWorldlineEntryAmount() { return worldline.getEntryAmount(); }
 
 	private:
 		MveWindow& mveWindow;

@@ -31,6 +31,7 @@
 #include <stdexcept>
 #include <array>
 #include <iostream>
+#include <math.h> //modf
 
 using namespace m4sta;
 
@@ -61,30 +62,6 @@ namespace mve {
 	RelativityApp::~RelativityApp() {} // MveWindow, MveDevice, and MveRenderer, as well as MveGameObject map and MveDescriptorPool have their own mechanisms for cleanup
 	
 	void RelativityApp::run() {
-
-		// Create Uniform Buffer Object for PointLightUbo, contains stuff for pointlights (currently timeclocks)
-		std::vector<std::unique_ptr<MveBuffer>> pointLightUboBuffers(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
-		for (int i = 0; i < pointLightUboBuffers.size(); i++) {
-			pointLightUboBuffers[i] = std::make_unique<MveBuffer>(
-				mveDevice,
-				sizeof(PointLightUbo),
-				1,
-				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
-			);
-			pointLightUboBuffers[i]->map();
-		}
-
-		MveBuffer pointLightUboBuffer{
-			mveDevice,
-			sizeof(PointLightUbo),
-			MveSwapChain::MAX_FRAMES_IN_FLIGHT,
-			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-			mveDevice.properties.limits.minUniformBufferOffsetAlignment,
-		};
-		pointLightUboBuffer.map();
-
 		// Create Uniform Buffer Object for SpecialRelativityUbo, contains relativity stuff between other entities and player
 		std::vector<std::unique_ptr<MveBuffer>> specialRelativityUboBuffers(MveSwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (int i = 0; i < specialRelativityUboBuffers.size(); i++) {
@@ -161,7 +138,6 @@ namespace mve {
 			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U) // GlobalUbo 
 			.addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U) // LatticeUBo
 			.addBinding(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U) // SpecialRelativityUbo
-			.addBinding(3, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 1U) // PointLightUbo
 			.build();
 		
 		// Write the descriptor sets to buffers
@@ -170,12 +146,10 @@ namespace mve {
 			auto globalBufferInfo = globalUboBuffers[i]->descriptorInfo();
 			auto latticeBufferInfo = latticeUboBuffers[i]->descriptorInfo();
 			auto srBufferInfo = specialRelativityUboBuffers[i]->descriptorInfo();
-			auto pointLightBufferInfo = pointLightUboBuffers[i]->descriptorInfo();
 			MveDescriptorWriter(*globalSetLayout, *globalPool)
 				.writeBuffer(0, &globalBufferInfo)
 				.writeBuffer(1, &latticeBufferInfo)
 				.writeBuffer(2, &srBufferInfo)
-				.writeBuffer(3, &pointLightBufferInfo)
 				.build(descriptorSets[i]);
 		}
 
@@ -190,18 +164,66 @@ namespace mve {
 		auto viewerObject = MveGameObject::createGameObject(); // Game object to hold camera position
 		Player player{ mveWindow , viewerObject, Math::Vector4D{}, Math::EntityState{} }; // Game player
 
+		/*
+		float scale = 1.24f;
+		float offset = 5.0f;
+		int Num = 3;
 		std::vector<TimeClock> timeClocks;
-		for (int i = 0; i < 5; i++) {
-			for (int j = 0; j < 5; j++) {
-				auto timeclockObject = MveGameObject::makePointLight(); // Time clock game objct
-				float timeclockColor[3] = { 1.f, 1.f, 1.f };
-				float timeclockPosition[3] = { 1.f, 1.f, 1.f };
+		for (int i = -Num; i < Num+1; i++) {
+			for (int j = -Num; j < Num+1; j++) {
+				for (int k = -Num; k < Num+1; k++) {
+					auto timeclockObject = MveGameObject::makePointLight(1.f); // Time clock game objct
+					float timeclockColor[3] = { ((double)rand()) / RAND_MAX, ((double)rand()) / RAND_MAX , ((double)rand()) / RAND_MAX };
+					float timeclockPosition[3] = { ((float)i+0.5)*scale, ((float)j+0.5)*scale, ((float)k+0.5)*scale+offset };
+					TimeClock timeclock{ mveWindow, timeclockObject, timeclockColor, 1.0, timeclockPosition[0] * m4sta::g1 + timeclockPosition[1] * m4sta::g2 + timeclockPosition[2] * m4sta::g3 };
+					timeClocks.push_back(timeclock);
+					timeclockObject.transform.translation = glm::vec3{ timeclockPosition[0], timeclockPosition[1], timeclockPosition[2] };
+					gameObjects.emplace(timeclockObject.getId(), std::move(timeclockObject));
+				}
+			}
+		}
+		*/
+		
+		
+		float scale = 0.5f;
+		float offset = 4.f;
+		int Num = 10;
+		std::vector<TimeClock> timeClocks;
+		for (int i = -Num; i < Num + 1; i++) {
+			for (int j = -Num; j < Num + 1; j++) {
+				auto timeclockObject = MveGameObject::makePointLight(1.f); // Time clock game objct
+				float timeclockColor[3] = { ((double)rand()) / RAND_MAX, ((double)rand()) / RAND_MAX , ((double)rand()) / RAND_MAX };
+				float timeclockPosition[3] = {((float)i ) * scale, ((float)j) * scale, 5.f };
 				TimeClock timeclock{ mveWindow, timeclockObject, timeclockColor, 1.0, timeclockPosition[0] * m4sta::g1 + timeclockPosition[1] * m4sta::g2 + timeclockPosition[2] * m4sta::g3 };
 				timeClocks.push_back(timeclock);
 				timeclockObject.transform.translation = glm::vec3{ timeclockPosition[0], timeclockPosition[1], timeclockPosition[2] };
 				gameObjects.emplace(timeclockObject.getId(), std::move(timeclockObject));
+				//std::cout << "i = " << i << " j = " << j << " k = " << k << "\n";
+				//std::cout << "amount of gameobjects = " << gameObjects.size() << "\n";
 			}
 		}
+
+		/*
+		float scale = 0.5f;
+		float offset = 4.f;
+		int Num = 10;
+		std::vector<TimeClock> timeClocks;
+		for (int i = -Num; i < Num + 1; i++) {
+			for (int j = -Num; j < Num + 1; j++) {
+				auto timeclockObject = MveGameObject::makePointLight(1.f); // Time clock game objct
+				float timeclockColor[3] = { ((double)rand()) / RAND_MAX, ((double)rand()) / RAND_MAX , ((double)rand()) / RAND_MAX };
+				float timeclockPosition[3] = { ((float)i) * scale, 1.f , ((float)j) * scale};
+				TimeClock timeclock{ mveWindow, timeclockObject, timeclockColor, 1.0, timeclockPosition[0] * m4sta::g1 + timeclockPosition[1] * m4sta::g2 + timeclockPosition[2] * m4sta::g3 };
+				timeClocks.push_back(timeclock);
+				timeclockObject.transform.translation = glm::vec3{ timeclockPosition[0], timeclockPosition[1], timeclockPosition[2] };
+				gameObjects.emplace(timeclockObject.getId(), std::move(timeclockObject));
+				//std::cout << "i = " << i << " j = " << j << " k = " << k << "\n";
+				//std::cout << "amount of gameobjects = " << gameObjects.size() << "\n";
+			}
+		}*/
+
+
+		//std::cout << "timeClocks.size() = " << timeClocks.size() << "\n";
 		//auto timeclockObject = MveGameObject::makePointLight(); // Time clock game objct
 		//float timeclockColor[3] = { 1.f, 1.f, 1.f };
 		//float timeclockPosition[3] = { 1.f, 1.f, 1.f };
@@ -229,10 +251,6 @@ namespace mve {
 
 		//float sta_vel[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
-		double testAccumulator = 0.0;
-		double clockLastTime = 0.0;
-		bool clockPoweredState = false;
-
 		// Main application update loop
 		while (!mveWindow.shouldClose()) { 
 			glfwPollEvents(); // poll GLFW library for user input
@@ -246,7 +264,7 @@ namespace mve {
 				
 			float aspect = mveRenderer.getAspectRatio();
 
-			camera.setPerspectiveProjection(glm::radians(70.0f), aspect, 0.01f, 1000.0f);
+			camera.setPerspectiveProjection(glm::radians(100.0f), aspect, 0.01f, 1000.0f);
 
 			// poll this every update loop, but only actaully begin new frame if one is ready from the swap chain. 
 			// MveRenderer (and by extension MveSwapChain) is responsible for acquiring next image for rendering
@@ -276,8 +294,8 @@ namespace mve {
 
 				player.Action(mveWindow.getGLFWwindow(), dt);
 				enemy.Action(mveWindow.getGLFWwindow(), dt);
-				for (auto clock : timeClocks) {
-					clock.Action(mveWindow.getGLFWwindow(), dt);
+				for (int i = 0; i < timeClocks.size(); i++) {
+					timeClocks[i].Action(mveWindow.getGLFWwindow(), dt);
 				}
 				
 
@@ -308,6 +326,7 @@ namespace mve {
 				globalUbo.view = camera.getView();
 				globalUbo.inverseView = invView;
 				globalUbo.ambientLightColor = { 1.f, 1.f, 1.f, .02f };
+				globalUbo.observerPosition = { player.P.X.getX(), player.P.X.getY(), player.P.X.getZ(), 1.0 };
 				globalUboBuffers[frameIndex]->writeToBuffer(&globalUbo);
 				globalUboBuffers[frameIndex]->flush();
 
@@ -377,52 +396,31 @@ namespace mve {
 
 				mv observerPosition = player.P.X.getT() * g0 + player.P.X.getX() * g1 + player.P.X.getY() * g2 + player.P.X.getZ() * g3;
 
+				std::vector<size_t> worldLineSize;
 				std::vector<TimeClockDrawData> clocksDrawData;
-
+				auto before = std::chrono::high_resolution_clock::now();
 				for (auto timeclock : timeClocks) {
 					TimeClockDrawData cDrawData = timeclock.getDrawData(observerPosition);
+					size_t worldlineEntryAmount = timeclock.getWorldlineEntryAmount();
 					clocksDrawData.push_back(cDrawData);
+					worldLineSize.push_back(worldlineEntryAmount);
 				}
-				
-				glm::vec4 clockPos{};
-				
-				//glm::vec4 clockPos{ cDrawData.split.get_g0_g1(), cDrawData.split.get_g0_g2(), cDrawData.split.get_g0_g3(), 1.0 };
-				//std::cout << cDrawData.phaseSpace.position.toString() << "\n";
+				auto after = std::chrono::high_resolution_clock::now();
+				double timeAmount = std::chrono::duration<double, std::chrono::milliseconds::period>(after - before).count();
 
-				//glm::vec4 clockColor{ cDrawData.color[0], cDrawData.color[1], cDrawData.color[2], 1.0 };
-				glm::vec4 clockColor{clocksDrawData[0].color[0], clocksDrawData[0].color[1], clocksDrawData[0].color[2], 1.0};
-
-				
-				testAccumulator += (clocksDrawData[0].phaseSpace.position.get_g0() - clockLastTime);
-				if (testAccumulator >= 1.0) {
-					clockPoweredState = !clockPoweredState;
-					testAccumulator = 0.0;
+				for (int i = 0; i < timeClocks.size(); i++) {
+					MveGameObject::id_t id = timeClocks[i].getGameObjectID();
+					auto& obj = gameObjects.at(id);
+					double t = clocksDrawData[i].phaseSpace.position.get_g0();
+					if (fmod(t, 4) >= 2.0) {
+						obj.color = glm::vec3{ clocksDrawData[i].color[0], clocksDrawData[i].color[1], clocksDrawData[i].color[2] };
+						obj.transform.scale.x = 0.2;
+					}
+					else if (fmod(t, 4) <= 2.0) {
+						obj.color = glm::vec3{ 0.1*clocksDrawData[i].color[0], 0.1*clocksDrawData[i].color[1], 0.1*clocksDrawData[i].color[2] };
+						obj.transform.scale.x = 0.1;
+					}
 				}
-
-				if (clockPoweredState == true) {
-					clockColor[0] = clocksDrawData[0].color[0];
-					clockColor[1] = clocksDrawData[0].color[1]; 
-					clockColor[2] = clocksDrawData[0].color[2];
-					clockColor[3] = 1.0;
-				}
-				else if (clockPoweredState == false) {
-					clockColor[0] = 0.01 * clocksDrawData[0].color[0];
-					clockColor[1] = 0.01 * clocksDrawData[0].color[1];
-					clockColor[2] = 0.01 * clocksDrawData[0].color[2];
-					clockColor[3] = 1.0;
-				}
-				clockLastTime = clocksDrawData[0].phaseSpace.position.get_g0();
-				PointLightUbo plUbo{};
-				plUbo.numLights = 1;
-				plUbo.pointLights[0].position = clockPos;
-				plUbo.pointLights[0].color = clockColor;
-				plUbo.observerPosition = xp;
-				pointLightUboBuffers[frameIndex]->writeToBuffer(&plUbo);
-				pointLightUboBuffers[frameIndex]->flush();
-				pointLightUboBuffer.flushIndex(frameIndex);
-				
-
-
 
 				// ********** Update Dear ImGui state **********
 				// This could perhaps be separated into its own function, or perhaps be implemented in a render system.
@@ -549,19 +547,31 @@ namespace mve {
 					
 					ImGui::Text("Observer position: ");
 					ImGui::Text(observerPosition.c_str_f());
+					ImGui::Text("It took %f milliseconds to foliate %u timeclocks.", timeAmount, worldLineSize.size());
 
-					ImGui::Text("cDrawData.PhaseSpace.pos");
-					ImGui::Text(clocksDrawData[0].phaseSpace.position.c_str());
-					ImGui::Text("cDrawData.PhaseSpace.vel");
-					ImGui::Text(clocksDrawData[0].phaseSpace.velocity.c_str());
-					ImGui::Text("The clockPoweredState is = ");
-					if (clockPoweredState == true) {
-						ImGui::SameLine(); ImGui::Text("true");
+					static ImGuiTableFlags flags = ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+					//ImVec2 outer_size = ImVec2(0.0f, TEXT_BASE_HEIGHT * 8);
+					if (ImGui::BeginTable("worldline_sizes", 2, flags)) {
+						ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
+						ImGui::TableSetupColumn("TimeClock", ImGuiTableColumnFlags_None);
+						ImGui::TableSetupColumn("Size of worldline", ImGuiTableColumnFlags_None);
+						ImGui::TableHeadersRow();
+
+						for (int i = 0; i < timeClocks.size(); i++) {
+							ImGui::TableNextRow();
+							for (int j = 0; j < 2; j++) {
+								ImGui::TableSetColumnIndex(j);
+								if (j == 0) {
+									ImGui::Text("TimeClock #%d", i);
+								}
+								else if (j == 1) {
+									ImGui::Text("%u", worldLineSize[i]);
+								}
+							}
+						}
+						
+						ImGui::EndTable();
 					}
-					else if (clockPoweredState == false) {
-						ImGui::SameLine(); ImGui::Text("false");
-					}
-				
 				}
 				ImGui::End();
 				
@@ -581,7 +591,7 @@ namespace mve {
 					latticeRenderSystem.renderWireframe(frameInfo, latticeGameObjectID);
 				}
 				srRenderSystem.render(frameInfo, latticeGameObjectID);
-				pointLightSystem.render(frameInfo);
+				pointLightSystem.render(frameInfo, playerPos);
 				mveRenderer.endSwapChainRenderPass(frameCommandBuffers.mainCommandBuffer);
 				
 				// UI rendering happens *after* the ordinary render systems, and uses a separate command buffer
