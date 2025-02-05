@@ -249,10 +249,6 @@ namespace mve {
 		float timeSince = 0.f; // used to count time between frames!
 		bool renderLattice = true; // whether to render lattice - set in imgui ui
 		
-		static float phi    = 0.0f; // Spacelike
-		static float theta  = 0.0f; // Spacelike
-		static float eta    = 0.0f; // Timelike
-		static float lambda = 0.0f; // Timelike
 
 		//float sta_vel[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
@@ -305,11 +301,17 @@ namespace mve {
 				}
 				*/
 
+				// Testing for rotors.
+				mv playerPos = player.P.X.getT() * g0 + player.P.X.getX() * g1 + player.P.X.getY() * g2 + player.P.X.getZ() * g3;
+				mv playerVel = player.P.U.getT() * g0 + player.P.U.getX() * g1 + player.P.U.getY() * g2 + player.P.U.getZ() * g3;
+				
+				mv splitVel = playerVel * g0;
+
 				// Should get a GLM rotation matrix directly instead of this, but will require a rewrite of Math:: namespace
 				Math::Quaternion playerOrientation = player.quaternion;
 				
 				// Establish camera view matrix
-				glm::vec3 playerPos = glm::vec3{ (float)player.P.X.getX(), (float)player.P.X.getY(), (float)player.P.X.getZ() };
+				glm::vec3 playerPosition = glm::vec3{ (float)player.P.X.getX(), (float)player.P.X.getY(), (float)player.P.X.getZ() };
 				glm::quat orientation = glm::quat{ (float)playerOrientation.t, (float)playerOrientation.x, (float)playerOrientation.y, (float)playerOrientation.z };				
 				glm::mat4 rotate = glm::toMat4(orientation); 
 				glm::mat4 translate = glm::mat4(1.0f);
@@ -320,7 +322,7 @@ namespace mve {
 				// formation is centered in the origin of the grid.
 
 				cameraView = glm::inverse(translate * rotate);
-				viewerObject.transform.translation = playerPos;
+				viewerObject.transform.translation = playerPosition;
 				
 				camera.setView(cameraView); // Sets the camera view matrix
 
@@ -333,7 +335,7 @@ namespace mve {
 				globalUbo.inverseView = invView;
 				globalUbo.ambientLightColor = { 1.f, 1.f, 1.f, .02f };
 				globalUbo.observerPosition = { player.P.X.getX(), player.P.X.getY(), player.P.X.getZ(), 1.0 };
-				globalUbo.PhiThetaEtaLambda = { phi, theta, eta, lambda };
+				globalUbo.BoostParams = { splitVel.get_scalar(), splitVel.get_g0_g1(), splitVel.get_g0_g2(), splitVel.get_g0_g3()};
 				globalUboBuffers[frameIndex]->writeToBuffer(&globalUbo);
 				globalUboBuffers[frameIndex]->flush();
 
@@ -553,14 +555,13 @@ namespace mve {
 				}
 				ImGui::End();
 				if (ImGui::Begin("Spacetime Algebra", &sta_open)) {
-					
-					ImGui::SliderFloat("(Timelike)   Phi"   , &phi,    0.0f, 5.0f);
-					ImGui::SliderFloat("(Timelike)   Theta" , &theta,  0.0f, 5.0f);
-					ImGui::SliderFloat("(Spacelike)  Eta"   , &eta,    -10.f, 10.f);
-					ImGui::SliderFloat("(Spacelike)  Lambda", &lambda, -10.f, 10.f);
+					ImGui::Text("Player position: ");
+					ImGui::Text(playerPos.c_str_f());
+					ImGui::Text("Player velocity: ");
+					ImGui::Text(playerVel.c_str_f());
+					ImGui::Text("Split of velocity: ");
+					ImGui::Text(splitVel.c_str_f());
 
-					ImGui::Text("Observer position: ");
-					ImGui::Text(observerPosition.c_str_f());
 					//ImGui::Text("It took %f milliseconds to foliate %u timeclocks.", timeAmount, worldLineSize.size());
 					/*
 					static ImGuiTableFlags flags = ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;

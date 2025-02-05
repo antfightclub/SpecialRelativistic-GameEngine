@@ -36,7 +36,7 @@ namespace mve {
 		glm::mat4 inverseView{ 1.f };
 		glm::vec4 ambientLightColor{ 1.f, 1.f, 1.f, .02f }; // w is intensity
 		glm::vec4 observerPosition{};
-		glm::vec4 PhiThetaEtaLambda{};
+		glm::vec4 BoostParams{}; // Gamma (lorentz factor), g01, g02, g03 
 	};
 
 	struct LatticeUbo {
