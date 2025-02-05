@@ -156,7 +156,7 @@ namespace mve {
 		// Set up render systems
 		LatticeWireframeSystem latticeRenderSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()};
 		SRRenderSystem srRenderSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
-		PointLightSystem pointLightSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
+		//PointLightSystem pointLightSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
 
 		MveCamera camera{};		
 		glm::mat4 cameraView{ 1.0 }; // This will be updated later in the update loop
@@ -184,7 +184,7 @@ namespace mve {
 		}
 		*/
 		
-		
+		/*
 		float scale = 0.5f;
 		float offset = 4.f;
 		int Num = 10;
@@ -201,7 +201,7 @@ namespace mve {
 				//std::cout << "i = " << i << " j = " << j << " k = " << k << "\n";
 				//std::cout << "amount of gameobjects = " << gameObjects.size() << "\n";
 			}
-		}
+		}*/
 
 		/*
 		float scale = 0.5f;
@@ -251,8 +251,8 @@ namespace mve {
 		
 		static float phi    = 0.0f; // Spacelike
 		static float theta  = 0.0f; // Spacelike
-		static float eta    = 0.0f; // Timelike
-		static float lambda = 0.0f; // Timelike
+		static float eta    = 1.0f; // Timelike
+		static float lambda = 1.0f; // Timelike
 
 		//float sta_vel[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
@@ -299,10 +299,11 @@ namespace mve {
 
 				player.Action(mveWindow.getGLFWwindow(), dt);
 				enemy.Action(mveWindow.getGLFWwindow(), dt);
+				/*
 				for (int i = 0; i < timeClocks.size(); i++) {
 					timeClocks[i].Action(mveWindow.getGLFWwindow(), dt);
 				}
-				
+				*/
 
 				// Should get a GLM rotation matrix directly instead of this, but will require a rewrite of Math:: namespace
 				Math::Quaternion playerOrientation = player.quaternion;
@@ -401,7 +402,8 @@ namespace mve {
 
 
 				mv observerPosition = player.P.X.getT() * g0 + player.P.X.getX() * g1 + player.P.X.getY() * g2 + player.P.X.getZ() * g3;
-
+				
+				/*
 				std::vector<size_t> worldLineSize;
 				std::vector<TimeClockDrawData> clocksDrawData;
 				auto before = std::chrono::high_resolution_clock::now();
@@ -427,6 +429,7 @@ namespace mve {
 						obj.transform.scale.x = 0.1;
 					}
 				}
+				*/
 
 				// ********** Update Dear ImGui state **********
 				// This could perhaps be separated into its own function, or perhaps be implemented in a render system.
@@ -558,8 +561,8 @@ namespace mve {
 
 					ImGui::Text("Observer position: ");
 					ImGui::Text(observerPosition.c_str_f());
-					ImGui::Text("It took %f milliseconds to foliate %u timeclocks.", timeAmount, worldLineSize.size());
-
+					//ImGui::Text("It took %f milliseconds to foliate %u timeclocks.", timeAmount, worldLineSize.size());
+					/*
 					static ImGuiTableFlags flags = ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
 					//ImVec2 outer_size = ImVec2(0.0f, TEXT_BASE_HEIGHT * 8);
 					if (ImGui::BeginTable("worldline_sizes", 2, flags)) {
@@ -582,7 +585,7 @@ namespace mve {
 						}
 						
 						ImGui::EndTable();
-					}
+					}*/
 				}
 				ImGui::End();
 				
@@ -602,7 +605,7 @@ namespace mve {
 					latticeRenderSystem.renderWireframe(frameInfo, latticeGameObjectID);
 				}
 				srRenderSystem.render(frameInfo, latticeGameObjectID);
-				pointLightSystem.render(frameInfo, playerPos);
+				//pointLightSystem.render(frameInfo, playerPos);
 				mveRenderer.endSwapChainRenderPass(frameCommandBuffers.mainCommandBuffer);
 				
 				// UI rendering happens *after* the ordinary render systems, and uses a separate command buffer
