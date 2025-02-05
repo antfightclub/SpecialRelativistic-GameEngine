@@ -13,7 +13,7 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 	mat4 invView;
 	vec4 ambientLightColor;
 	vec4 observerPosition;
-	vec4 PhiThetaEtaLambda;
+	vec4 BoostParams;
 } ubo;
 
 layout(set = 0, binding = 1) uniform LatticeUbo {
@@ -27,44 +27,30 @@ layout(push_constant) uniform Push {
 } push;
 
 void main() {
-	float phi    = ubo.PhiThetaEtaLambda[0];
-	float theta  = ubo.PhiThetaEtaLambda[1];
-	float eta    = ubo.PhiThetaEtaLambda[2];
-	float lambda = ubo.PhiThetaEtaLambda[3];
+	float gamma = ubo.BoostParams[0]; // Lorentz factor
+	float betax = ubo.BoostParams[1]; // g01 plane
+	float betay = ubo.BoostParams[2]; // g02 plane
+	float betaz = ubo.BoostParams[3]; // g03 plane
+
+	float vel = sqrt(betax*betax + betay*betay + betaz*betaz);
 	
-	mat4 S1 = mat4(cos(theta), 0.0, sin(theta), 0.0,
+	mat4 Bx = mat4(1.0, 0.0, 0.0, 0.0,
 				   0.0, 1.0, 0.0, 0.0,
-				  -sin(theta), 0.0, cos(theta), 0.0,
-				   0.0, 1.0, 0.0, 1.0);
+				   0.0, 0.0, gamma, gamma*betax,
+				   0.0, 0.0, gamma*betax, gamma);
 
-	mat4 S2 = mat4(cos(theta), -sin(theta), 0.0, 0.0,
-				   sin(theta),  cos(theta), 0.0, 0.0,
-				   0.0,	0.0, 1.0, 0.0,
+	mat4 By = mat4(gamma, 0.0, gamma*betay, 0.0,
+				   0.0, 1.0, 0.0, 0.0,
+				   gamma*betay, 0.0, gamma, 0.0,
 				   0.0, 0.0, 0.0, 1.0);
 
-	mat4 S3 = mat4(1.0, 0.0, 0.0, 0.0,
-				   0.0, cos(phi), -sin(phi), 0.0,
-				   0.0, sin(phi),  cos(phi), 0.0,
+	mat4 Bz = mat4(1.0, 0.0, 0.0, 0.0,
+				   0.0, gamma, gamma*betaz, 0.0,
+				   0.0, gamma*betaz, gamma, 0.0,
 				   0.0, 0.0, 0.0, 1.0);
 
-	mat4 K1 = mat4(1.0, 0.0, 0.0, 0.0,
-				   0.0, cosh(lambda), 0.0, sinh(lambda),
-				   0.0, 0.0, 1.0, 0.0,
-				   0.0, sinh(lambda), 0.0, cosh(lambda));
+	mat4 Lorentz = Bx * By * Bz;
 
-	mat4 K2 = mat4(1.0, 0.0, 0.0, 0.0,
-				   0.0, 1.0, 0.0, 0.0,
-				   0.0, 0.0, cosh(lambda), sinh(lambda),
-				   0.0, 0.0, sinh(lambda), cosh(lambda));
-
-	mat4 K3 = mat4(cosh(eta), 0.0, 0.0, sinh(eta),
-				   0.0, 1.0, 0.0, 0.0,
-				   0.0, 0.0, 1.0, 0.0,
-				   sinh(eta), 0.0, 0.0, cosh(eta));
-
-	//mat4 Lorentz = S1 * S2 * S3 * K1 * K2 * K3;
-	//mat4 Lorentz = S1 * S2 * S3 * K1 * K2 * K3;
-	mat4 Lorentz = (S3 * S2 * S1) * (K3 * K2 * K1);
 	
 	vec3 v = vec3(position - latticeUbo.Xp + latticeUbo.Xo);
 	
