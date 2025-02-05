@@ -62,9 +62,9 @@ void main() {
 				   0.0, 0.0, 1.0, 0.0,
 				   sinh(eta), 0.0, 0.0, cosh(eta));
 
-	mat4 spacelike = S1 * S2 * S3;
-	mat4 timelike  = K1 * K2 * K3;
-	mat4 Lorentz   = spacelike * timelike;
+	//mat4 Lorentz = S1 * S2 * S3 * K1 * K2 * K3;
+	//mat4 Lorentz = S1 * S2 * S3 * K1 * K2 * K3;
+	mat4 Lorentz = (S3 * S2 * S1) * (K3 * K2 * K1);
 	
 	vec3 v = vec3(position - latticeUbo.Xp + latticeUbo.Xo);
 	

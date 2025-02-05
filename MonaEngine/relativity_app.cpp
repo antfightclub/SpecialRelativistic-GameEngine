@@ -251,8 +251,8 @@ namespace mve {
 		
 		static float phi    = 0.0f; // Spacelike
 		static float theta  = 0.0f; // Spacelike
-		static float eta    = 1.0f; // Timelike
-		static float lambda = 1.0f; // Timelike
+		static float eta    = 0.0f; // Timelike
+		static float lambda = 0.0f; // Timelike
 
 		//float sta_vel[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
