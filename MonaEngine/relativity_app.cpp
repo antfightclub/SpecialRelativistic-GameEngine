@@ -248,6 +248,11 @@ namespace mve {
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float timeSince = 0.f; // used to count time between frames!
 		bool renderLattice = true; // whether to render lattice - set in imgui ui
+		
+		static float phi    = 0.0f; // Spacelike
+		static float theta  = 0.0f; // Spacelike
+		static float eta    = 0.0f; // Timelike
+		static float lambda = 0.0f; // Timelike
 
 		//float sta_vel[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
@@ -545,6 +550,11 @@ namespace mve {
 				ImGui::End();
 				if (ImGui::Begin("Spacetime Algebra", &sta_open)) {
 					
+					ImGui::SliderFloat("(Timelike)   Phi"   , &phi,    0.0f, 5.0f);
+					ImGui::SliderFloat("(Timelike)   Theta" , &theta,  0.0f, 5.0f);
+					ImGui::SliderFloat("(Spacelike)  Eta"   , &eta,    -10.f, 10.f);
+					ImGui::SliderFloat("(Spacelike)  Lambda", &lambda, -10.f, 10.f);
+
 					ImGui::Text("Observer position: ");
 					ImGui::Text(observerPosition.c_str_f());
 					ImGui::Text("It took %f milliseconds to foliate %u timeclocks.", timeAmount, worldLineSize.size());
