@@ -27,28 +27,43 @@ layout(push_constant) uniform Push {
 } push;
 
 void main() {
-	float g0 = ubo.BoostParams[0]; // g0
-	float betax = ubo.BoostParams[1]; // g1
-	float betay = ubo.BoostParams[2]; // g2
-	float betaz = ubo.BoostParams[3]; // g3
+	float scalar = ubo.BoostParams[0];
+	float g01 = ubo.BoostParams[1];
+	float g02 = ubo.BoostParams[2];
+	float g03 = ubo.BoostParams[3];
+	
+	float x = -g01;	
+	float y = -g02;
+	float z = -g03;
+	float x2 = x*x;
+	float y2 = y*y;
+	float z2 = z*z;
 
-	float vel = sqrt(betax*betax + betay*betay + betaz*betaz);
+	float r = x2 + y2 + z2;
+	mat4 L = mat4(1.0);
+	if (r >= 0.0001) {
+		float g = sqrt(1.0 + r);
 
-	float gamma = 1.0 / (sqrt(1 - (vel*vel)));
+		r = 1.0 / r;
+
+		float xy = (g-1.0) * x * y * r;
+		float yz = (g-1.0) * y * z * r;
+		float zx = (g-1.0) * z * x * r;
+
+		L = mat4((g * x2 + y2 + z2) * r,					 xy,					 zx, -x,
+									 xy, (x2 + g * y2 + z2) * r,					 yz, -y,
+									 zx,					 yz, (x2 + y2 + g * z2) * r, -z,
+									 -x,					 -y,					 -z,  g);
+		
+
+	} 
 	
 	
-
-	mat4 Lorentz = mat4(
-			1 + (gamma-1)*(betax*betax/vel*vel),   (gamma - 1)*(betax*betay/vel*vel),   (gamma - 1)*(betax*betay/vel*vel), gamma*(betax),
-			  (gamma - 1)*(betax*betay/vel*vel), 1 + (gamma-1)*(betay*betay/vel*vel),   (gamma - 1)*(betay*betaz/vel*vel), gamma*(betay),
-			  (gamma - 1)*(betax*betaz/vel*vel),   (gamma - 1)*(betay*betaz/vel*vel), 1 + (gamma-1)*(betaz*betaz/vel*vel), gamma*(betay),
-									gamma*betax,						 gamma*betay,						  gamma*betaz,         gamma);
-
-
+	
 	
 	vec3 v = vec3(position - latticeUbo.Xp + latticeUbo.Xo);
 	
-	vec4 vertex = -Lorentz * vec4(v, -length(v));
+	vec4 vertex = L * vec4(v, -length(v));
 	vertex.w = 1.0;
 	
 	mat4 MVP = (ubo.projection * ubo.view * push.modelMatrix);
