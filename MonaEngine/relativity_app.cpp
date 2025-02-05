@@ -335,7 +335,7 @@ namespace mve {
 				globalUbo.inverseView = invView;
 				globalUbo.ambientLightColor = { 1.f, 1.f, 1.f, .02f };
 				globalUbo.observerPosition = { player.P.X.getX(), player.P.X.getY(), player.P.X.getZ(), 1.0 };
-				globalUbo.BoostParams = { splitVel.get_scalar(), splitVel.get_g0_g1(), splitVel.get_g0_g2(), splitVel.get_g0_g3()};
+				globalUbo.BoostParams = { playerVel.get_g0(), playerVel.get_g1(), playerVel.get_g2(), playerVel.get_g3()};
 				globalUboBuffers[frameIndex]->writeToBuffer(&globalUbo);
 				globalUboBuffers[frameIndex]->flush();
 
