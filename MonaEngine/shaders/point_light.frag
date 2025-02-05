@@ -16,6 +16,7 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 	mat4 invView;
 	vec4 ambientLightColor;
 	vec4 observerPosition;
+	vec4 PhiThetaEtaLambda;
 } ubo;
 
 
