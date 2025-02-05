@@ -27,9 +27,48 @@ layout(push_constant) uniform Push {
 } push;
 
 void main() {
-	vec3 v = vec3(position - latticeUbo.Xp + latticeUbo.Xo);
+	float phi    = ubo.PhiThetaEtaLambda[0];
+	float theta  = ubo.PhiThetaEtaLambda[1];
+	float eta    = ubo.PhiThetaEtaLambda[2];
+	float lambda = ubo.PhiThetaEtaLambda[3];
+	
+	mat4 S1 = mat4(cos(theta), 0.0, sin(theta), 0.0,
+				   0.0, 1.0, 0.0, 0.0,
+				  -sin(theta), 0.0, cos(theta), 0.0,
+				   0.0, 1.0, 0.0, 1.0);
 
-	vec4 vertex = latticeUbo.L * vec4(v, -length(v));
+	mat4 S2 = mat4(cos(theta), -sin(theta), 0.0, 0.0,
+				   sin(theta),  cos(theta), 0.0, 0.0,
+				   0.0,	0.0, 1.0, 0.0,
+				   0.0, 0.0, 0.0, 1.0);
+
+	mat4 S3 = mat4(1.0, 0.0, 0.0, 0.0,
+				   0.0, cos(phi), -sin(phi), 0.0,
+				   0.0, sin(phi),  cos(phi), 0.0,
+				   0.0, 0.0, 0.0, 1.0);
+
+	mat4 K1 = mat4(1.0, 0.0, 0.0, 0.0,
+				   0.0, cosh(lambda), 0.0, sinh(lambda),
+				   0.0, 0.0, 1.0, 0.0,
+				   0.0, sinh(lambda), 0.0, cosh(lambda));
+
+	mat4 K2 = mat4(1.0, 0.0, 0.0, 0.0,
+				   0.0, 1.0, 0.0, 0.0,
+				   0.0, 0.0, cosh(lambda), sinh(lambda),
+				   0.0, 0.0, sinh(lambda), cosh(lambda));
+
+	mat4 K3 = mat4(cosh(eta), 0.0, 0.0, sinh(eta),
+				   0.0, 1.0, 0.0, 0.0,
+				   0.0, 0.0, 1.0, 0.0,
+				   sinh(eta), 0.0, 0.0, cosh(eta));
+
+	mat4 spacelike = S1 * S2 * S3;
+	mat4 timelike  = K1 * K2 * K3;
+	mat4 Lorentz   = spacelike * timelike;
+	
+	vec3 v = vec3(position - latticeUbo.Xp + latticeUbo.Xo);
+	
+	vec4 vertex = Lorentz * vec4(v, -length(v));
 	vertex.w = 1.0;
 	
 	mat4 MVP = (ubo.projection * ubo.view * push.modelMatrix);
