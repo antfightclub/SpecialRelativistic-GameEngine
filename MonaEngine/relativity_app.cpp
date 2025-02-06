@@ -164,6 +164,8 @@ namespace mve {
 		auto viewerObject = MveGameObject::createGameObject(); // Game object to hold camera position
 		Player player{ mveWindow , viewerObject, Math::Vector4D{}, Math::EntityState{} }; // Game player
 
+		//std::cout << std::boolalpha << std::is_move_assignable<vector> << std::cout;
+
 		/*
 		float scale = 1.24f;
 		float offset = 5.0f;
@@ -556,12 +558,54 @@ namespace mve {
 				}
 				ImGui::End();
 				if (ImGui::Begin("Spacetime Algebra", &sta_open)) {
-					ImGui::Text("Player position: ");
-					ImGui::Text(playerPos.c_str_f());
-					ImGui::Text("Player velocity: ");
-					ImGui::Text(playerVel.c_str_f());
-					ImGui::Text("Split of velocity: ");
-					ImGui::Text(splitVel.c_str_f());
+					//ImGui::Text("Player position: ");
+					//ImGui::Text(playerPos.c_str_f());
+					//ImGui::Text("Player velocity: ");
+					//ImGui::Text(playerVel.c_str_f());
+					//ImGui::Text("Split of velocity: ");
+					//ImGui::Text(splitVel.c_str_f());
+					static float magnitude_v = 0.0;
+					ImGui::SliderFloat("v magnitude", &magnitude_v, -1.0f, 1.0f);
+					static float magnitude_u = 0.0;
+					ImGui::SliderFloat("u magnitude", &magnitude_u, -1.0f, 1.0f);
+
+					static float v_dir[3] = { 0.0f, 1.0f, 0.0f };
+					static float u_dir[3] = { 0.0f, 1.0f, 0.0f };
+
+					ImGui::SliderFloat3("v dir", v_dir, -2.0f, 2.f);
+					ImGui::SliderFloat3("u dir", u_dir, -2.0f, 2.f);
+
+					// The most interesting thing I found out today was that
+					// The velocity addition *only works* if using bivectors
+					// in the STA. Using set_g1 instead breaks it!
+					// Perhaps I've been thinking about this all wrong. I think
+					// maybe velocities need to be w.r.t. the unit timelike g0!
+					// Worldlines are still events in spacetime, but if I want 
+					// to represent anything, it's gotta be the spacetime split!
+					mv v;
+					v.set_g0_g1(v_dir[0]);
+					v.set_g0_g2(v_dir[1]);
+					v.set_g0_g3(v_dir[2]);
+					mv u;
+					u.set_g0_g1(u_dir[0]);
+					u.set_g0_g2(u_dir[1]);
+					u.set_g0_g3(u_dir[2]);
+
+					v = unit(v);
+					u = unit(u);
+
+					v *= magnitude_v;
+					u *= magnitude_u;
+
+					mv finalvel = (v + u) * m4sta::versorInverse(1 + v*u); 
+
+					ImGui::Text("v             : "); ImGui::SameLine(); ImGui::Text(v.c_str());
+					ImGui::Text("u             : "); ImGui::SameLine(); ImGui::Text(u.c_str());
+					ImGui::Text("vel add       : "); ImGui::SameLine(); ImGui::Text(finalvel.c_str());
+
+					double vel_magnitude = norm(finalvel);
+					ImGui::NewLine();
+					ImGui::Text("vel magnitude : %.3f", vel_magnitude);
 
 					//ImGui::Text("It took %f milliseconds to foliate %u timeclocks.", timeAmount, worldLineSize.size());
 					/*
