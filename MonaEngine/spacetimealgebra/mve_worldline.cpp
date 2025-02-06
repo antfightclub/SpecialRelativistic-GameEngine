@@ -73,11 +73,12 @@ namespace mve {
 		m4sta::mv dX = X1 - X0;
 		m4sta::mv dY = O  - X0;
 
-		double alpha = m4sta::norm2(dX).get_scalar();
+		double alpha = m4sta::norm2(dX);//.get_scalar();
 		double beta = m4sta::sp(dX, dY);
-		double gamma = m4sta::norm2(dY).get_scalar();
+		double gamma = m4sta::norm2(dY);//.get_scalar();
 		double sigma = (beta - std::sqrt(beta * beta - alpha * gamma)) / alpha; // [0, 1)
-		dX /= std::sqrt(-alpha);
+		//dX /= std::sqrt(-alpha);
+		dX = m4sta::div(dX, std::sqrt(-alpha));
 
 		double tt = X0.get_g0() * (1 - sigma) + X1.get_g0() * (sigma);
 		double xx = X0.get_g1() * (1 - sigma) + X1.get_g1() * (sigma);
