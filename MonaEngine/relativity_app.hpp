@@ -10,7 +10,7 @@
 #include "lattice.hpp"
 
 // Spacetime Algebra
-#include "spacetimealgebra/m4sta.h"
+#include "spacetimealgebra/m4sta.hpp"
 
 // Dear ImGui 
 #include "external/imgui/imgui.h"

@@ -4,7 +4,7 @@
 
 #include "../mve_game_object.hpp"
 #include "../mve_model.hpp"
-#include "../spacetimealgebra/m4sta.h"
+#include "../spacetimealgebra/m4sta.hpp"
 #include "../spacetimealgebra/mve_worldline.hpp"
 
 namespace mve {

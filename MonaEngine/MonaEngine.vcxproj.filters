@@ -239,9 +239,6 @@
     <ClInclude Include="enemy.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="spacetimealgebra\m4sta.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="entity\timeclock.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -255,6 +252,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="spacetimealgebra\mve_worldline.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="spacetimealgebra\m4sta.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

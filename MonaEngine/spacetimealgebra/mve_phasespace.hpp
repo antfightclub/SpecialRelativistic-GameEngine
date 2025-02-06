@@ -1,6 +1,6 @@
 #pragma once
 
-#include "m4sta.h"
+#include "m4sta.hpp"
 
 using namespace m4sta;
 

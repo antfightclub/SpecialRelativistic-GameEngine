@@ -1,6 +1,6 @@
 #pragma once
 
-#include "m4sta.h"
+#include "m4sta.hpp"
 #include "../mve_game_object.hpp"
 #include "mve_phasespace.hpp"
 
