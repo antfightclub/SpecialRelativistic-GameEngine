@@ -209,7 +209,7 @@
     <ClInclude Include="relativity\math\Vector4D.hpp" />
     <ClInclude Include="relativity\math\WorldLine.hpp" />
     <ClInclude Include="relativity_app.hpp" />
-    <ClInclude Include="spacetimealgebra\m4sta.h" />
+    <ClInclude Include="spacetimealgebra\m4sta.hpp" />
     <ClInclude Include="spacetimealgebra\mve_phasespace.hpp" />
     <ClInclude Include="spacetimealgebra\mve_worldline.hpp" />
     <ClInclude Include="systems\imgui_render_system.hpp" />

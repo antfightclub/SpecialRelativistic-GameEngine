@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<g25spec 
+	license="custom" 
+	language="cpp" 
+	namespace="m4sta" 
+	coordStorage="array" 
+	defaultOperatorBindings="true" 
+	dimension="4" 
+	reportUsage="false" 
+	gmvCode="expand" 
+	parser="builtin">
+    <!-- testSuite="true"> -->
+
+  <!-- Needed for testSuite -->
+  <!-- <function name="random_double" outputName="genrand" optionGen="mt"/> -->
+
+  <customLicense>
+    Licensed under the  MIT license; see LICENSE file for full details.
+    Copyright (c) 2014 Mike Boyle
+  </customLicense>
+
+  <outputFilename defaultName="m4sta.h" customName="m4sta.hpp"/>
+
+
+  <!-- <verbatim filename="SpacetimeAlgebra.hpp" position="before" marker="namespace SpacetimeAlgebra {"> -->
+  <!-- // Any verbatim text should be placed here -->
+  <!-- </verbatim> -->
+  
+	<verbatim filename="m4sta.cpp" position="before" marker="#include ">
+	#define _CRT_SECURE_NO_WARNINGS
+	</verbatim>
+
+
+  <!-- Inline all possible functions -->
+  <inline constructors="true" set="true" assign="true" operators="true" functions="true"/>
+
+  <floatType type="double"/>
+
+  <!-- Define the basis -->
+  <basisVectorNames name1="g0" name2="g1" name3="g2" name4="g3"/>
+  <!-- Note that this is opposite to Hestenes' metric but matches LSBattle. -->
+  <metric name="default">g0.g0=1</metric>
+  <metric name="default">g1.g1=g2.g2=g3.g3=-1</metric>
+  <metric name="Euclidean">g0.g0=g1.g1=g2.g2=g3.g3=1</metric>
+
+  <!-- General multivectors -->
+  <mv name="mv" compress="byGrade" coordinateOrder="default" memAlloc="full"/>
+
+  <!-- The basic vectors -->
+  <smv name="g0" const="true" type="blade">g0=1</smv>
+  <smv name="g1" const="true" type="blade">g1=1</smv>
+  <smv name="g2" const="true" type="blade">g2=1</smv>
+  <smv name="g3" const="true" type="blade">g3=1</smv>
+
+  <!-- The two important pseudoscalars -->
+  <smv name="I" const="true" type="blade">g0^g1^g2^g3=1</smv>
+  <smv name="I3" const="true" type="blade">g1^g2^g3=1</smv>
+
+  <!-- Important sub-types of multivectors -->
+  <smv name="mv3" type="multivector">
+    scalar
+    g1 g2 g3
+    g1^g2 g1^g3 g2^g3
+    g1^g2^g3
+  </smv>
+  <smv name="vector" type="blade">
+    g0 g1 g2 g3
+  </smv>
+  <smv name="vector3" type="blade">
+    g1 g2 g3
+  </smv>
+  <smv name="bivector" type="blade">
+    g0^g1 g0^g2 g0^g3
+    g1^g2 g1^g3 g2^g3
+  </smv>
+  <smv name="bivector3" type="blade">
+    g1^g2 g1^g3 g2^g3
+  </smv>
+  <smv name="pseudovector" type="blade">
+    g0^g1^g2
+    g0^g1^g3
+    g0^g2^g3
+    g1^g2^g3
+  </smv>
+  <smv name="spinor" type="versor">
+    scalar
+    g0^g1 g0^g2 g0^g3
+    g1^g2 g1^g3 g2^g3
+    g0^g1^g2^g3
+  </smv>
+  <smv name="spinor3" type="versor">
+    scalar
+    g1^g2 g1^g3 g2^g3
+  </smv>
+
+  <!-- Converters between specialized types -->
+  <!-- <function name="_vector" arg1="mv"/> -->
+  <!-- <function name="_bivector" arg1="mv"/> -->
+  <!-- <function name="_spinor" arg1="mv"/> -->
+  <!-- <function name="_vector3" arg1="mv"/> -->
+  <!-- <function name="_bivector3" arg1="mv"/> -->
+  <!-- <function name="_spinor3" arg1="mv"/> -->
+  <function name="_vector3" arg1="vector"/>
+  <function name="_bivector3" arg1="bivector"/>
+  <function name="_spinor3" arg1="spinor"/>
+
+  <!-- Grade extraction -->
+  <!-- Note that some grades and certain combinations of grades can -->
+  <!-- be extracted by the functions among the above converters. -->
+  <function name="extractGrade" arg1="mv"/> <!-- Needed internally for the following -->
+  <function name="extractGrade0" arg1="mv"/>
+  <function name="extractGrade0" arg1="mv3"/>
+  <function name="extractGrade0" arg1="vector"/>
+  <function name="extractGrade0" arg1="vector3"/>
+  <function name="extractGrade0" arg1="bivector"/>
+  <function name="extractGrade0" arg1="bivector3"/>
+  <function name="extractGrade0" arg1="pseudovector"/>
+  <function name="extractGrade0" arg1="spinor"/>
+  <function name="extractGrade0" arg1="spinor3"/>
+  <function name="extractGrade1" arg1="mv"/>
+  <function name="extractGrade1" arg1="mv3"/>
+  <function name="extractGrade1" arg1="vector"/>
+  <function name="extractGrade1" arg1="vector3"/>
+  <function name="extractGrade1" arg1="bivector"/>
+  <function name="extractGrade1" arg1="bivector3"/>
+  <function name="extractGrade1" arg1="pseudovector"/>
+  <function name="extractGrade1" arg1="spinor"/>
+  <function name="extractGrade1" arg1="spinor3"/>
+  <function name="extractGrade2" arg1="mv"/>
+  <function name="extractGrade2" arg1="mv3"/>
+  <function name="extractGrade2" arg1="vector"/>
+  <function name="extractGrade2" arg1="vector3"/>
+  <function name="extractGrade2" arg1="bivector"/>
+  <function name="extractGrade2" arg1="bivector3"/>
+  <function name="extractGrade2" arg1="pseudovector"/>
+  <function name="extractGrade2" arg1="spinor"/>
+  <function name="extractGrade2" arg1="spinor3"/>
+  <function name="extractGrade3" arg1="mv"/>
+  <function name="extractGrade3" arg1="mv3"/>
+  <function name="extractGrade3" arg1="vector"/>
+  <function name="extractGrade3" arg1="vector3"/>
+  <function name="extractGrade3" arg1="bivector"/>
+  <function name="extractGrade3" arg1="bivector3"/>
+  <function name="extractGrade3" arg1="pseudovector"/>
+  <function name="extractGrade3" arg1="spinor"/>
+  <function name="extractGrade3" arg1="spinor3"/>
+  <function name="extractGrade4" arg1="mv"/>
+  <function name="extractGrade4" arg1="mv3"/>
+  <function name="extractGrade4" arg1="vector"/>
+  <function name="extractGrade4" arg1="vector3"/>
+  <function name="extractGrade4" arg1="bivector"/>
+  <function name="extractGrade4" arg1="bivector3"/>
+  <function name="extractGrade4" arg1="pseudovector"/>
+  <function name="extractGrade4" arg1="spinor"/>
+  <function name="extractGrade4" arg1="spinor3"/>
+
+  <!-- Basic vector operators -->
+  <function name="add" arg1="mv" arg2="mv"/>
+  <function name="add" arg1="mv3" arg2="mv3"/>
+  <function name="add" arg1="vector" arg2="vector"/>
+  <function name="add" arg1="vector3" arg2="vector3"/>
+  <function name="add" arg1="bivector" arg2="bivector"/>
+  <function name="add" arg1="bivector3" arg2="bivector3"/>
+  <function name="add" arg1="pseudovector" arg2="pseudovector"/>
+  <function name="add" arg1="spinor" arg2="spinor"/>
+  <function name="add" arg1="spinor3" arg2="spinor3"/>
+  <function name="subtract" arg1="mv" arg2="mv"/>
+  <function name="subtract" arg1="mv3" arg2="mv3"/>
+  <function name="subtract" arg1="vector" arg2="vector"/>
+  <function name="subtract" arg1="vector3" arg2="vector3"/>
+  <function name="subtract" arg1="bivector" arg2="bivector"/>
+  <function name="subtract" arg1="bivector3" arg2="bivector3"/>
+  <function name="subtract" arg1="pseudovector" arg2="pseudovector"/>
+  <function name="subtract" arg1="spinor" arg2="spinor"/>
+  <function name="subtract" arg1="spinor3" arg2="spinor3"/>
+  <function name="gp" arg1="double" arg2="mv"/>
+  <function name="gp" arg1="double" arg2="mv3"/>
+  <function name="gp" arg1="double" arg2="vector"/>
+  <function name="gp" arg1="double" arg2="vector3"/>
+  <function name="gp" arg1="double" arg2="bivector"/>
+  <function name="gp" arg1="double" arg2="bivector3"/>
+  <function name="gp" arg1="double" arg2="pseudovector"/>
+  <function name="gp" arg1="double" arg2="spinor"/>
+  <function name="gp" arg1="double" arg2="spinor3"/> <!-- scalar multiplication -->
+  <function name="gp" arg1="mv" arg2="double"/>
+  <function name="gp" arg1="mv3" arg2="double"/>
+  <function name="gp" arg1="vector" arg2="double"/>
+  <function name="gp" arg1="vector3" arg2="double"/>
+  <function name="gp" arg1="bivector" arg2="double"/>
+  <function name="gp" arg1="bivector3" arg2="double"/>
+  <function name="gp" arg1="pseudovector" arg2="double"/>
+  <function name="gp" arg1="spinor" arg2="double"/>
+  <function name="gp" arg1="spinor3" arg2="double"/> <!-- scalar multiplication -->
+  <function name="div" arg1="mv" arg2="double" floatType="double"/>
+  <function name="div" arg1="mv3" arg2="double"/>
+  <function name="div" arg1="vector" arg2="double"/>
+  <function name="div" arg1="vector3" arg2="double"/>
+  <function name="div" arg1="bivector" arg2="double"/>
+  <function name="div" arg1="bivector3" arg2="double"/>
+  <function name="div" arg1="pseudovector" arg2="double"/>
+  <function name="div" arg1="spinor" arg2="double"/>
+  <function name="div" arg1="spinor3" arg2="double"/> <!-- scalar division -->
+  <!-->
+  <function name="div" arg1="double" arg2="mv"/>
+  <function name="div" arg1="double" arg2="mv3"/>
+  <function name="div" arg1="double" arg2="vector"/>
+  <function name="div" arg1="double" arg2="vector3"/>
+  <function name="div" arg1="double" arg2="bivector"/>
+  <function name="div" arg1="double" arg2="bivector3"/>
+  <function name="div" arg1="double" arg2="pseudovector"/>
+  <function name="div" arg1="double" arg2="spinor"/>
+  <function name="div" arg1="double" arg2="spinor3"/>
+  <-->
+
+  <!-- Geometric operations -->
+  <function name="gp" arg1="mv" arg2="mv"/> <!-- geometric product -->
+  <function name="gp" arg1="spinor" arg2="spinor"/> <!-- geometric product -->
+  <function name="gp" arg1="spinor3" arg2="spinor3"/> <!-- geometric product -->
+  <function name="rc" arg1="mv" arg2="mv"/> <!-- right contraction -->
+  <function name="lc" arg1="mv" arg2="mv"/> <!-- left contraction -->
+  <function name="sp" arg1="mv" arg2="mv"/>
+  <function name="sp" arg1="mv3" arg2="mv3"/>
+  <function name="sp" arg1="vector" arg2="vector"/>
+  <function name="sp" arg1="vector3" arg2="vector3"/>
+  <function name="sp" arg1="bivector" arg2="bivector"/>
+  <function name="sp" arg1="bivector3" arg2="bivector3"/>
+  <function name="sp" arg1="pseudovector" arg2="pseudovector"/>
+  <function name="sp" arg1="spinor" arg2="spinor"/>
+  <function name="sp" arg1="spinor3" arg2="spinor3"/> <!-- scalar product -->
+  <function name="op" arg1="mv" arg2="mv"/> <!-- outer product -->
+  <function name="op" arg1="vector" arg2="vector"/> <!-- outer product -->
+  <function name="op" arg1="vector3" arg2="vector3"/> <!-- outer product -->
+  <function name="op" arg1="bivector" arg2="bivector"/> <!-- outer product -->
+  <function name="op" arg1="bivector3" arg2="bivector3"/> <!-- outer product -->
+
+  <!-- Dualization and involutions -->
+  <function name="dual" arg1="mv"/>
+  <function name="dual" arg1="vector"/>
+  <function name="dual" arg1="bivector"/>
+  <function name="dual" arg1="pseudovector"/>
+  <function name="dual" arg1="spinor"/>
+  <function name="negate" arg1="mv"/>
+  <function name="negate" arg1="mv3"/>
+  <function name="negate" arg1="vector"/>
+  <function name="negate" arg1="vector3"/>
+  <function name="negate" arg1="bivector"/>
+  <function name="negate" arg1="bivector3"/>
+  <function name="negate" arg1="pseudovector"/>
+  <function name="negate" arg1="spinor"/>
+  <function name="negate" arg1="spinor3"/>
+  <function name="reverse" arg1="mv"/>
+  <function name="reverse" arg1="mv3"/>
+  <function name="reverse" arg1="vector"/>
+  <function name="reverse" arg1="vector3"/>
+  <function name="reverse" arg1="bivector"/>
+  <function name="reverse" arg1="bivector3"/>
+  <function name="reverse" arg1="pseudovector"/>
+  <function name="reverse" arg1="spinor"/>
+  <function name="reverse" arg1="spinor3"/>
+  <function name="cliffordConjugate" arg1="mv"/>
+  <function name="cliffordConjugate" arg1="mv3"/>
+  <function name="cliffordConjugate" arg1="vector"/>
+  <function name="cliffordConjugate" arg1="vector3"/>
+  <function name="cliffordConjugate" arg1="bivector"/>
+  <function name="cliffordConjugate" arg1="bivector3"/>
+  <function name="cliffordConjugate" arg1="pseudovector"/>
+  <function name="cliffordConjugate" arg1="spinor"/>
+  <function name="cliffordConjugate" arg1="spinor3"/>
+  <function name="gradeInvolution" arg1="mv"/>
+  <function name="gradeInvolution" arg1="mv3"/>
+  <function name="gradeInvolution" arg1="vector"/>
+  <function name="gradeInvolution" arg1="vector3"/>
+  <function name="gradeInvolution" arg1="bivector"/>
+  <function name="gradeInvolution" arg1="bivector3"/>
+  <function name="gradeInvolution" arg1="pseudovector"/>
+  <function name="gradeInvolution" arg1="spinor"/>
+  <function name="gradeInvolution" arg1="spinor3"/>
+
+  <!-- Norms and normalization -->
+  <function name="norm" arg1="mv"/>
+  <function name="norm" arg1="mv3"/>
+  <function name="norm" arg1="vector"/>
+  <function name="norm" arg1="vector3"/>
+  <function name="norm" arg1="bivector"/>
+  <function name="norm" arg1="bivector3"/>
+  <function name="norm" arg1="pseudovector"/>
+  <function name="norm" arg1="spinor"/>
+  <function name="norm" arg1="spinor3"/>
+  <function name="norm2" arg1="mv"/>
+  <function name="norm2" arg1="mv3"/>
+  <function name="norm2" arg1="vector"/>
+  <function name="norm2" arg1="vector3"/>
+  <function name="norm2" arg1="bivector"/>
+  <function name="norm2" arg1="bivector3"/>
+  <function name="norm2" arg1="pseudovector"/>
+  <function name="norm2" arg1="spinor"/>
+  <function name="norm2" arg1="spinor3"/>
+  <function name="norm2" arg1="mv" outputName="norm2_euclidean" metric="Euclidean"/>
+  <function name="unit" arg1="mv"/>
+  <function name="unit" arg1="mv3"/>
+  <function name="unit" arg1="vector"/>
+  <function name="unit" arg1="vector3"/>
+  <function name="unit" arg1="bivector"/>
+  <function name="unit" arg1="bivector3"/>
+  <function name="unit" arg1="pseudovector"/>
+  <function name="unit" arg1="spinor"/>
+  <function name="unit" arg1="spinor3"/> <!-- I believe this normalizes a multivector... -->
+  <function name="versorInverse" arg1="mv"/>
+  <function name="versorInverse" arg1="spinor3"/>
+  <function name="versorInverse" arg1="spinor"/>
+
+  <!-- Transcendental functions -->
+  <function name="sas" arg1="mv" arg2="double" arg3="double"/>
+  <function name="sas" arg1="spinor3" arg2="double" arg3="double"/>
+  <function name="sas" arg1="spinor" arg2="double" arg3="double"/> <!-- Needed internally for the following -->
+  <function name="log" arg1="mv3" optionType="euclidean" metric="Euclidean"/> <!-- log is only implemented for 3d Euclidean multivectors -->
+  <function name="log" arg1="spinor3" optionType="euclidean" metric="Euclidean"/> <!-- log is only implemented for 3d Euclidean multivectors -->
+  <function name="exp" arg1="mv"/>
+  <function name="exp" arg1="spinor3"/>
+  <function name="exp" arg1="spinor"/>
+  <function name="sin" arg1="mv"/>
+  <function name="sin" arg1="spinor3"/>
+  <function name="sin" arg1="spinor"/>
+  <function name="cos" arg1="mv"/>
+  <function name="cos" arg1="spinor3"/>
+  <function name="cos" arg1="spinor"/>
+  <function name="sinh" arg1="mv"/>
+  <function name="sinh" arg1="spinor3"/>
+  <function name="sinh" arg1="spinor"/>
+  <function name="cosh" arg1="mv"/>
+  <function name="cosh" arg1="spinor3"/>
+  <function name="cosh" arg1="spinor"/>
+
+  <!-- Spinor operations -->
+  <function name="applyVersor" arg1="spinor" argName1="R" arg2="vector" argName2="v"/>
+  <function name="applyUnitVersor" arg1="spinor3" argName1="R" arg2="vector3" argName2="v"/>
+
+</g25spec>
