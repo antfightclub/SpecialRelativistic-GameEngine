@@ -565,15 +565,21 @@ namespace mve {
 					//ImGui::Text("Split of velocity: ");
 					//ImGui::Text(splitVel.c_str_f());
 					static float magnitude_v = 0.0;
-					ImGui::SliderFloat("v magnitude", &magnitude_v, -1.0f, 1.0f);
+					ImGui::InputFloat("v magnitude", &magnitude_v, -1.0f, 1.0f);
 					static float magnitude_u = 0.0;
-					ImGui::SliderFloat("u magnitude", &magnitude_u, -1.0f, 1.0f);
+					ImGui::InputFloat("u magnitude", &magnitude_u, -1.0f, 1.0f);
 
 					static float v_dir[3] = { 0.0f, 1.0f, 0.0f };
 					static float u_dir[3] = { 0.0f, 1.0f, 0.0f };
 
 					ImGui::SliderFloat3("v dir", v_dir, -2.0f, 2.f);
 					ImGui::SliderFloat3("u dir", u_dir, -2.0f, 2.f);
+
+					static float v_g0{};
+					static float u_g0{};
+
+					ImGui::InputFloat("v time", &v_g0);
+					ImGui::InputFloat("u time", &u_g0);
 
 					// The most interesting thing I found out today was that
 					// The velocity addition *only works* if using bivectors
@@ -582,14 +588,20 @@ namespace mve {
 					// maybe velocities need to be w.r.t. the unit timelike g0!
 					// Worldlines are still events in spacetime, but if I want 
 					// to represent anything, it's gotta be the spacetime split!
+
+					// So, what if I instead do have a velocity using g1, g2, g3,
+					// but then do a spacetime split afterwards?
+
 					mv v;
-					v.set_g0_g1(v_dir[0]);
-					v.set_g0_g2(v_dir[1]);
-					v.set_g0_g3(v_dir[2]);
+					v.set_g0(v_g0);
+					v.set_g1(v_dir[0]);
+					v.set_g2(v_dir[1]);
+					v.set_g3(v_dir[2]);
 					mv u;
-					u.set_g0_g1(u_dir[0]);
-					u.set_g0_g2(u_dir[1]);
-					u.set_g0_g3(u_dir[2]);
+					u.set_g0(u_g0);
+					u.set_g1(u_dir[0]);
+					u.set_g2(u_dir[1]);
+					u.set_g3(u_dir[2]);
 
 					v = unit(v);
 					u = unit(u);
@@ -597,15 +609,27 @@ namespace mve {
 					v *= magnitude_v;
 					u *= magnitude_u;
 
+					mv v_compare = v;
+					mv u_compare = u;
+					// spacetime split	
+					v = v * g0;
+					u = u * g0;
+
 					mv finalvel = (v + u) * m4sta::versorInverse(1 + v*u); 
 
-					ImGui::Text("v             : "); ImGui::SameLine(); ImGui::Text(v.c_str());
-					ImGui::Text("u             : "); ImGui::SameLine(); ImGui::Text(u.c_str());
+					ImGui::Text("v             : "); ImGui::SameLine(); ImGui::Text(v_compare.c_str());
+					ImGui::Text("v*g0          : "); ImGui::SameLine(); ImGui::Text(v.c_str());
+					ImGui::Text("u             : "); ImGui::SameLine(); ImGui::Text(u_compare.c_str());
+					ImGui::Text("u*g0          : "); ImGui::SameLine(); ImGui::Text(u.c_str());
+					ImGui::NewLine();
 					ImGui::Text("vel add       : "); ImGui::SameLine(); ImGui::Text(finalvel.c_str());
 
 					double vel_magnitude = norm(finalvel);
-					ImGui::NewLine();
+					//ImGui::NewLine();
 					ImGui::Text("vel magnitude : %.3f", vel_magnitude);
+
+					ImGui::Text("g0 * v * g0   : "); ImGui::SameLine(); ImGui::Text((g0 * v_compare * g0).c_str());
+					ImGui::Text("g0 * ~v * g0  : "); ImGui::SameLine(); ImGui::Text((g0 * ~v_compare * g0).c_str());
 
 					//ImGui::Text("It took %f milliseconds to foliate %u timeclocks.", timeAmount, worldLineSize.size());
 					/*
