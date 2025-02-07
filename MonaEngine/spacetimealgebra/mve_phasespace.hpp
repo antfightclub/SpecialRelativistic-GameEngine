@@ -13,7 +13,7 @@ namespace mve {
 
 		MvePhaseSpace(m4sta::mv pos, m4sta::mv vel) : position{pos}, velocity{vel} {}
 
-		void transform(m4sta::mv accel, double deltaSeconds);
+		void transform(m4sta::vector accel, double deltaSeconds);
 	};
 
 }//end namespace mve
