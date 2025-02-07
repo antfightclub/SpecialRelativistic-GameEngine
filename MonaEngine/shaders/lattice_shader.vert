@@ -41,7 +41,7 @@ void main() {
 
 	float r = x2 + y2 + z2;
 	mat4 L = mat4(1.0);
-	if (r >= 0.0001) {
+	if (r >= 0.000001) {
 		float g = sqrt(1.0 + r);
 
 		r = 1.0 / r;

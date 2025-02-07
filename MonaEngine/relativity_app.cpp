@@ -162,7 +162,18 @@ namespace mve {
 		glm::mat4 cameraView{ 1.0 }; // This will be updated later in the update loop
 		
 		auto viewerObject = MveGameObject::createGameObject(); // Game object to hold camera position
-		Player player{ mveWindow , viewerObject, Math::Vector4D{}, Math::EntityState{} }; // Game player
+		mv initialPosition{};
+		//initialPosition.set_g0(1.0);
+		mv initialVelocity{};
+		initialVelocity.set_g0(1.0);
+
+		//initialPosition = initialPosition * g0;
+		//initialVelocity = initialVelocity * g0;
+
+		std::cout << initialPosition.toString() << std::endl;
+		std::cout << initialVelocity.toString() << std::endl;
+
+		Player player{ mveWindow , viewerObject, initialPosition, initialVelocity }; // Game player
 
 		//std::cout << std::boolalpha << std::is_move_assignable<vector> << std::cout;
 
@@ -303,17 +314,13 @@ namespace mve {
 				}
 				*/
 
-				// Testing for rotors.
-				mv playerPos = player.P.X.getT() * g0 + player.P.X.getX() * g1 + player.P.X.getY() * g2 + player.P.X.getZ() * g3;
-				mv playerVel = player.P.U.getT() * g0 + player.P.U.getX() * g1 + player.P.U.getY() * g2 + player.P.U.getZ() * g3;
-				
-				mv splitVel = playerVel * g0;
-
 				// Should get a GLM rotation matrix directly instead of this, but will require a rewrite of Math:: namespace
 				Math::Quaternion playerOrientation = player.quaternion;
 				
+				float playerPos[3] = { player.P.position.get_g1(), player.P.position.get_g2(), player.P.position.get_g3() };
+
 				// Establish camera view matrix
-				glm::vec3 playerPosition = glm::vec3{ (float)player.P.X.getX(), (float)player.P.X.getY(), (float)player.P.X.getZ() };
+				glm::vec3 playerPosition = glm::vec3{ playerPos[0], playerPos[1], playerPos[2] };
 				glm::quat orientation = glm::quat{ (float)playerOrientation.t, (float)playerOrientation.x, (float)playerOrientation.y, (float)playerOrientation.z };				
 				glm::mat4 rotate = glm::toMat4(orientation); 
 				glm::mat4 translate = glm::mat4(1.0f);
@@ -336,15 +343,15 @@ namespace mve {
 				globalUbo.view = camera.getView();
 				globalUbo.inverseView = invView;
 				globalUbo.ambientLightColor = { 1.f, 1.f, 1.f, .02f };
-				globalUbo.observerPosition = { player.P.X.getX(), player.P.X.getY(), player.P.X.getZ(), 1.0 };
+				globalUbo.observerPosition = { playerPos[0], playerPos[1], playerPos[2], 1.0};
 				//globalUbo.BoostParams = { playerVel.get_g0(), playerVel.get_g1(), playerVel.get_g2(), playerVel.get_g3() };
-				globalUbo.BoostParams = { splitVel.get_scalar(), splitVel.get_g0_g1(), splitVel.get_g0_g2(), splitVel.get_g0_g3()};
+				globalUbo.BoostParams = { player.P.velocity.get_scalar(), player.P.velocity.get_g0_g1(), player.P.velocity.get_g0_g2(), player.P.velocity.get_g0_g3()};
 				globalUboBuffers[frameIndex]->writeToBuffer(&globalUbo);
 				globalUboBuffers[frameIndex]->flush();
 
 				
 				// Xp = player's position in the background frame
-				glm::vec3 Xp = glm::vec3{ player.P.X.getX(), player.P.X.getY(), player.P.X.getZ() };
+				glm::vec3 Xp = glm::vec3{ playerPos[0], playerPos[1], playerPos[2]};
 
 				// Xo = displacement of lattice by Lattice Unit N/L to keep it centered on the player in the vertex shader
 				int xo = int(int(Xp.x / (lattice.latticeUnit)) * (lattice.latticeUnit));
@@ -352,29 +359,24 @@ namespace mve {
 				int zo = int(int(Xp.z / (lattice.latticeUnit)) * (lattice.latticeUnit));
 				
 
-				double PlayerU[4] = { player.P.U.getT(), player.P.U.getX(), player.P.U.getY(), player.P.U.getZ() };
+				//Math::Matrix44 L{};	
+				//L = Math::Matrix44::Lorentz(player.P.U); // Lorentz boost matrix : Bg frame -> Player frame
+				//glm::mat4 lorentz = L.toGLM();			 // .toGLM() transposes the matrix to conform to GLSL conventions
 				
-				//m4sta_testing_stuffs(player.P.X, playerLastPosition, dt);
-
-				Math::Matrix44 L{};	
-				L = Math::Matrix44::Lorentz(player.P.U); // Lorentz boost matrix : Bg frame -> Player frame
-				glm::mat4 lorentz = L.toGLM();			 // .toGLM() transposes the matrix to conform to GLSL conventions
-				
-				Math::Matrix44 LL{};
-				LL = Math::Matrix44::Lorentz(-player.P.U);	// Not sure how to use yet; but it transforms from the player's frame of reference to the background frame of reference.
-				glm::mat4 invLorenz = LL.toGLM();
+				//Math::Matrix44 LL{};
+				//LL = Math::Matrix44::Lorentz(-player.P.U);	// Not sure how to use yet; but it transforms from the player's frame of reference to the background frame of reference.
+				//glm::mat4 invLorenz = LL.toGLM();
 				
 				// Update buffer holding LatticeUbo
 				LatticeUbo latticeUbo{};
 				latticeUbo.Xp = glm::vec3{ Xp.x, Xp.y, Xp.z};
 				latticeUbo.Xo = glm::vec3{ xo,   yo,   zo };
-				latticeUbo.Lorentz = lorentz;
+				latticeUbo.Lorentz = glm::mat4{1.0};
 				latticeUboBuffers[frameIndex]->writeToBuffer(&latticeUbo);
 				latticeUboBuffers[frameIndex]->flush();
 				latticeUboBuffer.flushIndex(frameIndex);
 
-
-
+				/*
 				EnemyDrawData eDrawData = enemy.getDrawData(player.P.X, L, LL);
 
 				Math::Vector4D dX = eDrawData.X - player.P.X;
@@ -394,21 +396,28 @@ namespace mve {
 				glm::mat4 L_e2p = (L * Math::Matrix44::Lorentz(-eDrawData.U)).toGLM();
 
 				glm::quat enemyOrientation = glm::quat{ (float)eDrawData.quaternion.t, (float)eDrawData.quaternion.x, (float)eDrawData.quaternion.y, (float)eDrawData.quaternion.z };
-
+				
 				SpecialRelativityUbo srUbo{};
 				srUbo.Lorentz = L_e2p;
 				srUbo.Lorentz_p2e = L_p2b_b2e;
 				srUbo.Rotate = glm::toMat4(enemyOrientation);
 				srUbo.dX = dX_playerframe;
 				srUbo.xp = xp;
+				*/
+				SpecialRelativityUbo srUbo{};
+				srUbo.Lorentz = glm::mat4{};
+				srUbo.Lorentz_p2e = glm::mat4{};
+				srUbo.Rotate = glm::mat4{};
+				srUbo.dX = glm::vec4{};
+				srUbo.xp = glm::vec4{};
 				specialRelativityUboBuffers[frameIndex]->writeToBuffer(&srUbo);
 				specialRelativityUboBuffers[frameIndex]->flush();
 				specialRelativityUboBuffer.flushIndex(frameIndex);
 
-
+				/*
 				mv observerPosition = player.P.X.getT() * g0 + player.P.X.getX() * g1 + player.P.X.getY() * g2 + player.P.X.getZ() * g3;
 				
-				/*
+				
 				std::vector<size_t> worldLineSize;
 				std::vector<TimeClockDrawData> clocksDrawData;
 				auto before = std::chrono::high_resolution_clock::now();
@@ -458,6 +467,7 @@ namespace mve {
 
 					ImGui::NewLine();
 
+					/*
 					// Casting the desired values into a convenient format (as well as double->float)
 					std::array<float, 4> playerPosFloat = { (float)player.P.X.getT(), (float)player.P.X.getX(), (float)player.P.X.getY(), (float)player.P.X.getZ() };
 					std::array<float, 4> playerVelFloat = { (float)player.P.U.getT(), (float)player.P.U.getX(), (float)player.P.U.getY(), (float)player.P.U.getZ() };
@@ -496,9 +506,18 @@ namespace mve {
 						}
 					}
 					ImGui::EndTable();
+					*/
 
+					ImGui::Text("Player Position:");
+					ImGui::Text(player.P.position.c_str());
+					ImGui::Text("Player Velocity:");
+					ImGui::Text(player.P.velocity.c_str());
+
+
+
+					ImGui::TextColored({ 1.0, 0.0, 0.0, 1.0 }, "This does not work currently!");
 					// Lorentz 
-					double g = player.P.U.getGamma(); // Lorentz Factor
+					double g = 1.0;//player.P.U.getGamma(); // Lorentz Factor
 					double u = std::sqrt(1.0 - (1.0 / (g * g))); // Fraction of c
 					double v = Math::c * u;
 
@@ -508,12 +527,12 @@ namespace mve {
 					ImGui::Text("Lorentz factor: %.3f", g);
 					ImGui::NewLine();
 					ImGui::Text("Proper Time: %.3f [s]", frameTime);
-					ImGui::Text("World  Time: %.3f [s]", player.P.X.getT());
+					ImGui::Text("World  Time: %.3f [s]", player.P.position.get_g0());
 
 					ImGui::NewLine();
 					ImGui::Checkbox("show/hide lattice", &renderLattice);
 
-
+					/*
 					ImGui::NewLine();
 					// View matrix 
 					ImGui::Text("View matrix");
@@ -554,7 +573,7 @@ namespace mve {
 
 					}
 					ImGui::EndTable();
-					
+					*/
 				}
 				ImGui::End();
 				if (ImGui::Begin("Spacetime Algebra", &sta_open)) {

@@ -2,7 +2,7 @@
 
 namespace mve {
 
-	Player::Player(MveWindow& mveWindow, MveGameObject& gameObject, Math::Vector4D pos, Math::EntityState firstState) : mveWindow{ mveWindow }, P{ Math::PhaseSpace{pos, Math::Vector4D(1.0, 0.0, 0.0, 0.0)} }, worldline{ gameObject.getId(), pos, firstState } {
+	Player::Player(MveWindow& mveWindow, MveGameObject& gameObject, mv pos, mv vel) : mveWindow{ mveWindow }, P{ MvePhaseSpace{pos, vel}}, worldline{gameObject.getId(), pos} {
 		init(mveWindow.getGLFWwindow(), gameObject);
 	}
 
@@ -22,8 +22,8 @@ namespace mve {
 
 		changeDirection(window, deltaTime);
 
-		Math::Vector4D acceleration = this->getAcceleration(window, deltaTime);
-
+		mv acceleration = this->getAcceleration(window, deltaTime);
+		std::cout << "accel = " << acceleration.toString() << std::endl;
 		// Brake with regard to the background frame of reference (being the underlying world space grid).
 		// This is not, you know, strictly very smart from a special relativity point of view.
 		// But it's super helpful during development. In the future, it'd be great to implement
@@ -34,9 +34,9 @@ namespace mve {
 
 		this->P.transform(acceleration, deltaTime);
 
-		this->time += deltaTime;
-		Math::EntityState entityState{this->quaternion}; // EntityState is defined in WorldLine.hpp, it only contains the orientation quaternion for now. Later it could include other things.
-		this->worldline.add(P.X, entityState);
+		//this->time += deltaTime;
+		//Math::EntityState entityState{this->quaternion}; // EntityState is defined in WorldLine.hpp, it only contains the orientation quaternion for now. Later it could include other things.
+		this->worldline.add(P.position);
 	}
 
 	void Player::changeDirection(GLFWwindow* window, double deltaTime) {
@@ -99,64 +99,94 @@ namespace mve {
 		this->turnSpeed2 -= this->turnResistivity * this->turnSpeed2 * deltaTime;
 	}
 
-	Math::Vector4D Player::getAcceleration(GLFWwindow* window, double deltaTime) {
+	m4sta::mv Player::getAcceleration(GLFWwindow* window, double deltaTime) {
 		int accel = mveWindow.k_state.k_accel; 
-		Math::Vector4D ac{};
-		Math::Quaternion quatRot = this->quaternion;		
+		//Math::Vector4D ac{};
+		Math::Quaternion quatRot = this->quaternion;	
+		mv ac{};
+
+		mv forward{};
+		forward.set_g1(quatRot.getForward().getX());
+		forward.set_g2(quatRot.getForward().getY());
+		forward.set_g3(quatRot.getForward().getZ());
+
+		mv right{};
+		right.set_g1(quatRot.getRight().getX());
+		right.set_g2(quatRot.getRight().getY());
+		right.set_g3(quatRot.getRight().getZ());
+
+		mv upward{};
+		upward.set_g1(quatRot.getUpward().getX());
+		upward.set_g2(quatRot.getUpward().getY());
+		upward.set_g3(quatRot.getUpward().getZ());
 
 		// Evil 
 		// Either forwards or backwards
 		if (accel & 1) {
-			ac = Math::Vector4D{ 0.0, quatRot.getForward() };
+			//ac = Math::Vector4D{ 0.0, quatRot.getForward() };
+			ac = forward;
 		}
 		else if (accel & 2) {
-			ac = -Math::Vector4D{ 0.0, quatRot.getForward() };
+			//ac = -Math::Vector4D{ 0.0, quatRot.getForward() };
+			ac = -forward;
 		}
 		else {
-			ac = Math::Vector4D{};
+			//ac = Math::Vector4D{};
+			// no change
 		}
 
 		// Left and right
 		if (mveWindow.k_state.k_accel_priority == 0) { // Right is priority
 			if (accel & 4) {
-				ac += Math::Vector4D{ 0.0, quatRot.getRight() };
+				//ac += Math::Vector4D{ 0.0, quatRot.getRight() };
+				ac += right;
 			}
 			else if (accel & 8) {
-				ac -= Math::Vector4D{ 0.0, quatRot.getRight() };
+				//ac -= Math::Vector4D{ 0.0, quatRot.getRight() };
+				ac -= right;
 			}
 		}
 		else if (mveWindow.k_state.k_accel_priority == 1) { // Left is priority
 			if (accel & 8) {
-				ac -= Math::Vector4D{ 0.0, quatRot.getRight() };
+				//ac -= Math::Vector4D{ 0.0, quatRot.getRight() };
+				ac -= right;
 			}
 			else if (accel & 4) {
-				ac += Math::Vector4D{ 0.0, quatRot.getRight() };
+				//ac += Math::Vector4D{ 0.0, quatRot.getRight() };
+				ac += right;
 			}
 		}
 
 		else if (mveWindow.k_state.k_accel_priority == 2) { // Up is priority
 			if (accel & 16) {
-				ac -= Math::Vector4D{ 0.0, quatRot.getUpward() };
+				//ac -= Math::Vector4D{ 0.0, quatRot.getUpward() };
+				ac -= upward;
 			}
 			else if (accel & 32) {
-				ac += Math::Vector4D{ 0.0, quatRot.getUpward() };
+				//ac += Math::Vector4D{ 0.0, quatRot.getUpward() };
+				ac += upward;
 			}
 		}
 		else if (mveWindow.k_state.k_accel_priority == 3) { // Down is priority
 			if (accel & 32) {
-				ac += Math::Vector4D{ 0.0, quatRot.getUpward() };
+				//ac += Math::Vector4D{ 0.0, quatRot.getUpward() };
+				ac += upward;
 			}
 			else if (accel & 16) {
-				ac -= Math::Vector4D{ 0.0, quatRot.getUpward() };
+				//ac -= Math::Vector4D{ 0.0, quatRot.getUpward() };
+				ac -= upward;
 			}
 		}
 
-		ac.normalize();
+		ac = unit(ac);
+
+		//ac.normalize();
 		return ac;
 	}
 
-	PlayerDrawData Player::getDrawData(Math::Vector4D Xp, Math::Matrix44 L, Math::Matrix44 LL) {
-		Math::PhaseSpace P = this->worldline.getXU_OnPLC(Xp);
+	/*
+	PlayerDrawData Player::getDrawData(mv Xp, Math::Matrix44 L, Math::Matrix44 LL) {
+		MvePhaseSpace P = this->worldline.get_pos_vel_on_PLC(Xp);
 		Math::Quaternion q{};
 
 		// Quaternion rotation as state on the worldline does not work for whatever reason.
@@ -181,6 +211,6 @@ namespace mve {
 			P.U,
 			q
 		};
-	}
+	}*/
 
 }

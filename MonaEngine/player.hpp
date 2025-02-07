@@ -8,6 +8,10 @@
 #include "relativity/math/PhaseSpace.hpp"
 #include "relativity/math/WorldLine.hpp"
 
+#include "spacetimealgebra/m4sta.hpp"
+#include "spacetimealgebra/mve_phasespace.hpp"
+#include "spacetimealgebra/mve_worldline.hpp"
+
 
 #include "mve_game_object.hpp"
 #include "mve_model.hpp"
@@ -30,12 +34,12 @@ namespace mve {
 	class Player {
 	public:
 
-		Player(MveWindow& mveWindow, MveGameObject& gameObject, Math::Vector4D pos, Math::EntityState firstState);
+		Player(MveWindow& mveWindow, MveGameObject& gameObject, mv pos, mv vel);
 
-		Math::PhaseSpace P;
+		MvePhaseSpace P;
 		Math::Quaternion quaternion{ 1.0, 0.0, 0.0, 0.0 };
 		double time = 0.0;
-		Math::WorldLine worldline;
+		MveWorldLine worldline;
 
 		void Action(GLFWwindow* window, double deltaTime);
 
@@ -45,7 +49,7 @@ namespace mve {
 		/// <param name="Xp">Player's spacetime coordinate</param>
 		/// <param name="L">Lorentz boost to transform from the background frame to the player's frame</param>
 		/// <param name="LL">Lorentz boost to transform from the player's frame to the background frame</param>
-		PlayerDrawData getDrawData(Math::Vector4D Xp, Math::Matrix44 L, Math::Matrix44 LL);
+		
 
 	private:
 		MveWindow& mveWindow;
@@ -59,7 +63,7 @@ namespace mve {
 
 		void init(GLFWwindow* window, mve::MveGameObject& gameObject) {	this->id = gameObject.getId(); }
 
-		Math::Vector4D getAcceleration(GLFWwindow* window, double deltaTime);
+		m4sta::mv getAcceleration(GLFWwindow* window, double deltaTime);
 		// calc repulsion
 
 		void changeDirection(GLFWwindow* window, double deltaTime);
