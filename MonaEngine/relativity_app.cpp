@@ -583,7 +583,104 @@ namespace mve {
 					//ImGui::Text(playerVel.c_str_f());
 					//ImGui::Text("Split of velocity: ");
 					//ImGui::Text(splitVel.c_str_f());
-					static float magnitude_v = 0.0;
+
+					static float theta;
+					static float phi;
+
+					static float vvec[4]{};
+					static float mvec[4]{};
+					static float nvec[4]{};
+					ImGui::InputFloat("Theta", &theta);
+					ImGui::InputFloat("Phi", &phi);
+
+					ImGui::InputFloat4("v", vvec);
+					ImGui::InputFloat4("m", mvec);
+					ImGui::InputFloat4("n", nvec);
+
+					mv v = vvec[0] * g0 - vvec[1] * g1 - vvec[2] * g2 - vvec[3] * g3;
+					mv m = mvec[0] * g0 - mvec[1] * g1 - mvec[2] * g2 - mvec[3] * g3;
+					mv n = nvec[0] * g0 - nvec[1] * g1 - nvec[2] * g2 - nvec[3] * g3;
+
+					v = unit(v);
+					m = unit(m);
+					n = unit(n);
+
+					mv v_rel = g0 ^ v;
+					mv m_rel = g0 ^ m;
+					mv n_rel = g0 ^ n;
+					mv v_sqrd = v * v;
+					mv m_x_n = m ^ n;
+					// Unsure about this one
+					mv m_x_n_sqrd = -((mvec[0] * nvec[1] - mvec[1] * nvec[0]) * (mvec[0] * nvec[1] - mvec[1] * nvec[0])
+						+ (mvec[1] * nvec[2] + mvec[2] * nvec[1]) * (mvec[1] * nvec[2] + mvec[2] * nvec[1])
+						+ (mvec[2] * nvec[3] + mvec[3] * nvec[2]) * (mvec[2] * nvec[3] + mvec[3] * nvec[2]));
+					
+					mv ev{};
+					if (v_sqrd.get_scalar() >= 0.00001) {
+						ev = div(v_rel, std::sqrt(v_sqrd.get_scalar()));
+					}
+					else if (v_sqrd.get_scalar() <= 0.00001) {
+						ev = div(v_rel, std::sqrt(-v_sqrd.get_scalar()));
+					}
+					else {
+						
+					}
+
+					//mv ev = div(v_rel, std::sqrt(v_sqrd.get_scalar()));
+					mv I2 = div(m_x_n, std::sqrt(-m_x_n_sqrd.get_scalar()));
+
+					
+					ImGui::Text("v         : "); ImGui::SameLine(); ImGui::Text(v.c_str());
+					ImGui::Text("v_rel     : "); ImGui::SameLine(); ImGui::Text(v_rel.c_str());
+					ImGui::Text("m         : "); ImGui::SameLine(); ImGui::Text(m.c_str());
+					ImGui::Text("m_rel     : "); ImGui::SameLine(); ImGui::Text(m_rel.c_str());
+					ImGui::Text("n         : "); ImGui::SameLine(); ImGui::Text(n.c_str());
+					ImGui::Text("n_rel     : "); ImGui::SameLine(); ImGui::Text(n_rel.c_str());
+					ImGui::NewLine();
+					ImGui::Text("m x n     : "); ImGui::SameLine(); ImGui::Text(m_x_n.c_str());
+					ImGui::Text("v_sqrd    : "); ImGui::SameLine(); ImGui::Text(v_sqrd.c_str());
+					ImGui::Text("(m x n)^2 : "); ImGui::SameLine(); ImGui::Text(m_x_n_sqrd.c_str());
+					ImGui::NewLine();
+					ImGui::Text("ev        : "); ImGui::SameLine(); ImGui::Text(ev.c_str());
+					ImGui::Text("I2        : "); ImGui::SameLine(); ImGui::Text(I2.c_str());
+					ImGui::Text("ev^2      : "); ImGui::SameLine(); ImGui::Text((ev*ev).c_str());
+					ImGui::Text("I2^2      : "); ImGui::SameLine(); ImGui::Text((I2*I2).c_str());
+					
+					mv exp_ev = exp((theta / 2) * ev);
+					mv exp_I2 = exp((phi / 2) * I2);
+
+					static float xvec[4]{};
+					static float yvec[4]{};
+					ImGui::InputFloat4("x", xvec);
+					ImGui::InputFloat4("y", yvec);
+					mv x = xvec[0] * g0 - xvec[1] * g1 - xvec[2] * g2 - xvec[3] * g3;
+					mv y = yvec[0] * g0 - yvec[1] * g1 - yvec[2] * g2 - yvec[3] * g3;
+
+					x = unit(x);
+					y = unit(y);
+
+					mv xprime = exp_ev * (x) * (~exp_ev);
+					mv yprime = exp_I2 * (y) * (~exp_I2);
+					
+					ImGui::Text("x         : "); ImGui::SameLine(); ImGui::Text(x.c_str());
+					ImGui::Text("y         : "); ImGui::SameLine(); ImGui::Text(y.c_str());
+					ImGui::Text("x'        : "); ImGui::SameLine(); ImGui::Text(xprime.c_str());
+					ImGui::Text("y'        : "); ImGui::SameLine(); ImGui::Text(yprime.c_str());
+
+					mv numerator = x ^ xprime;
+					mv denominator = (x ^ xprime) * (x ^ xprime);
+					if (denominator.get_scalar() >= 0.00001) {
+						denominator = std::sqrt(denominator.get_scalar());
+					}
+					mv biv = div(numerator, denominator.get_scalar());
+					mv Lhat = exp(-(theta / 2.0) * biv);
+
+					ImGui::Text("Lhat     : "); ImGui::SameLine(); ImGui::Text(Lhat.c_str());
+
+					mv xprimetwo = (~Lhat) * x * Lhat;
+					ImGui::Text("~Lhat * x * Lhat : "); ImGui::SameLine(); ImGui::Text(xprimetwo.c_str());
+					
+					/*static float magnitude_v = 0.0;
 					ImGui::InputFloat("v magnitude", &magnitude_v, -1.0f, 1.0f);
 					static float magnitude_u = 0.0;
 					ImGui::InputFloat("u magnitude", &magnitude_u, -1.0f, 1.0f);
@@ -649,6 +746,7 @@ namespace mve {
 
 					ImGui::Text("g0 * v * g0   : "); ImGui::SameLine(); ImGui::Text((g0 * v_compare * g0).c_str());
 					ImGui::Text("g0 * ~v * g0  : "); ImGui::SameLine(); ImGui::Text((g0 * ~v_compare * g0).c_str());
+					*/
 
 					//ImGui::Text("It took %f milliseconds to foliate %u timeclocks.", timeAmount, worldLineSize.size());
 					/*
