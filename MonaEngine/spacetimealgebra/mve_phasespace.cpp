@@ -23,6 +23,10 @@ namespace mve {
 		mv Bhat20 = g2 * g0;
 		mv Bhat30 = g3 * g0;
 
+		std::cout << "bhat10 squared    : " << (Bhat10 * Bhat10).toString() << std::endl;
+		std::cout << "bhat20 squared    : " << (Bhat20 * Bhat20).toString() << std::endl;
+		std::cout << "bhat30 squared    : " << (Bhat30 * Bhat30).toString() << std::endl << std::endl;
+
 		double rapidityx = 0.5 * (log((1.0 + betax) / (1.0 - betax)));
 		double rapidityy = 0.5 * (log((1.0 + betay) / (1.0 - betay)));
 		double rapidityz = 0.5 * (log((1.0 + betaz) / (1.0 - betaz)));

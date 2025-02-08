@@ -315,7 +315,7 @@
   <function name="sas" arg1="spinor" arg2="double" arg3="double"/> <!-- Needed internally for the following -->
   <function name="log" arg1="mv3" optionType="euclidean" metric="Euclidean"/> <!-- log is only implemented for 3d Euclidean multivectors -->
   <function name="log" arg1="spinor3" optionType="euclidean" metric="Euclidean"/> <!-- log is only implemented for 3d Euclidean multivectors -->
-  <function name="exp" arg1="mv"/>
+  <function name="exp" arg1="mv" optionSquare="1"/>
   <function name="exp" arg1="spinor3"/>
   <function name="exp" arg1="spinor"/>
   <function name="sin" arg1="mv"/>
