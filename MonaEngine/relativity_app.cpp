@@ -345,7 +345,7 @@ namespace mve {
 				globalUbo.ambientLightColor = { 1.f, 1.f, 1.f, .02f };
 				globalUbo.observerPosition = { playerPos[0], playerPos[1], playerPos[2], 1.0};
 				//globalUbo.BoostParams = { playerVel.get_g0(), playerVel.get_g1(), playerVel.get_g2(), playerVel.get_g3() };
-				globalUbo.BoostParams = { player.P.velocity.get_scalar(), player.P.velocity.get_g0_g1(), player.P.velocity.get_g0_g2(), player.P.velocity.get_g0_g3()};
+				globalUbo.BoostParams = { player.P.velocity.get_g0(), player.P.velocity.get_g1(), player.P.velocity.get_g2(), player.P.velocity.get_g3()};
 				globalUboBuffers[frameIndex]->writeToBuffer(&globalUbo);
 				globalUboBuffers[frameIndex]->flush();
 

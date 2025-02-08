@@ -22,8 +22,12 @@ namespace mve {
 
 		changeDirection(window, deltaTime);
 
+		//std::cout << std::endl << std::endl;
+		//std::cout << "Position     : " << P.position.toString() << std::endl;
+		//std::cout << "Velocity     : " << P.velocity.toString() << std::endl;
 		mv acceleration = this->getAcceleration(window, deltaTime);
-		std::cout << "accel = " << acceleration.toString() << std::endl;
+		//std::cout << "Acceleration : " << acceleration.toString() << std::endl;
+		
 		// Brake with regard to the background frame of reference (being the underlying world space grid).
 		// This is not, you know, strictly very smart from a special relativity point of view.
 		// But it's super helpful during development. In the future, it'd be great to implement

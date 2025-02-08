@@ -27,14 +27,14 @@ layout(push_constant) uniform Push {
 } push;
 
 void main() {
-	float scalar = ubo.BoostParams[0];
-	float g01 = ubo.BoostParams[1];
-	float g02 = ubo.BoostParams[2];
-	float g03 = ubo.BoostParams[3];
+	float g0 = ubo.BoostParams[0];
+	float g1 = ubo.BoostParams[1];
+	float g2 = ubo.BoostParams[2];
+	float g3 = ubo.BoostParams[3];
 	
-	float x = -g01;	
-	float y = -g02;
-	float z = -g03;
+	float x = g1;	
+	float y = g2;
+	float z = g3;
 	float x2 = x*x;
 	float y2 = y*y;
 	float z2 = z*z;
