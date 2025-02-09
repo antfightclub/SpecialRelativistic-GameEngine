@@ -183,7 +183,7 @@ namespace mve {
 		}
 
 		ac = unit(ac);
-
+		ac *= this->acceleration;
 		//ac.normalize();
 		return ac;
 	}
