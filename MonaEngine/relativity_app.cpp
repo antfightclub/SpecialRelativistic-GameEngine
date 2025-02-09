@@ -345,7 +345,7 @@ namespace mve {
 				globalUbo.ambientLightColor = { 1.f, 1.f, 1.f, .02f };
 				globalUbo.observerPosition = { playerPos[0], playerPos[1], playerPos[2], 1.0};
 				//globalUbo.BoostParams = { playerVel.get_g0(), playerVel.get_g1(), playerVel.get_g2(), playerVel.get_g3() };
-				globalUbo.BoostParams = { player.P.velocity.get_g0(), player.P.velocity.get_g1(), player.P.velocity.get_g2(), player.P.velocity.get_g3()};
+				globalUbo.BoostParams = { player.P.rapidity.get_g0(), player.P.rapidity.get_g1(), player.P.rapidity.get_g2(), player.P.rapidity.get_g3()};
 				globalUboBuffers[frameIndex]->writeToBuffer(&globalUbo);
 				globalUboBuffers[frameIndex]->flush();
 
@@ -510,15 +510,20 @@ namespace mve {
 
 					ImGui::Text("Player Position:");
 					ImGui::Text(player.P.position.c_str());
-					ImGui::Text("Player Velocity:");
-					ImGui::Text(player.P.velocity.c_str());
+					ImGui::Text("Player Rapidity:");
+					ImGui::Text(player.P.rapidity.c_str());
 
 
 
-					ImGui::TextColored({ 1.0, 0.0, 0.0, 1.0 }, "This does not work currently!");
+					//ImGui::TextColored({ 1.0, 0.0, 0.0, 1.0 }, "This does not work currently!");
+					
+					mv tempRapidity = player.P.rapidity;
+					tempRapidity.set_g0(0.0);
+
+					double magRap = norm(tempRapidity);
 					// Lorentz 
-					double g = 1.0;//player.P.U.getGamma(); // Lorentz Factor
-					double u = std::sqrt(1.0 - (1.0 / (g * g))); // Fraction of c
+					double g = cosh(magRap); //player.P.U.getGamma(); // Lorentz Factor
+					double u = tanh(magRap);//std::sqrt(1.0 - (1.0 / (g * g))); // Fraction of c
 					double v = Math::c * u;
 
 					ImGui::NewLine();
