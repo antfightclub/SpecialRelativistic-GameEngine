@@ -165,7 +165,7 @@ namespace mve {
 		mv initialPosition{};
 		//initialPosition.set_g0(1.0);
 		mv initialVelocity{};
-		initialVelocity.set_g0(1.0);
+		//initialVelocity.set_g0(1.0);
 
 		//initialPosition = initialPosition * g0;
 		//initialVelocity = initialVelocity * g0;
@@ -510,17 +510,72 @@ namespace mve {
 
 					ImGui::Text("Player Position:");
 					ImGui::Text(player.P.position.c_str());
+					ImGui::Text("Player relative position:");
+					ImGui::Text((player.P.position * g0).c_str());
 					ImGui::Text("Player Rapidity:");
 					ImGui::Text(player.P.rapidity.c_str());
+					ImGui::Text("Player Velocity:");
+					mv velocity = player.P.rapidity;
+					velocity = unit(velocity);
+					double magnitude = tanh(norm(player.P.rapidity));
+					velocity *= magnitude;
+					velocity.set_g0(cosh(norm(player.P.rapidity)));
+					ImGui::Text(velocity.c_str());
+					ImGui::Text("Player relative velocity:");
+					ImGui::Text((velocity * g0).c_str());
+					
 
+					double rest_mass = 100; // I'll just say this is in units kg
+					mv momentum = rest_mass * velocity;
+					mv angular_momentum_bivector = player.P.position ^ momentum;
 
+					ImGui::Text("Player rest mass: %.3f", rest_mass);
+					ImGui::Text("Player momentum:");
+					ImGui::Text(momentum.c_str());
+					ImGui::Text("Player relative momentum:");
+					ImGui::Text((momentum * g0).c_str());
+					ImGui::Text("Player momentum squared:");
+					ImGui::Text((momentum * momentum).c_str());
+
+					ImGui::Text("M :");
+					ImGui::Text(angular_momentum_bivector.c_str());
+
+					mv parrow = (momentum * g0);
+					parrow.set_scalar(0.0);
+
+					mv xarrow = (player.P.position * g0);
+					xarrow.set_scalar(0.0);
+					double ct = (player.P.position * g0).get_scalar();
+					double Eoverc = (momentum * g0).get_scalar();
+
+					mv varrow = (velocity * g0);
+
+					mv Narrow = (ct * parrow) - (Eoverc * xarrow);
+
+					// I(a x b) = (a ^ b)
+					// (a x b) = I(a ^ b)		????
+
+					mv Larrow = I*(xarrow ^ parrow);
+					// therefore M becomes
+					// M = -c * Narrow - Larrow
+					mv angular_momentum_bivector_2 = -1.0 * Narrow - Larrow*I;
+					ImGui::Text("M 2 : ");
+					ImGui::Text(angular_momentum_bivector_2.c_str());
+					// hmmm.. for some reason they are different. 
+					// angular momentum bivector 
+					// has components g01, g02, g03, g12, g23, g31
+					// angular momentum bivector 2 
+					// has components g01, g02, g03 only?
+					// Not sure which one is "correct"
+
+					
 
 					//ImGui::TextColored({ 1.0, 0.0, 0.0, 1.0 }, "This does not work currently!");
 					
-					mv tempRapidity = player.P.rapidity;
-					tempRapidity.set_g0(0.0);
+					//mv tempRapidity = player.P.rapidity;
+					//tempRapidity.set_g0(0.0);
 
-					double magRap = norm(tempRapidity);
+					double magRap = norm(player.P.rapidity);
 					// Lorentz 
 					double g = cosh(magRap); //player.P.U.getGamma(); // Lorentz Factor
 					double u = tanh(magRap);//std::sqrt(1.0 - (1.0 / (g * g))); // Fraction of c
