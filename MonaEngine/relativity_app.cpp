@@ -567,9 +567,7 @@ namespace mve {
 					// angular momentum bivector 2 
 					// has components g01, g02, g03 only?
 					// Not sure which one is "correct"
-
 					
-
 					//ImGui::TextColored({ 1.0, 0.0, 0.0, 1.0 }, "This does not work currently!");
 					
 					//mv tempRapidity = player.P.rapidity;
@@ -1006,6 +1004,17 @@ namespace mve {
 	}
 	m4sta::mv RelativityApp::commutatorProduct(m4sta::mv& a, m4sta::mv& b) {
 		return (0.5) * (a * b - b * a);
+	}
+	
+	// Important: Make sure A and B only has components in:
+	// g10, g20, g30. 
+	// This is also the reason why the result is negated in each step.
+	mv RelativityApp::p3CrossProduct(m4sta::mv& A, m4sta::mv& B) {
+		mv res;
+		res.set_g0_g1(-(A.get_g0_g2() * B.get_g0_g3() - A.get_g0_g3() * B.get_g0_g2()));
+		res.set_g0_g2(-(A.get_g0_g3() * B.get_g0_g1() - A.get_g0_g1() * B.get_g0_g3()));
+		res.set_g0_g3(-(A.get_g0_g1() * B.get_g0_g2() - A.get_g0_g2() * B.get_g0_g1()));
+		return res;
 	}
 
 }

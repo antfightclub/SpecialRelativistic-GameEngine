@@ -47,7 +47,7 @@ namespace mve {
 
 		void m4sta_testing_stuffs(Math::Vector4D X, Math::Vector4D lastX, double deltaTime);
 		m4sta::mv commutatorProduct(m4sta::mv& a, m4sta::mv& b);
-
+		m4sta::mv p3CrossProduct(m4sta::mv& A, m4sta::mv& B);
 
 		void setupDearImgui();
 		void loadGameObjects();
