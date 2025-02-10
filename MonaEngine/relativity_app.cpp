@@ -165,10 +165,10 @@ namespace mve {
 		double G = 6.67430e-11; // Gravitational constant
 		//double massOfGravitationalSource = 100000;
 		//double dist = 5.0;
-		double massMainBody = 5.972e24;  // kilograms
+		double massMainBody = 5.972e6;  // kilograms
 		double diameterMainBody = 12756.0; // kilometers
-		double heightOfOrbit = 200; // kilometers
-		double radiusOfOrbit = 6578; // kilometers
+		double heightOfOrbit = 40000; // kilometers
+		double radiusOfOrbit = (diameterMainBody/2.0) + heightOfOrbit; // kilometers
 		double orbitalVelocity = 7784.34; // meters per second
 
 		diameterMainBody /= 299792458;
@@ -188,7 +188,7 @@ namespace mve {
 		//initialPosition.set_g0(1.0);
 		mv initialRapidity{};
 		//initialVelocity.set_g0(1.0);
-		double initialVelMagnitude = orbitalVelocity;//std::sqrt(G * (massOfGravitationalSource * (5.0)) / 5.0);
+		double initialVelMagnitude = 0.1;//(std::sqrt(G * (massMainBody * (5.0*299792458)) / (5.0* 299792458)));
 		std::cout << "initial vel magnitude = " << initialVelMagnitude << std::endl;
 		double initialRapMagnitude = atanh(initialVelMagnitude);
 		std::cout << "initial rap magnitude = " << initialRapMagnitude << std::endl;
@@ -287,7 +287,7 @@ namespace mve {
 		
 		mv gravInitialPos{};
 		mv gravInitialRap{};
-		gravInitialPos.set_g3(radiusOfOrbit);
+		gravInitialPos.set_g3(5.0);
 		//gravInitialPos
 
 		GravitySource gravitySource{ mveWindow, massiveObject, massMainBody, gravInitialPos, gravInitialRap };

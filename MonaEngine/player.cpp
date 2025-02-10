@@ -244,12 +244,12 @@ namespace mve {
 		//m4sta::mv Larrow = p3CrossProduct(srcRelativeVelocity, Narrow);
 
 
-
+		double c = 299792458.0;
 
 		//m4sta::mv mvdotg0 = (playerMass * 1.0 * cosh(norm(P.rapidity))) * Narrow % varrow + playerMass * gamma * ();
 		m4sta::mv innerInnerParenthesis = -((g.G * g.massOfObject) / (r * r)) * gamma_s * vsarrow;
 		m4sta::mv innerParenthesis = p3CrossProduct(innerInnerParenthesis, rhat);
-		m4sta::mv bracket = -((g.G * g.massOfObject) / (r * r)) * gamma_s * (1.0 * 1.0) * rhat + p3CrossProduct(varrow, innerParenthesis);
+		m4sta::mv bracket = -((g.G * g.massOfObject) / (r * r)) * gamma_s * (1.0*1.0) * rhat + p3CrossProduct(varrow, innerParenthesis);
 		m4sta::mv mvdotg0 = ((playerMass * 1.0 * gamma * Narrow) % varrow) + playerMass * gamma * bracket;
 
 		std::cout << "mvdotg0      : " << mvdotg0.toString() << std::endl;
