@@ -7,7 +7,7 @@ namespace mve {
 	}
 
 
-	void Player::Action(GLFWwindow* window, double deltaTime) {
+	void Player::Action(GLFWwindow* window, double deltaTime, GravitationData g) {
 		// Print keymap state
 		/*std::cout << "***** EVIL KEYMAP STATE *****\n"
 			<< "k_accel " << mveWindow.k_state.k_accel << '\n'
@@ -25,9 +25,12 @@ namespace mve {
 		//std::cout << std::endl << std::endl;
 		//std::cout << "Position     : " << P.position.toString() << std::endl;
 		//std::cout << "Velocity     : " << P.velocity.toString() << std::endl;
-		mv acceleration = this->getAcceleration(window, deltaTime);
+		mv acceleration = this->getAcceleration(window, deltaTime); // self acceleration
 		//std::cout << "Acceleration : " << acceleration.toString() << std::endl;
 		
+		
+
+
 		// Brake with regard to the background frame of reference (being the underlying world space grid).
 		// This is not, you know, strictly very smart from a special relativity point of view.
 		// But it's super helpful during development. In the future, it'd be great to implement
@@ -35,6 +38,10 @@ namespace mve {
 		if (mveWindow.k_state.k_brake == true) {
 			acceleration -= this->P.getResist(resistivity * 20);
 		}
+
+
+		acceleration += this->getAccelerationFromGravitation(window, deltaTime, g);
+
 
 		this->P.transform(acceleration, deltaTime);
 
@@ -186,6 +193,86 @@ namespace mve {
 		ac *= this->acceleration;
 		//ac.normalize();
 		return ac;
+	}
+
+	m4sta::mv Player::getAccelerationFromGravitation(GLFWwindow* window, double deltaTime, GravitationData g) {
+		
+		double playerMass = 100; // kg
+		
+		mv ppos = P.position * g0;
+		//ppos.set_scalar(0.0);
+		mv pvel = P.rapidity;
+		double magnitudePlayerRapidity = tanh(norm(P.rapidity));
+		pvel = unit(pvel);
+		pvel *= magnitudePlayerRapidity;
+
+		pvel = pvel * g0;
+
+		mv varrow = pvel;
+		varrow.set_scalar(0.0);
+		
+
+		mv spos = g.positionOfObject * g0;
+		//spos.set_scalar(0.0);
+		mv svel = g.rapidityOfObject;
+		double magnitudeObjectRapidity = tanh(norm(g.rapidityOfObject));
+		svel = unit(svel);
+		svel *= magnitudeObjectRapidity;
+		svel = svel * g0;
+
+		mv vsarrow = svel;
+		vsarrow.set_scalar(0.0);
+
+
+		mv rhat = spos - ppos;
+		double r = norm(rhat);
+		rhat = unit(rhat);
+		
+		double gamma = cosh(norm(P.rapidity));			 // Lorentz factor (player)
+		double gamma_s = cosh(norm(g.rapidityOfObject)); // Lorentz factor
+
+		mv Narrow = -((g.G * g.massOfObject) / (r * r)) * gamma_s * rhat;
+		
+		//m4sta::mv svel = g.rapidityOfObject;
+		//svel = unit(svel);
+		//double svel_magnitude = tanh(norm(g.rapidityOfObject)); // Velocity as fraction of c
+		//svel *= svel_magnitude;
+		//
+		//m4sta::mv srcRelativeVelocity = svel * g0;
+		//srcRelativeVelocity.set_scalar(0.0);
+		//
+		//m4sta::mv Larrow = p3CrossProduct(srcRelativeVelocity, Narrow);
+
+
+
+
+		//m4sta::mv mvdotg0 = (playerMass * 1.0 * cosh(norm(P.rapidity))) * Narrow % varrow + playerMass * gamma * ();
+		m4sta::mv innerInnerParenthesis = -((g.G * g.massOfObject) / (r * r)) * gamma_s * vsarrow;
+		m4sta::mv innerParenthesis = p3CrossProduct(innerInnerParenthesis, rhat);
+		m4sta::mv bracket = -((g.G * g.massOfObject) / (r * r)) * gamma_s * (1.0 * 1.0) * rhat + p3CrossProduct(varrow, innerParenthesis);
+		m4sta::mv mvdotg0 = ((playerMass * 1.0 * gamma * Narrow) % varrow) + playerMass * gamma * bracket;
+
+		std::cout << "mvdotg0      : " << mvdotg0.toString() << std::endl;
+		std::cout << "g0 * mvdotg0 : " << (g0 * mvdotg0).toString() << std::endl;
+
+		//mv ret{};
+		//ret.set_g1(mvdotg0.get_g0_g1());
+		//ret.set_g2(mvdotg0.get_g0_g2());
+		//ret.set_g3(mvdotg0.get_g0_g3());
+
+		mv ret{};
+		ret = g0 * mvdotg0;
+		
+		return ret;
+	}
+
+
+	m4sta::mv Player::p3CrossProduct(m4sta::mv& A, m4sta::mv& B) {
+		mv res;
+		res.set_g0_g1(-(A.get_g0_g2() * B.get_g0_g3() - A.get_g0_g3() * B.get_g0_g2()));
+		res.set_g0_g2(-(A.get_g0_g3() * B.get_g0_g1() - A.get_g0_g1() * B.get_g0_g3()));
+		res.set_g0_g3(-(A.get_g0_g1() * B.get_g0_g2() - A.get_g0_g2() * B.get_g0_g1()));
+		return res;
 	}
 
 	/*

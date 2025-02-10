@@ -31,6 +31,13 @@ namespace mve {
 		// Empty for now. For example, guns. Maybe.
 	};
 
+	struct GravitationData {
+		double G;
+		double massOfObject;
+		m4sta::mv rapidityOfObject;
+		m4sta::mv positionOfObject;
+	};
+
 	class Player {
 	public:
 
@@ -41,7 +48,7 @@ namespace mve {
 		double time = 0.0;
 		MveWorldLine worldline;
 
-		void Action(GLFWwindow* window, double deltaTime);
+		void Action(GLFWwindow* window, double deltaTime, GravitationData g);
 
 		/// <summary>
 		/// Returns the EnemyDrawData struct which just contains the enemy's X, U in the background frame as well as a rotation matrix.
@@ -64,8 +71,9 @@ namespace mve {
 		void init(GLFWwindow* window, mve::MveGameObject& gameObject) {	this->id = gameObject.getId(); }
 
 		m4sta::mv getAcceleration(GLFWwindow* window, double deltaTime);
+		m4sta::mv getAccelerationFromGravitation(GLFWwindow* window, double deltaTime, GravitationData g);
 		// calc repulsion
-
+		m4sta::mv p3CrossProduct(m4sta::mv& A, m4sta::mv& B);
 		void changeDirection(GLFWwindow* window, double deltaTime);
 		//getviscous
 
