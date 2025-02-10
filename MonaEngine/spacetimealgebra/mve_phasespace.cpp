@@ -11,13 +11,19 @@ namespace mve {
 		// for the player, it is "0.2", and this is additionally multiplied by deltatime
 
 
-		m4sta::mv temp = position;//position.get_g0() * g0 + position.get_g1() * g1 + position.get_g2() * g2 + position.get_g3() * g3;
-		position.set_g0(temp.get_g0() + rapidity.get_g0() * ds);
+		//m4sta::mv velocity = rapidity;
+		//velocity = unit(velocity);
+		//double magnitude = tanh(norm(rapidity)); // tanh(norm(rapidity)) = velocity / c
+		//velocity *= magnitude;
+
+
+		m4sta::mv temp = position;
+		position.set_g0(temp.get_g0() + cosh(norm(rapidity)) * ds); // cosh(norm(rapidity)) = gamma(u) = lorentz factor
 		position.set_g1(temp.get_g1() + rapidity.get_g1() * ds);
 		position.set_g2(temp.get_g2() + rapidity.get_g2() * ds);
 		position.set_g3(temp.get_g3() + rapidity.get_g3() * ds);
 
-		double lorentzFactor = rapidity.get_g0(); // Already done!
+		//double lorentzFactor = rapidity.get_g0(); // Already done!
 
 		//double x = rapidity.get_g1();
 		//double y = rapidity.get_g2();
@@ -34,13 +40,7 @@ namespace mve {
 		temprapidity.set_g0(0.0);
 		tempaccel.set_g0(0.0);
 		//mv newvel = velocity + (tempaccel);
-		
-		double magRapidity = norm(temprapidity);
-		std::cout << "magnitude of rapidity = " << magRapidity << std::endl;
-		double beta = tanh(magRapidity);
-		std::cout << "beta                  = " << beta << std::endl;
-		
-		
+			
 		// need a way to make relativistic velocity addition work!
 		// it seems this doesn't work much - it allows to go faster
 		// than light!
@@ -55,10 +55,10 @@ namespace mve {
 		rapidity.set_g2(temprapidity.get_g2() + (tempaccel.get_g2() * ds));
 		rapidity.set_g3(temprapidity.get_g3() + (tempaccel.get_g3() * ds));
 		//
-		rapidity.set_g0(std::sqrt(1.0
-			+ rapidity.get_g1() * rapidity.get_g1()
-			+ rapidity.get_g2() * rapidity.get_g2()
-			+ rapidity.get_g3() * rapidity.get_g3()));
+		//rapidity.set_g0(std::sqrt(1.0
+		//	+ rapidity.get_g1() * rapidity.get_g1()
+		//	+ rapidity.get_g2() * rapidity.get_g2()
+		//	+ rapidity.get_g3() * rapidity.get_g3()));
 
 		//double lorentz_factor = std::sqrt(1.0 + );
 
