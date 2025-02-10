@@ -22,7 +22,7 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 	mat4 invView;
 	vec4 ambientLightColor;
 	vec4 observerPosition;
-	vec4 PhiThetaEtaLambda;
+	vec4 BoostParams;
 } ubo;
 
 
@@ -47,9 +47,40 @@ layout(push_constant) uniform Push {
 
 void main() {
 
+	float g0 = ubo.BoostParams[0];
+	float g1 = ubo.BoostParams[1];
+	float g2 = ubo.BoostParams[2];
+	float g3 = ubo.BoostParams[3];
+	
+	float x = g1;	
+	float y = g2;
+	float z = g3;
+	float x2 = x*x;
+	float y2 = y*y;
+	float z2 = z*z;
+
+	float r = x2 + y2 + z2;
+	mat4 L = mat4(1.0);
+	if (r >= 0.000001) {
+		float g = sqrt(1.0 + r);
+
+		r = 1.0 / r;
+
+		float xy = (g-1.0) * x * y * r;
+		float yz = (g-1.0) * y * z * r;
+		float zx = (g-1.0) * z * x * r;
+
+		L = mat4((g * x2 + y2 + z2) * r,					 xy,					 zx, -x,
+									 xy, (x2 + g * y2 + z2) * r,					 yz, -y,
+									 zx,					 yz, (x2 + y2 + g * z2) * r, -z,
+									 -x,					 -y,					 -z,  g);
+		
+
+	} 
+
 	vec4 xi = srUbo.Rotate * vec4(position, 1.0);
 	xi.w = srUbo.xp.w - distance(srUbo.xp.xyz, xi.xyz);
-	xi = srUbo.dX + srUbo.L * xi;
+	xi = srUbo.dX + L * xi;
 	xi.w = -length(xi.xyz);
 	vec4 tmp = srUbo.L_p2e * xi;
 	ratio = xi.w / tmp.w;
