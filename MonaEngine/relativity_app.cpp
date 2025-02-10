@@ -9,6 +9,7 @@
 #include "player.hpp"
 #include "enemy.hpp"
 #include "entity/timeclock.hpp"
+#include "entity/gravity_source.hpp"
 
 // Math namespace
 #include "relativity/math/Matrix44.hpp"
@@ -161,19 +162,46 @@ namespace mve {
 		MveCamera camera{};		
 		glm::mat4 cameraView{ 1.0 }; // This will be updated later in the update loop
 		
+		double G = 6.67430e-11; // Gravitational constant
+		//double massOfGravitationalSource = 100000;
+		//double dist = 5.0;
+		double massMainBody = 5.972e24;  // kilograms
+		double diameterMainBody = 12756.0; // kilometers
+		double heightOfOrbit = 200; // kilometers
+		double radiusOfOrbit = 6578; // kilometers
+		double orbitalVelocity = 7784.34; // meters per second
+
+		diameterMainBody /= 299792458;
+		heightOfOrbit /= 299792458;
+		radiusOfOrbit /= 299792458;
+		orbitalVelocity /= 299792458;
+
+		std::cout << "Diameter of main body : " << diameterMainBody << std::endl;
+		std::cout << "Height of orbit       : " << heightOfOrbit << std::endl;
+		std::cout << "Radius of orbit       : " << radiusOfOrbit << std::endl;
+		std::cout << "Orbital velocity      : " << orbitalVelocity << std::endl;
+
+		// Nah this shit don+t work
+
 		auto viewerObject = MveGameObject::createGameObject(); // Game object to hold camera position
 		mv initialPosition{};
 		//initialPosition.set_g0(1.0);
-		mv initialVelocity{};
+		mv initialRapidity{};
 		//initialVelocity.set_g0(1.0);
+		double initialVelMagnitude = orbitalVelocity;//std::sqrt(G * (massOfGravitationalSource * (5.0)) / 5.0);
+		std::cout << "initial vel magnitude = " << initialVelMagnitude << std::endl;
+		double initialRapMagnitude = atanh(initialVelMagnitude);
+		std::cout << "initial rap magnitude = " << initialRapMagnitude << std::endl;
+		initialRapidity.set_g1(-initialRapMagnitude);
+		
 
 		//initialPosition = initialPosition * g0;
 		//initialVelocity = initialVelocity * g0;
 
 		std::cout << initialPosition.toString() << std::endl;
-		std::cout << initialVelocity.toString() << std::endl;
+		std::cout << initialRapidity.toString() << std::endl;
 
-		Player player{ mveWindow , viewerObject, initialPosition, initialVelocity }; // Game player
+		Player player{ mveWindow , viewerObject, initialPosition, initialRapidity }; // Game player
 
 		//std::cout << std::boolalpha << std::is_move_assignable<vector> << std::cout;
 
@@ -252,7 +280,24 @@ namespace mve {
 		enemyObject.transform.translation = { 3.0f, 0.0f, 4.0f };
 		gameObjects.emplace(enemyObject.getId(), std::move(enemyObject));
 
-		// Used to have the keyboard input controller defined here
+		std::shared_ptr<MveModel> sphereModel = MveModel::createModelFromFile(mveDevice, "./models/colored_sphere.obj");
+		auto massiveObject = MveGameObject::createGameObject();
+		massiveObject.model = sphereModel;
+		//double mass = 1000000;
+		
+		mv gravInitialPos{};
+		mv gravInitialRap{};
+		gravInitialPos.set_g3(radiusOfOrbit);
+		//gravInitialPos
+
+		GravitySource gravitySource{ mveWindow, massiveObject, massMainBody, gravInitialPos, gravInitialRap };
+
+		massiveObject.transform.translation = {0.0f, 0.0f, 5.0f};
+		gameObjects.emplace(massiveObject.getId(), std::move(massiveObject));
+		
+
+
+		// Used to have the keyboard input controller rrrrdefined here
 		// But the functionality has since been moved to MveWindow
 		// In favor of using it to update a keymap
 		// Keymap is then read from by Player.action() inside update loop.
@@ -305,8 +350,20 @@ namespace mve {
 				};
 				
 				// ********** Update game **********
+				gravitySource.Action(mveWindow.getGLFWwindow(), dt);
+				//struct GravitationData {
+				//	double G;
+				//	double massOfObject;
+				//	m4sta::mv rapidityOfObject;
+				//	m4sta::mv positionOfObject;
+				//};
+				GravitationData g{};
+				g.G = G; //6.67430e-11; // Defined above somewhere
+				g.massOfObject = massMainBody;
+				g.rapidityOfObject = gravitySource.rapidity;
+				g.positionOfObject = gravitySource.position;
 
-				player.Action(mveWindow.getGLFWwindow(), dt);
+				player.Action(mveWindow.getGLFWwindow(), dt, g);
 				enemy.Action(mveWindow.getGLFWwindow(), dt);
 				/*
 				for (int i = 0; i < timeClocks.size(); i++) {
@@ -359,13 +416,25 @@ namespace mve {
 				int zo = int(int(Xp.z / (lattice.latticeUnit)) * (lattice.latticeUnit));
 				
 
-				//Math::Matrix44 L{};	
-				//L = Math::Matrix44::Lorentz(player.P.U); // Lorentz boost matrix : Bg frame -> Player frame
-				//glm::mat4 lorentz = L.toGLM();			 // .toGLM() transposes the matrix to conform to GLSL conventions
+				Math::Vector4D X{};
+				Math::Vector4D U{};
+				X.setT(player.P.position.get_g0());
+				X.setX(player.P.position.get_g1());
+				X.setY(player.P.position.get_g2());
+				X.setZ(player.P.position.get_g3());
+
+				U.setT(cosh(norm(player.P.rapidity)));
+				U.setX(player.P.rapidity.get_g1());
+				U.setY(player.P.rapidity.get_g2());
+				U.setZ(player.P.rapidity.get_g3());
 				
-				//Math::Matrix44 LL{};
-				//LL = Math::Matrix44::Lorentz(-player.P.U);	// Not sure how to use yet; but it transforms from the player's frame of reference to the background frame of reference.
-				//glm::mat4 invLorenz = LL.toGLM();
+
+				Math::Matrix44 L{};	
+				L = Math::Matrix44::Lorentz(U); // Lorentz boost matrix : Bg frame -> Player frame
+				glm::mat4 lorentz = L.toGLM();			 // .toGLM() transposes the matrix to conform to GLSL conventions
+								Math::Matrix44 LL{};
+				LL = Math::Matrix44::Lorentz(-U);	// Not sure how to use yet; but it transforms from the player's frame of reference to the background frame of reference.
+				glm::mat4 invLorenz = LL.toGLM();
 				
 				// Update buffer holding LatticeUbo
 				LatticeUbo latticeUbo{};
@@ -376,10 +445,15 @@ namespace mve {
 				latticeUboBuffers[frameIndex]->flush();
 				latticeUboBuffer.flushIndex(frameIndex);
 
-				/*
-				EnemyDrawData eDrawData = enemy.getDrawData(player.P.X, L, LL);
+				EnemyDrawData eDrawData = enemy.getDrawData(X, L, LL);
 
-				Math::Vector4D dX = eDrawData.X - player.P.X;
+				Math::Vector4D gSrcX{};
+				gSrcX.setT(gravitySource.position.get_g0());
+				gSrcX.setX(gravitySource.position.get_g1());
+				gSrcX.setY(gravitySource.position.get_g2());
+				gSrcX.setZ(gravitySource.position.get_g3());
+
+				Math::Vector4D dX = gSrcX - X;
 				dX.setT(-dX.length()); // spacetime interval
 				Math::Vector4D negdX = -dX;
 				Math::Vector4D x_p = Math::Matrix44::Lorentz(eDrawData.U).getTransform(negdX);
@@ -403,13 +477,19 @@ namespace mve {
 				srUbo.Rotate = glm::toMat4(enemyOrientation);
 				srUbo.dX = dX_playerframe;
 				srUbo.xp = xp;
-				*/
-				SpecialRelativityUbo srUbo{};
-				srUbo.Lorentz = glm::mat4{};
-				srUbo.Lorentz_p2e = glm::mat4{};
-				srUbo.Rotate = glm::mat4{};
-				srUbo.dX = glm::vec4{};
-				srUbo.xp = glm::vec4{};
+				
+
+				//MvePhaseSpace gSrcDrawData = gravitySource.getDrawData(player.P.position);
+
+				//glm::vec4 dx_playerframe = glm::vec4{}
+
+				
+				//SpecialRelativityUbo srUbo{};
+				//srUbo.Lorentz = glm::mat4{1.0};
+				//srUbo.Lorentz_p2e = glm::mat4{1.0};
+				//srUbo.Rotate = glm::mat4{1.0};
+				//srUbo.dX = glm::vec4{1.0};
+				//srUbo.xp = glm::vec4{Xp, 1.0};
 				specialRelativityUboBuffers[frameIndex]->writeToBuffer(&srUbo);
 				specialRelativityUboBuffers[frameIndex]->flush();
 				specialRelativityUboBuffer.flushIndex(frameIndex);
@@ -467,6 +547,26 @@ namespace mve {
 
 					ImGui::NewLine();
 
+					double G = 1;		// Gravitational constant
+					double M = 100000;	// kilograms
+					mv position = 1.0 * g0 ^ g1;
+					
+					mv playerPos = player.P.position;
+					mv xarrow = playerPos * g0;
+					xarrow.set_scalar(0.0);
+					double ct = (player.P.position * g0).get_scalar();
+
+					mv rhat = xarrow - position;
+					double r = norm(rhat);
+					rhat = unit(rhat);
+
+					mv Narrow = - ((G* M)/(r*r)) * 1 * rhat;
+
+					//ImGui::Text("Narrow:");
+					//ImGui::Text(Narrow.c_str());
+
+					
+
 					/*
 					// Casting the desired values into a convenient format (as well as double->float)
 					std::array<float, 4> playerPosFloat = { (float)player.P.X.getT(), (float)player.P.X.getX(), (float)player.P.X.getY(), (float)player.P.X.getZ() };
@@ -521,57 +621,57 @@ namespace mve {
 					velocity *= magnitude;
 					velocity.set_g0(cosh(norm(player.P.rapidity)));
 					ImGui::Text(velocity.c_str());
-					ImGui::Text("Player relative velocity:");
-					ImGui::Text((velocity * g0).c_str());
-					
+					//ImGui::Text("Player relative velocity:");
+					//ImGui::Text((velocity * g0).c_str());
+					//
+					//
+					//double rest_mass = 100; // I'll just say this is in units kg
+					//mv momentum = rest_mass * velocity;
+					//mv angular_momentum_bivector = player.P.position ^ momentum;
+					//
+					//ImGui::Text("Player rest mass: %.3f", rest_mass);
+					//ImGui::Text("Player momentum:");
+					//ImGui::Text(momentum.c_str());
+					//ImGui::Text("Player relative momentum:");
+					//ImGui::Text((momentum * g0).c_str());
+					//ImGui::Text("Player momentum squared:");
+					//ImGui::Text((momentum * momentum).c_str());
+					//
+					//ImGui::Text("M :");
+					//ImGui::Text(angular_momentum_bivector.c_str());
+					//
+					//mv parrow = (momentum * g0);
+					//parrow.set_scalar(0.0);
+					//
+					//mv xarrow = (player.P.position * g0);
+					//xarrow.set_scalar(0.0);
+					//double ct = (player.P.position * g0).get_scalar();
+					//double Eoverc = (momentum * g0).get_scalar();
+					//
+					//mv varrow = (velocity * g0);
+					//
+					//mv Narrow = (ct * parrow) - (Eoverc * xarrow);
+					//
+					//// I(a x b) = (a ^ b)
+					//// (a x b) = I(a ^ b)		????
+					//
+					//mv Larrow = I*(xarrow ^ parrow);
+					//// therefore M becomes
+					//// M = -c * Narrow - Larrow
+					//mv angular_momentum_bivector_2 = -1.0 * Narrow - Larrow*I;
+					//ImGui::Text("M 2 : ");
+					//ImGui::Text(angular_momentum_bivector_2.c_str());
+					//
+					//ImGui::Text("Narrow: ");
+					//ImGui::Text(Narrow.c_str());
 
-					double rest_mass = 100; // I'll just say this is in units kg
-					mv momentum = rest_mass * velocity;
-					mv angular_momentum_bivector = player.P.position ^ momentum;
 
-					ImGui::Text("Player rest mass: %.3f", rest_mass);
-					ImGui::Text("Player momentum:");
-					ImGui::Text(momentum.c_str());
-					ImGui::Text("Player relative momentum:");
-					ImGui::Text((momentum * g0).c_str());
-					ImGui::Text("Player momentum squared:");
-					ImGui::Text((momentum * momentum).c_str());
-
-					ImGui::Text("M :");
-					ImGui::Text(angular_momentum_bivector.c_str());
-
-					mv parrow = (momentum * g0);
-					parrow.set_scalar(0.0);
-
-					mv xarrow = (player.P.position * g0);
-					xarrow.set_scalar(0.0);
-					double ct = (player.P.position * g0).get_scalar();
-					double Eoverc = (momentum * g0).get_scalar();
-
-					mv varrow = (velocity * g0);
-
-					mv Narrow = (ct * parrow) - (Eoverc * xarrow);
-
-					// I(a x b) = (a ^ b)
-					// (a x b) = I(a ^ b)		????
-
-					mv Larrow = I*(xarrow ^ parrow);
-					// therefore M becomes
-					// M = -c * Narrow - Larrow
-					mv angular_momentum_bivector_2 = -1.0 * Narrow - Larrow*I;
-					ImGui::Text("M 2 : ");
-					ImGui::Text(angular_momentum_bivector_2.c_str());
 					// hmmm.. for some reason they are different. 
 					// angular momentum bivector 
 					// has components g01, g02, g03, g12, g23, g31
 					// angular momentum bivector 2 
 					// has components g01, g02, g03 only?
 					// Not sure which one is "correct"
-					
-					//ImGui::TextColored({ 1.0, 0.0, 0.0, 1.0 }, "This does not work currently!");
-					
-					//mv tempRapidity = player.P.rapidity;
-					//tempRapidity.set_g0(0.0);
 
 					double magRap = norm(player.P.rapidity);
 					// Lorentz 
