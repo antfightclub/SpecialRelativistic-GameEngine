@@ -157,7 +157,7 @@ namespace mve {
 		// Set up render systems
 		LatticeWireframeSystem latticeRenderSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()};
 		SRRenderSystem srRenderSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
-		//PointLightSystem pointLightSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
+		PointLightSystem pointLightSystem{ mveDevice, mveRenderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout() };
 
 		MveCamera camera{};		
 		glm::mat4 cameraView{ 1.0 }; // This will be updated later in the update loop
@@ -188,7 +188,7 @@ namespace mve {
 		//initialPosition.set_g0(1.0);
 		mv initialRapidity{};
 		//initialVelocity.set_g0(1.0);
-		double initialVelMagnitude = 0.1;//(std::sqrt(G * (massMainBody * (5.0*299792458)) / (5.0* 299792458)));
+		double initialVelMagnitude = 0.11;//(std::sqrt(G * (massMainBody * (5.0*299792458)) / (5.0* 299792458)));
 		std::cout << "initial vel magnitude = " << initialVelMagnitude << std::endl;
 		double initialRapMagnitude = atanh(initialVelMagnitude);
 		std::cout << "initial rap magnitude = " << initialRapMagnitude << std::endl;
@@ -280,11 +280,23 @@ namespace mve {
 		enemyObject.transform.translation = { 3.0f, 0.0f, 4.0f };
 		gameObjects.emplace(enemyObject.getId(), std::move(enemyObject));
 
-		std::shared_ptr<MveModel> sphereModel = MveModel::createModelFromFile(mveDevice, "./models/colored_sphere.obj");
-		auto massiveObject = MveGameObject::createGameObject();
-		massiveObject.model = sphereModel;
+
+
+		// Spawn timeclocks as a trail
+		std::vector<TimeClock> timeClocks;
+		double accumulator = 0.0;
+		bool spawnTimeClocks = true;
+
+		//std::shared_ptr<MveModel> sphereModel = MveModel::createModelFromFile(mveDevice, "./models/colored_sphere.obj");
+		auto massiveObject = MveGameObject::makePointLight();
+		float massiveObjColor[3] = { 0.f, 0.f, 1.f };
+		float massiveObjPosition[3] = { 0.f, 0.f, 5.f };
+		//massiveObject.model = sphereModel;
 		//double mass = 1000000;
-		
+		TimeClock timeclock{ mveWindow, massiveObject, massiveObjColor, 1.0, massiveObjPosition[0] * g1 + massiveObjPosition[1] * g2 + massiveObjPosition[2] * g3 };
+		massiveObject.transform.translation = { 0.0f, 0.0f, 5.0f };
+		timeClocks.push_back(timeclock);
+
 		mv gravInitialPos{};
 		mv gravInitialRap{};
 		gravInitialPos.set_g3(5.0);
@@ -292,7 +304,7 @@ namespace mve {
 
 		GravitySource gravitySource{ mveWindow, massiveObject, massMainBody, gravInitialPos, gravInitialRap };
 
-		massiveObject.transform.translation = {0.0f, 0.0f, 5.0f};
+	
 		gameObjects.emplace(massiveObject.getId(), std::move(massiveObject));
 		
 
@@ -306,7 +318,7 @@ namespace mve {
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float timeSince = 0.f; // used to count time between frames!
 		bool renderLattice = true; // whether to render lattice - set in imgui ui
-		
+
 
 		//float sta_vel[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
@@ -365,11 +377,11 @@ namespace mve {
 
 				player.Action(mveWindow.getGLFWwindow(), dt, g);
 				enemy.Action(mveWindow.getGLFWwindow(), dt);
-				/*
-				for (int i = 0; i < timeClocks.size(); i++) {
-					timeClocks[i].Action(mveWindow.getGLFWwindow(), dt);
-				}
-				*/
+				
+				//for (int i = 0; i < timeClocks.size(); i++) {
+				//	timeClocks[i].Action(mveWindow.getGLFWwindow(), dt);
+				//}
+				
 
 				// Should get a GLM rotation matrix directly instead of this, but will require a rewrite of Math:: namespace
 				Math::Quaternion playerOrientation = player.quaternion;
@@ -445,38 +457,38 @@ namespace mve {
 				latticeUboBuffers[frameIndex]->flush();
 				latticeUboBuffer.flushIndex(frameIndex);
 
-				EnemyDrawData eDrawData = enemy.getDrawData(X, L, LL);
-
-				Math::Vector4D gSrcX{};
-				gSrcX.setT(gravitySource.position.get_g0());
-				gSrcX.setX(gravitySource.position.get_g1());
-				gSrcX.setY(gravitySource.position.get_g2());
-				gSrcX.setZ(gravitySource.position.get_g3());
-
-				Math::Vector4D dX = gSrcX - X;
-				dX.setT(-dX.length()); // spacetime interval
-				Math::Vector4D negdX = -dX;
-				Math::Vector4D x_p = Math::Matrix44::Lorentz(eDrawData.U).getTransform(negdX);
-				
-				glm::vec4 xp = glm::vec4{ (float)x_p.getX(), (float)x_p.getY(), (float)x_p.getZ(), (float)x_p.getT() };
-
-				Math::Vector4D dee_X = L.getTransform(dX);
-				glm::vec4 dX_playerframe = glm::vec4{ (float)dee_X.getX(), (float)dee_X.getY(), (float)dee_X.getZ(), 0.f };
-
-				// LL   -    player frame to background frame, then background frame to enemy frame
-				glm::mat4 L_p2b_b2e = (Math::Matrix44::Lorentz(eDrawData.U) * LL).toGLM();
-
-				// L    -    enemy to player frame
-				glm::mat4 L_e2p = (L * Math::Matrix44::Lorentz(-eDrawData.U)).toGLM();
-
-				glm::quat enemyOrientation = glm::quat{ (float)eDrawData.quaternion.t, (float)eDrawData.quaternion.x, (float)eDrawData.quaternion.y, (float)eDrawData.quaternion.z };
-				
-				SpecialRelativityUbo srUbo{};
-				srUbo.Lorentz = L_e2p;
-				srUbo.Lorentz_p2e = L_p2b_b2e;
-				srUbo.Rotate = glm::toMat4(enemyOrientation);
-				srUbo.dX = dX_playerframe;
-				srUbo.xp = xp;
+				//EnemyDrawData eDrawData = enemy.getDrawData(X, L, LL);
+				//
+				//Math::Vector4D gSrcX{};
+				//gSrcX.setT(gravitySource.position.get_g0());
+				//gSrcX.setX(gravitySource.position.get_g1());
+				//gSrcX.setY(gravitySource.position.get_g2());
+				//gSrcX.setZ(gravitySource.position.get_g3());
+				//
+				//Math::Vector4D dX = gSrcX - X;
+				//dX.setT(-dX.length()); // spacetime interval
+				//Math::Vector4D negdX = -dX;
+				//Math::Vector4D x_p = Math::Matrix44::Lorentz(eDrawData.U).getTransform(negdX);
+				//
+				//glm::vec4 xp = glm::vec4{ (float)x_p.getX(), (float)x_p.getY(), (float)x_p.getZ(), (float)x_p.getT() };
+				//
+				//Math::Vector4D dee_X = L.getTransform(dX);
+				//glm::vec4 dX_playerframe = glm::vec4{ (float)dee_X.getX(), (float)dee_X.getY(), (float)dee_X.getZ(), 0.f };
+				//
+				//// LL   -    player frame to background frame, then background frame to enemy frame
+				//glm::mat4 L_p2b_b2e = (Math::Matrix44::Lorentz(eDrawData.U) * LL).toGLM();
+				//
+				//// L    -    enemy to player frame
+				//glm::mat4 L_e2p = (L * Math::Matrix44::Lorentz(-eDrawData.U)).toGLM();
+				//
+				//glm::quat enemyOrientation = glm::quat{ (float)eDrawData.quaternion.t, (float)eDrawData.quaternion.x, (float)eDrawData.quaternion.y, (float)eDrawData.quaternion.z };
+				//
+				//SpecialRelativityUbo srUbo{};
+				//srUbo.Lorentz = L_e2p;
+				//srUbo.Lorentz_p2e = L_p2b_b2e;
+				//srUbo.Rotate = glm::toMat4(enemyOrientation);
+				//srUbo.dX = dX_playerframe;
+				//srUbo.xp = xp;
 				
 
 				//MvePhaseSpace gSrcDrawData = gravitySource.getDrawData(player.P.position);
@@ -484,25 +496,50 @@ namespace mve {
 				//glm::vec4 dx_playerframe = glm::vec4{}
 
 				
-				//SpecialRelativityUbo srUbo{};
-				//srUbo.Lorentz = glm::mat4{1.0};
-				//srUbo.Lorentz_p2e = glm::mat4{1.0};
-				//srUbo.Rotate = glm::mat4{1.0};
-				//srUbo.dX = glm::vec4{1.0};
-				//srUbo.xp = glm::vec4{Xp, 1.0};
+				SpecialRelativityUbo srUbo{};
+				srUbo.Lorentz = glm::mat4{1.0};
+				srUbo.Lorentz_p2e = glm::mat4{1.0};
+				srUbo.Rotate = glm::mat4{1.0};
+				srUbo.dX = glm::vec4{1.0};
+				srUbo.xp = glm::vec4{Xp, 1.0};
 				specialRelativityUboBuffers[frameIndex]->writeToBuffer(&srUbo);
 				specialRelativityUboBuffers[frameIndex]->flush();
 				specialRelativityUboBuffer.flushIndex(frameIndex);
 
-				/*
-				mv observerPosition = player.P.X.getT() * g0 + player.P.X.getX() * g1 + player.P.X.getY() * g2 + player.P.X.getZ() * g3;
+
+				accumulator += dt;
+				if (accumulator >= 5.0) {
+					// Spawn timeclock I guess
+					if (spawnTimeClocks == true) {
+						//auto timeclockObject = MveGameObject::makePointLight(1.f); // Time clock game objct
+						//float timeclockColor[3] = { ((double)rand()) / RAND_MAX, ((double)rand()) / RAND_MAX , ((double)rand()) / RAND_MAX };
+						//float timeclockPosition[3] = { ((float)i) * scale, ((float)j) * scale, 5.f };
+						//TimeClock timeclock{ mveWindow, timeclockObject, timeclockColor, 1.0, timeclockPosition[0] * m4sta::g1 + timeclockPosition[1] * m4sta::g2 + timeclockPosition[2] * m4sta::g3 };
+						//timeClocks.push_back(timeclock);
+						//timeclockObject.transform.translation = glm::vec3{ timeclockPosition[0], timeclockPosition[1], timeclockPosition[2] };
+						//gameObjects.emplace(timeclockObject.getId(), std::move(timeclockObject));
+
+						auto timeclockObject = MveGameObject::makePointLight(1.f);
+						float timeclockColor[3] = { 1.0, 1.0, 1.0 };
+						float timeclockPosition[3] = { (float)player.P.position.get_g1(), (float)player.P.position.get_g2(), (float)player.P.position.get_g3() };
+						TimeClock timeclock{ mveWindow, timeclockObject, timeclockColor, 1.0, timeclockPosition[0] * m4sta::g1 + timeclockPosition[1] * m4sta::g2 + timeclockPosition[2] * m4sta::g3 };
+						timeClocks.push_back(timeclock);
+						timeclockObject.transform.translation = glm::vec3{ timeclockPosition[0], timeclockPosition[1], timeclockPosition[2] };
+						gameObjects.emplace(timeclockObject.getId(), std::move(timeclockObject));
+
+					}
+					accumulator = 0.0;
+				}
+
+				
+				//mv observerPosition = player.P.position;
 				
 				
 				std::vector<size_t> worldLineSize;
 				std::vector<TimeClockDrawData> clocksDrawData;
 				auto before = std::chrono::high_resolution_clock::now();
 				for (auto timeclock : timeClocks) {
-					TimeClockDrawData cDrawData = timeclock.getDrawData(observerPosition);
+					TimeClockDrawData cDrawData = timeclock.getDrawData(player.P.position);
 					size_t worldlineEntryAmount = timeclock.getWorldlineEntryAmount();
 					clocksDrawData.push_back(cDrawData);
 					worldLineSize.push_back(worldlineEntryAmount);
@@ -519,11 +556,13 @@ namespace mve {
 						obj.transform.scale.x = 0.2;
 					}
 					else if (fmod(t, 4) <= 2.0) {
-						obj.color = glm::vec3{ 0.1*clocksDrawData[i].color[0], 0.1*clocksDrawData[i].color[1], 0.1*clocksDrawData[i].color[2] };
-						obj.transform.scale.x = 0.1;
+						//obj.color = glm::vec3{ 0.1*clocksDrawData[i].color[0], 0.1*clocksDrawData[i].color[1], 0.1*clocksDrawData[i].color[2] };
+						//obj.transform.scale.x = 0.1;
+						obj.color = glm::vec3{ clocksDrawData[i].color[0], clocksDrawData[i].color[1], clocksDrawData[i].color[2] };
+						obj.transform.scale.x = 0.19;
 					}
 				}
-				*/
+				
 
 				// ********** Update Dear ImGui state **********
 				// This could perhaps be separated into its own function, or perhaps be implemented in a render system.
@@ -689,7 +728,8 @@ namespace mve {
 
 					ImGui::NewLine();
 					ImGui::Checkbox("show/hide lattice", &renderLattice);
-
+					ImGui::Checkbox("spawn/do not spawn timeclocks", &spawnTimeClocks);
+					ImGui::Text("Amount of timeclocks = %u", timeClocks.size());
 					/*
 					ImGui::NewLine();
 					// View matrix 
@@ -950,7 +990,7 @@ namespace mve {
 					latticeRenderSystem.renderWireframe(frameInfo, latticeGameObjectID);
 				}
 				srRenderSystem.render(frameInfo, latticeGameObjectID);
-				//pointLightSystem.render(frameInfo, playerPos);
+				pointLightSystem.render(frameInfo, glm::vec3{ playerPos[0], playerPos[1], playerPos[2] });
 				mveRenderer.endSwapChainRenderPass(frameCommandBuffers.mainCommandBuffer);
 				
 				// UI rendering happens *after* the ordinary render systems, and uses a separate command buffer
