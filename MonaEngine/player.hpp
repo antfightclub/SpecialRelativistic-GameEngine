@@ -74,6 +74,7 @@ namespace mve {
 		m4sta::mv getAccelerationFromGravitation(GLFWwindow* window, double deltaTime, GravitationData g);
 		// calc repulsion
 		m4sta::mv p3CrossProduct(m4sta::mv& A, m4sta::mv& B);
+		m4sta::mv crossProductEquivalent(m4sta::mv& A, m4sta::mv& B);
 		void changeDirection(GLFWwindow* window, double deltaTime);
 		//getviscous
 

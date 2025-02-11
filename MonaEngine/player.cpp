@@ -248,12 +248,12 @@ namespace mve {
 
 		//m4sta::mv mvdotg0 = (playerMass * 1.0 * cosh(norm(P.rapidity))) * Narrow % varrow + playerMass * gamma * ();
 		m4sta::mv innerInnerParenthesis = -((g.G * g.massOfObject) / (r * r)) * gamma_s * vsarrow;
-		m4sta::mv innerParenthesis = p3CrossProduct(innerInnerParenthesis, rhat);
-		m4sta::mv bracket = -((g.G * g.massOfObject) / (r * r)) * gamma_s * (1.0*1.0) * rhat + p3CrossProduct(varrow, innerParenthesis);
+		m4sta::mv innerParenthesis = crossProductEquivalent(innerInnerParenthesis, rhat);
+		m4sta::mv bracket = -((g.G * g.massOfObject) / (r * r)) * gamma_s * (1.0*1.0) * rhat + crossProductEquivalent(varrow, innerParenthesis);
 		m4sta::mv mvdotg0 = ((playerMass * 1.0 * gamma * Narrow) % varrow) + playerMass * gamma * bracket;
 
-		std::cout << "mvdotg0      : " << mvdotg0.toString() << std::endl;
-		std::cout << "g0 * mvdotg0 : " << (g0 * mvdotg0).toString() << std::endl;
+		std::cout << "mvdotg0      : " << mvdotg0.toString_e() << std::endl;
+		std::cout << "g0 * mvdotg0 : " << (g0 * mvdotg0).toString_e() << std::endl;
 
 		//mv ret{};
 		//ret.set_g1(mvdotg0.get_g0_g1());
@@ -266,9 +266,14 @@ namespace mve {
 		return ret;
 	}
 
+	m4sta::mv Player::crossProductEquivalent(m4sta::mv& A, m4sta::mv& B) {
+		mv res{};
+		res = -I * (A ^ B);
+		return res;
+	}
 
 	m4sta::mv Player::p3CrossProduct(m4sta::mv& A, m4sta::mv& B) {
-		mv res;
+		mv res{};
 		res.set_g0_g1(-(A.get_g0_g2() * B.get_g0_g3() - A.get_g0_g3() * B.get_g0_g2()));
 		res.set_g0_g2(-(A.get_g0_g3() * B.get_g0_g1() - A.get_g0_g1() * B.get_g0_g3()));
 		res.set_g0_g3(-(A.get_g0_g1() * B.get_g0_g2() - A.get_g0_g2() * B.get_g0_g1()));
