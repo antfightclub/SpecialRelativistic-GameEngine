@@ -232,7 +232,12 @@ namespace mve {
 		double gamma_s = cosh(norm(g.rapidityOfObject)); // Lorentz factor
 
 		mv Narrow = -((g.G * g.massOfObject) / (r * r)) * gamma_s * rhat;
-		
+		mv Larrow = crossProductEquivalent(vsarrow, Narrow);
+
+		std::cout << "Narrow   : " << Narrow.toString_e() << std::endl;
+		std::cout << "Larrow   : " << Larrow.toString_e() << std::endl;
+		std::cout << std::endl;
+
 		//m4sta::mv svel = g.rapidityOfObject;
 		//svel = unit(svel);
 		//double svel_magnitude = tanh(norm(g.rapidityOfObject)); // Velocity as fraction of c
@@ -252,8 +257,8 @@ namespace mve {
 		m4sta::mv bracket = -((g.G * g.massOfObject) / (r * r)) * gamma_s * (1.0*1.0) * rhat + crossProductEquivalent(varrow, innerParenthesis);
 		m4sta::mv mvdotg0 = ((playerMass * 1.0 * gamma * Narrow) % varrow) + playerMass * gamma * bracket;
 
-		std::cout << "mvdotg0      : " << mvdotg0.toString_e() << std::endl;
-		std::cout << "g0 * mvdotg0 : " << (g0 * mvdotg0).toString_e() << std::endl;
+		//std::cout << "mvdotg0      : " << mvdotg0.toString_e() << std::endl;
+		//std::cout << "g0 * mvdotg0 : " << (g0 * mvdotg0).toString_e() << std::endl;
 
 		//mv ret{};
 		//ret.set_g1(mvdotg0.get_g0_g1());
