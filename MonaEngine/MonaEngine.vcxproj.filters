@@ -138,9 +138,6 @@
     <ClCompile Include="entity\gravity_source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="spacetimealgebra\mve_matrix_ops.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="mve_window.hpp">

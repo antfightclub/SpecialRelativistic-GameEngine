@@ -11,6 +11,7 @@
 
 // Spacetime Algebra
 #include "spacetimealgebra/m4sta.hpp"
+//#include "spacetimealgebra/mve_matrix_ops.hpp"
 
 // Dear ImGui 
 #include "external/imgui/imgui.h"

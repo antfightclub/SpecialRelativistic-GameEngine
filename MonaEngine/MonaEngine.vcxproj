@@ -169,7 +169,6 @@
     <ClCompile Include="relativity_app.cpp" />
     <ClCompile Include="spacetimealgebra\m4sta.cpp" />
     <ClCompile Include="spacetimealgebra\m4sta_parse_mv.cpp" />
-    <ClCompile Include="spacetimealgebra\mve_matrix_ops.cpp" />
     <ClCompile Include="spacetimealgebra\mve_phasespace.cpp" />
     <ClCompile Include="spacetimealgebra\mve_worldline.cpp" />
     <ClCompile Include="systems\imgui_render_system.cpp" />

@@ -76,4 +76,10 @@ namespace mve {
 		ret.set_g3(zz);
 		return ret;
 	}
+
+	// Still need to investigate how to construct quaternions in STA
+	glm::mat4 rotationMatrixFromSTA(m4sta::spinor3 quat) {
+		throw std::runtime_error("rotationMatrixFromSTA not implemented yet!");
+	}
+
 }
