@@ -299,7 +299,7 @@ namespace mve {
 
 		mv gravInitialPos{};
 		mv gravInitialRap{};
-		gravInitialRap.set_g3(0.2);
+		//gravInitialRap.set_g3(0.2);
 		gravInitialPos.set_g3(5.0);
 		//gravInitialPos
 
