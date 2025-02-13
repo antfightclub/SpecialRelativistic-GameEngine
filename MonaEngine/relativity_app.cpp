@@ -10,6 +10,7 @@
 #include "enemy.hpp"
 #include "entity/timeclock.hpp"
 #include "entity/gravity_source.hpp"
+#include "spacetimealgebra/mve_matrix_ops.hpp"
 
 // Math namespace
 #include "relativity/math/Matrix44.hpp"
@@ -188,18 +189,18 @@ namespace mve {
 		//initialPosition.set_g0(1.0);
 		mv initialRapidity{};
 		//initialVelocity.set_g0(1.0);
-		double initialVelMagnitude = 0.11;//(std::sqrt(G * (massMainBody * (5.0*299792458)) / (5.0* 299792458)));
-		std::cout << "initial vel magnitude = " << initialVelMagnitude << std::endl;
-		double initialRapMagnitude = atanh(initialVelMagnitude);
-		std::cout << "initial rap magnitude = " << initialRapMagnitude << std::endl;
-		initialRapidity.set_g1(-initialRapMagnitude);
+		//double initialVelMagnitude = 0.11;//(std::sqrt(G * (massMainBody * (5.0*299792458)) / (5.0* 299792458)));
+		//std::cout << "initial vel magnitude = " << initialVelMagnitude << std::endl;
+		//double initialRapMagnitude = atanh(initialVelMagnitude);
+		//std::cout << "initial rap magnitude = " << initialRapMagnitude << std::endl;
+		//initialRapidity.set_g1(-initialRapMagnitude);
 		
 
 		//initialPosition = initialPosition * g0;
 		//initialVelocity = initialVelocity * g0;
 
-		std::cout << initialPosition.toString() << std::endl;
-		std::cout << initialRapidity.toString() << std::endl;
+		//std::cout << initialPosition.toString() << std::endl;
+		//std::cout << initialRapidity.toString() << std::endl;
 
 		Player player{ mveWindow , viewerObject, initialPosition, initialRapidity }; // Game player
 
@@ -285,7 +286,7 @@ namespace mve {
 		// Spawn timeclocks as a trail
 		std::vector<TimeClock> timeClocks;
 		double accumulator = 0.0;
-		bool spawnTimeClocks = true;
+		bool spawnTimeClocks = false;
 
 		//std::shared_ptr<MveModel> sphereModel = MveModel::createModelFromFile(mveDevice, "./models/colored_sphere.obj");
 		auto massiveObject = MveGameObject::makePointLight();
@@ -387,7 +388,7 @@ namespace mve {
 				// Should get a GLM rotation matrix directly instead of this, but will require a rewrite of Math:: namespace
 				Math::Quaternion playerOrientation = player.quaternion;
 				
-				float playerPos[3] = { player.P.position.get_g1(), player.P.position.get_g2(), player.P.position.get_g3() };
+				float playerPos[3] = { (float)player.P.position.get_g1(), (float)player.P.position.get_g2(), (float)player.P.position.get_g3() };
 
 				// Establish camera view matrix
 				glm::vec3 playerPosition = glm::vec3{ playerPos[0], playerPos[1], playerPos[2] };
@@ -412,10 +413,9 @@ namespace mve {
 				globalUbo.projection = camera.getProjection();
 				globalUbo.view = camera.getView();
 				globalUbo.inverseView = invView;
+				globalUbo.Lorentz = LorentzMatrixFromRapidity(player.P.rapidity);
 				globalUbo.ambientLightColor = { 1.f, 1.f, 1.f, .02f };
 				globalUbo.observerPosition = { playerPos[0], playerPos[1], playerPos[2], 1.0};
-				//globalUbo.BoostParams = { playerVel.get_g0(), playerVel.get_g1(), playerVel.get_g2(), playerVel.get_g3() };
-				globalUbo.BoostParams = { player.P.rapidity.get_g0(), player.P.rapidity.get_g1(), player.P.rapidity.get_g2(), player.P.rapidity.get_g3()};
 				globalUboBuffers[frameIndex]->writeToBuffer(&globalUbo);
 				globalUboBuffers[frameIndex]->flush();
 
@@ -429,31 +429,32 @@ namespace mve {
 				int zo = int(int(Xp.z / (lattice.latticeUnit)) * (lattice.latticeUnit));
 				
 
-				Math::Vector4D X{};
-				Math::Vector4D U{};
-				X.setT(player.P.position.get_g0());
-				X.setX(player.P.position.get_g1());
-				X.setY(player.P.position.get_g2());
-				X.setZ(player.P.position.get_g3());
-
-				U.setT(cosh(norm(player.P.rapidity)));
-				U.setX(player.P.rapidity.get_g1());
-				U.setY(player.P.rapidity.get_g2());
-				U.setZ(player.P.rapidity.get_g3());
+				//Math::Vector4D X{};
+				//Math::Vector4D U{};
+				//X.setT(player.P.position.get_g0());
+				//X.setX(player.P.position.get_g1());
+				//X.setY(player.P.position.get_g2());
+				//X.setZ(player.P.position.get_g3());
+				//
+				//U.setT(cosh(norm(player.P.rapidity)));
+				//U.setX(player.P.rapidity.get_g1());
+				//U.setY(player.P.rapidity.get_g2());
+				//U.setZ(player.P.rapidity.get_g3());
 				
 
-				Math::Matrix44 L{};	
-				L = Math::Matrix44::Lorentz(U); // Lorentz boost matrix : Bg frame -> Player frame
-				glm::mat4 lorentz = L.toGLM();			 // .toGLM() transposes the matrix to conform to GLSL conventions
-								Math::Matrix44 LL{};
-				LL = Math::Matrix44::Lorentz(-U);	// Not sure how to use yet; but it transforms from the player's frame of reference to the background frame of reference.
-				glm::mat4 invLorenz = LL.toGLM();
-				
+				//Math::Matrix44 L{};	
+				//L = Math::Matrix44::Lorentz(U); // Lorentz boost matrix : Bg frame -> Player frame
+				//glm::mat4 lorentz = L.toGLM();			 // .toGLM() transposes the matrix to conform to GLSL conventions
+				//				Math::Matrix44 LL{};
+				//LL = Math::Matrix44::Lorentz(-U);	// Not sure how to use yet; but it transforms from the player's frame of reference to the background frame of reference.
+				//glm::mat4 invLorenz = LL.toGLM();
+				//
+				//glm::mat4 anotherLorentz = LorentzMatrixFromRapidity(player.P.rapidity);
+				//glm::mat4 anoteherLLorentz = LorentzMatrixFromRapidity(-player.P.rapidity);
 				// Update buffer holding LatticeUbo
 				LatticeUbo latticeUbo{};
 				latticeUbo.Xp = glm::vec3{ Xp.x, Xp.y, Xp.z};
 				latticeUbo.Xo = glm::vec3{ xo,   yo,   zo };
-				latticeUbo.Lorentz = glm::mat4{1.0};
 				latticeUboBuffers[frameIndex]->writeToBuffer(&latticeUbo);
 				latticeUboBuffers[frameIndex]->flush();
 				latticeUboBuffer.flushIndex(frameIndex);
@@ -498,7 +499,6 @@ namespace mve {
 
 				
 				SpecialRelativityUbo srUbo{};
-				srUbo.Lorentz = glm::mat4{1.0};
 				srUbo.Lorentz_p2e = glm::mat4{1.0};
 				srUbo.Rotate = glm::mat4{1.0};
 				srUbo.dX = glm::vec4{1.0};
@@ -509,7 +509,7 @@ namespace mve {
 
 
 				accumulator += dt;
-				if (accumulator >= 5.0) {
+				if (accumulator >= 1.0) {
 					// Spawn timeclock I guess
 					if (spawnTimeClocks == true) {
 						//auto timeclockObject = MveGameObject::makePointLight(1.f); // Time clock game objct
@@ -554,13 +554,13 @@ namespace mve {
 					double t = clocksDrawData[i].phaseSpace.position.get_g0();
 					if (fmod(t, 4) >= 2.0) {
 						obj.color = glm::vec3{ clocksDrawData[i].color[0], clocksDrawData[i].color[1], clocksDrawData[i].color[2] };
-						obj.transform.scale.x = 0.2;
+						obj.transform.scale.x = 0.2f;
 					}
 					else if (fmod(t, 4) <= 2.0) {
 						//obj.color = glm::vec3{ 0.1*clocksDrawData[i].color[0], 0.1*clocksDrawData[i].color[1], 0.1*clocksDrawData[i].color[2] };
 						//obj.transform.scale.x = 0.1;
 						obj.color = glm::vec3{ clocksDrawData[i].color[0], clocksDrawData[i].color[1], clocksDrawData[i].color[2] };
-						obj.transform.scale.x = 0.19;
+						obj.transform.scale.x = 0.19f;
 					}
 				}
 				
