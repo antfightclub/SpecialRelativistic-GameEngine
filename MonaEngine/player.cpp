@@ -206,6 +206,10 @@ namespace mve {
 		pvel = unit(pvel);
 		pvel *= magnitudePlayerRapidity;
 
+		mv playerVelocity = P.rapidity;
+		playerVelocity = unit(playerVelocity);
+		playerVelocity *= magnitudePlayerRapidity;
+
 		pvel = pvel * g0;
 
 		mv varrow = pvel;
@@ -234,9 +238,9 @@ namespace mve {
 		mv Narrow = -((g.G * g.massOfObject) / (r * r)) * gamma_s * rhat;
 		mv Larrow = crossProductEquivalent(vsarrow, Narrow);
 
-		std::cout << "Narrow   : " << Narrow.toString_e() << std::endl;
-		std::cout << "Larrow   : " << Larrow.toString_e() << std::endl;
-		std::cout << std::endl;
+		//std::cout << "Narrow   : " << Narrow.toString_e() << std::endl;
+		//std::cout << "Larrow   : " << Larrow.toString_e() << std::endl;
+		//std::cout << std::endl;
 
 		//m4sta::mv svel = g.rapidityOfObject;
 		//svel = unit(svel);
@@ -255,10 +259,16 @@ namespace mve {
 		m4sta::mv innerInnerParenthesis = -((g.G * g.massOfObject) / (r * r)) * gamma_s * vsarrow;
 		m4sta::mv innerParenthesis = crossProductEquivalent(innerInnerParenthesis, rhat);
 		m4sta::mv bracket = -((g.G * g.massOfObject) / (r * r)) * gamma_s * (1.0*1.0) * rhat + crossProductEquivalent(varrow, innerParenthesis);
-		m4sta::mv mvdotg0 = ((playerMass * 1.0 * gamma * Narrow) % varrow) + playerMass * gamma * bracket;
+		m4sta::mv mvdotg0 = ((playerMass * 1.0 * gamma) * (Narrow % varrow)) + playerMass * gamma * bracket;
 
-		//std::cout << "mvdotg0      : " << mvdotg0.toString_e() << std::endl;
+		std::cout << "mvdotg0      : " << mvdotg0.toString_e() << std::endl;
 		//std::cout << "g0 * mvdotg0 : " << (g0 * mvdotg0).toString_e() << std::endl;
+
+		m4sta::mv M = -(1.0) * Narrow - Larrow * I;
+		std::cout << "M            : " << M.toString_e() << std::endl;
+		m4sta::mv mvdot = (-playerMass * M) % playerVelocity;
+		std::cout << "mvdot        : " << mvdot.toString_e() << std::endl;
+		std::cout << std::endl;
 
 		//mv ret{};
 		//ret.set_g1(mvdotg0.get_g0_g1());
