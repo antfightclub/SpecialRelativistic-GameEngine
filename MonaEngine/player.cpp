@@ -40,7 +40,7 @@ namespace mve {
 		}
 
 
-		acceleration += this->getAccelerationFromGravitation(window, deltaTime, g);
+		//acceleration += this->getAccelerationFromGravitation(window, deltaTime, g);
 
 
 		this->P.transform(acceleration, deltaTime);
