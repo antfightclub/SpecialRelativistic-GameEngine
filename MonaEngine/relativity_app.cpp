@@ -8,6 +8,7 @@
 #include "mve_buffer.hpp"
 #include "player.hpp"
 #include "enemy.hpp"
+#include "entity/object.hpp"
 #include "entity/timeclock.hpp"
 #include "entity/gravity_source.hpp"
 #include "spacetimealgebra/mve_matrix_ops.hpp"
@@ -24,8 +25,6 @@
 #include <glm.hpp>
 #include <gtc/constants.hpp>
 #include <gtx/quaternion.hpp>
-
-
 
 //std libs
 #include <cassert>
@@ -273,14 +272,22 @@ namespace mve {
 		//timeclockObject.transform.translation = glm::vec3{ timeclockPosition[0], timeclockPosition[1], timeclockPosition[2]};
 		//gameObjects.emplace(timeclockObject.getId(), std::move(timeclockObject));
 
+		// Old Enemy class
+		//std::shared_ptr<MveModel> cubeModel = MveModel::createModelFromFile(mveDevice, "./models/gay_cube.obj");
+		//auto enemyObject = MveGameObject::createGameObject(); // The enemy's game object
+		//enemyObject.model = nullptr;//cubeModel;
+		//Enemy enemy{ mveWindow, enemyObject, Math::Vector4D{0.0, 3.0, 0.0, 4.0}, Math::EntityState{} };
+		//enemyObject.transform.translation = { 3.0f, 0.0f, 4.0f };
+		//gameObjects.emplace(enemyObject.getId(), std::move(enemyObject));
 
+		// New TestObject class for testing polygon rendering (and getting rid of quaternions)
+		m4sta::mv testObjectInitialPosition = 3.0 * g1 + 4.0 * g3;
 		std::shared_ptr<MveModel> cubeModel = MveModel::createModelFromFile(mveDevice, "./models/gay_cube.obj");
-		auto enemyObject = MveGameObject::createGameObject(); // The enemy's game object
-		enemyObject.model = nullptr;//cubeModel;
-		Enemy enemy{ mveWindow, enemyObject, Math::Vector4D{0.0, 3.0, 0.0, 4.0}, Math::EntityState{} };
-		enemyObject.transform.translation = { 3.0f, 0.0f, 4.0f };
-		gameObjects.emplace(enemyObject.getId(), std::move(enemyObject));
-
+		auto testObjectGO = MveGameObject::createGameObject();
+		testObjectGO.model = cubeModel;
+		TestObject testObject{ mveWindow, testObjectGO, testObjectInitialPosition };
+		testObjectGO.transform.translation = { testObjectInitialPosition.get_g1(), testObjectInitialPosition.get_g2(), testObjectInitialPosition.get_g3()};
+		gameObjects.emplace(testObjectGO.getId(), std::move(testObjectGO));
 
 
 		// Spawn timeclocks as a trail
@@ -378,7 +385,8 @@ namespace mve {
 				g.positionOfObject = gravitySource.position;
 
 				player.Action(mveWindow.getGLFWwindow(), dt, g);
-				enemy.Action(mveWindow.getGLFWwindow(), dt);
+				testObject.Action(mveWindow.getGLFWwindow(), dt);
+				//enemy.Action(mveWindow.getGLFWwindow(), dt);
 				
 				//for (int i = 0; i < timeClocks.size(); i++) {
 				//	timeClocks[i].Action(mveWindow.getGLFWwindow(), dt);
@@ -497,12 +505,67 @@ namespace mve {
 
 				//glm::vec4 dx_playerframe = glm::vec4{}
 
+				ObjectDrawData objDrawData = testObject.getDrawData(player.P.position);
+				// Just fixed a NaN, it seems that the calculated rapidity is NaN if the change in position between consecutive worldline entries is zero
+				m4sta::mv objPos = objDrawData.phaseSpace.position;
+				m4sta::mv objRap = objDrawData.phaseSpace.rapidity;
 				
+				
+				glm::mat4 objL{1.0};
+				glm::mat4 objLL{1.0};
+
+				objL = LorentzMatrixFromRapidity(objDrawData.phaseSpace.rapidity);	// Background frame to object frame
+				objLL = LorentzMatrixFromRapidity(-objDrawData.phaseSpace.rapidity);	// Object frame     to background frame
+
+				glm::mat4 playerL = LorentzMatrixFromRapidity(player.P.rapidity);				// Background frame to player frame
+				glm::mat4 playerLL = LorentzMatrixFromRapidity(-player.P.rapidity);				// Player frame     to background frame
+				
+				glm::mat4 L_o2p = (playerL * objLL);
+				glm::mat4 L_p2o = (objL * playerLL);
+
+				// Need to find out where the object is *in the player frame*.
+				// First find object's position in background frame. 
+				// Then find player's position in background frame.
+				m4sta::mv objectPosition = objDrawData.phaseSpace.position;
+				m4sta::mv playerPosMV = player.P.position;
+
+				m4sta::mv diffPosition{};
+				
+				//diffPosition.set_g0(objectPosition.get_g0() + playerPosMV.get_g0());
+				diffPosition.set_g1(objectPosition.get_g1() - playerPosMV.get_g1());
+				diffPosition.set_g2(objectPosition.get_g2() - playerPosMV.get_g2());
+				diffPosition.set_g3(objectPosition.get_g3() - playerPosMV.get_g3());
+				
+				// Spacetime interval
+				diffPosition.set_g0(-std::sqrt(
+					diffPosition.get_g1()* diffPosition.get_g1()
+					+ diffPosition.get_g2() * diffPosition.get_g2()
+					+ diffPosition.get_g3() * diffPosition.get_g3()));
+				
+				
+				m4sta::mv x_p = transformWithLorentzMatrix(objL, -diffPosition);
+
+				m4sta::mv xp_playerframe = transformWithLorentzMatrix(playerL, diffPosition);
+				xp_playerframe.set_g0(0.0);
+
+		
+				std::cout << "objectPos      : " << objectPosition.toString() << std::endl;
+				std::cout << "playerPos      : " << playerPosMV.toString() << std::endl;
+				std::cout << "diff  Pos      : " << diffPosition.toString() << std::endl;
+				std::cout << "x_p            : " << x_p.toString() << std::endl;
+				std::cout << "xp_playerframe : " << xp_playerframe.toString() << std::endl;
+
+				std::cout << std::endl;
+
+				// Might actually need a second matrix... I think that 
+				// the LSBattle "L" is "enemy to player"
+				// and the "LL" is the "player to enemy"
 				SpecialRelativityUbo srUbo{};
-				srUbo.Lorentz_p2e = glm::mat4{1.0};
+				srUbo.Lorentz_p2o = L_o2p;
+				srUbo.Lorentz_p2o = L_p2o;
 				srUbo.Rotate = glm::mat4{1.0};
-				srUbo.dX = glm::vec4{1.0};
-				srUbo.xp = glm::vec4{Xp, 1.0};
+				srUbo.dX = glm::vec4{xp_playerframe.get_g1(), xp_playerframe.get_g1(), xp_playerframe.get_g3(), xp_playerframe.get_g0()};
+				srUbo.xp = glm::vec4{x_p.get_g1(), x_p.get_g2(), x_p.get_g3(), x_p.get_g0()};
 				specialRelativityUboBuffers[frameIndex]->writeToBuffer(&srUbo);
 				specialRelativityUboBuffers[frameIndex]->flush();
 				specialRelativityUboBuffer.flushIndex(frameIndex);

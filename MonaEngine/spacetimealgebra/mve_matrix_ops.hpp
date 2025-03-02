@@ -33,7 +33,7 @@ namespace mve {
 		double z2 = z * z;
 		double r = x2 + y2 + z2;
 		//glm::mat4 L{ 1.0 };
-		if (r >= 0.00000001) {
+		if (r >= 0.000001) {
 			double g = sqrt(1.0 + r);
 			
 			r = 1.0 / r;

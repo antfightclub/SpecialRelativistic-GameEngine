@@ -32,7 +32,8 @@ layout(set = 0, binding = 1) uniform LatticeUbo {
 } latticeUbo;
 
 layout(set = 0, binding = 2) uniform SRUbo {
-	mat4 L_p2e;
+	mat4 L_o2p;
+	mat4 L_p2o;
 	mat4 Rotate;
 	vec4 dX;
 	vec4 xp;
@@ -48,9 +49,9 @@ void main() {
 
 	vec4 xi = srUbo.Rotate * vec4(position, 1.0);
 	xi.w = srUbo.xp.w - distance(srUbo.xp.xyz, xi.xyz);
-	xi = srUbo.dX + ubo.L * xi;
+	xi = srUbo.dX + srUbo.L_o2p * xi;
 	xi.w = -length(xi.xyz);
-	vec4 tmp = srUbo.L_p2e * xi;
+	vec4 tmp = srUbo.L_p2o * xi;
 	ratio = xi.w / tmp.w;
 	xi.w = 1.0;
 

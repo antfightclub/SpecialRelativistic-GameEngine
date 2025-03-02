@@ -138,6 +138,7 @@
     <ClCompile Include="enemy.cpp" />
     <ClCompile Include="entity\dummy.cpp" />
     <ClCompile Include="entity\gravity_source.cpp" />
+    <ClCompile Include="entity\object.cpp" />
     <ClCompile Include="entity\timeclock.cpp" />
     <ClCompile Include="external\imgui\imgui.cpp" />
     <ClCompile Include="external\imgui\imgui_demo.cpp" />
@@ -181,6 +182,7 @@
     <ClInclude Include="enemy.hpp" />
     <ClInclude Include="entity\entity.hpp" />
     <ClInclude Include="entity\gravity_source.hpp" />
+    <ClInclude Include="entity\object.hpp" />
     <ClInclude Include="entity\timeclock.hpp" />
     <ClInclude Include="external\imgui\imconfig.h" />
     <ClInclude Include="external\imgui\imgui.h" />
