@@ -514,8 +514,8 @@ namespace mve {
 				glm::mat4 objL{1.0};
 				glm::mat4 objLL{1.0};
 
-				objL = LorentzMatrixFromRapidity(objDrawData.phaseSpace.rapidity);	// Background frame to object frame
-				objLL = LorentzMatrixFromRapidity(-objDrawData.phaseSpace.rapidity);	// Object frame     to background frame
+				objL = LorentzMatrixFromRapidity(objDrawData.phaseSpace.rapidity);				// Background frame to object frame
+				objLL = LorentzMatrixFromRapidity(-objDrawData.phaseSpace.rapidity);			// Object frame     to background frame
 
 				glm::mat4 playerL = LorentzMatrixFromRapidity(player.P.rapidity);				// Background frame to player frame
 				glm::mat4 playerLL = LorentzMatrixFromRapidity(-player.P.rapidity);				// Player frame     to background frame
