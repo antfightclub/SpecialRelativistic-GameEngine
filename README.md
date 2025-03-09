@@ -13,4 +13,9 @@ This project was mainly motivated by the Expeditionary Force novels written by C
 - [ ] Wormhole jump drive mechanics 
 
 
-### Video showcase (coming soon)
+### Showcase
+![Time-like rotation](MonaEngine/misc/rotate.gif)
+
+![Length Contraction](MonaEngine/misc/cube.gif)
+
+![Field of Time Clocks](MonaEngine/misc/timeclocks.gif)
