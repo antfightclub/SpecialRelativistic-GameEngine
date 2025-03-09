@@ -5,7 +5,7 @@
 
 This prototype game engine is the result of my desire of a game in which the speed of light matters. It is being developed as a learning project and also as a proof-of-concept. In its current state it is barely just that; a proof of concept. See below for a few gifs showcasing what it does. 
 
-This project was mainly motivated by the Expeditionary Force novels written by Craig Alanson. The inspiration for some of the code is based on [LSBattle](https://github.com/sogebu/LSBattle), an implementation from the paper [Relativity For Games](https://arxiv.org/abs/1703.07063)
+This project was mainly motivated by the Expeditionary Force novels written by Craig Alanson. The inspiration for some of the code is based on [LSBattle](https://github.com/sogebu/LSBattle), an implementation from the paper [Relativity For Games](https://arxiv.org/abs/1703.07063). The engine is based on the [Vulkan (c++) Game Engine Tutorials by Brendan Galea](https://www.youtube.com/playlist?list=PL8327DO66nu9qYVKLDmdLW_84-yE4auCR).
 
 ### Showcase
 Travelling close to the speed of light leads to a hyperbolic rotation in time, the effects of which are modeled here by use of a Lorentz boost matrix in a vertex shader.
