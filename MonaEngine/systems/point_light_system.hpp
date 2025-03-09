@@ -23,8 +23,8 @@ namespace mve {
 		PointLightSystem(const PointLightSystem&) = delete;
 		PointLightSystem& operator=(const PointLightSystem&) = delete;
 
-		void update(FrameInfo& frameInfo, GlobalUbo& ubo);
-		void render(FrameInfo& frameInfo);
+		//void update(FrameInfo& frameInfo, PointLightUbo& ubo);
+		void render(FrameInfo& frameInfo, glm::vec3 observerPosition);
 
 	private:
 

@@ -11,13 +11,14 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 	mat4 projection;
 	mat4 view;
 	mat4 invView;
-	mat4 ambientLightColor;
+	mat4 L;
+	vec4 ambientLightColor;
+	vec4 observerPosition;
 } ubo;
 
 layout(set = 0, binding = 1) uniform LatticeUbo {
 	vec3 Xp;
 	vec3 Xo;
-	mat4 L;
 } latticeUbo;
 
 layout(push_constant) uniform Push {
@@ -25,9 +26,11 @@ layout(push_constant) uniform Push {
 } push;
 
 void main() {
-	vec3 v = vec3(position - latticeUbo.Xp + latticeUbo.Xo);
 
-	vec4 vertex = latticeUbo.L * vec4(v, -length(v));
+	
+	vec3 v = vec3(position - latticeUbo.Xp + latticeUbo.Xo);
+	
+	vec4 vertex = ubo.L * vec4(v, -length(v));
 	vertex.w = 1.0;
 	
 	mat4 MVP = (ubo.projection * ubo.view * push.modelMatrix);

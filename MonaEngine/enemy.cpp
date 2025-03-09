@@ -20,7 +20,7 @@ namespace mve {
 	}
 
 	Math::Vector4D Enemy::getAcceleration(GLFWwindow* window, double deltaTime) {
-		return Math::Vector4D{ 1.0, -0.1, 0.0, 0.0 }; // Hardcoded for now, because why not.
+		return Math::Vector4D{ 1.0, 0.0, 0.0, 0.0 }; // Hardcoded for now, because why not.
 	}
 	
 

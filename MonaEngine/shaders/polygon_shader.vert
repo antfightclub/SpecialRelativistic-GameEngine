@@ -20,18 +20,20 @@ layout(set = 0, binding = 0) uniform GlobalUbo {
 	mat4 projection;
 	mat4 view;
 	mat4 invView;
-	mat4 ambientLightColor;
+	mat4 L;
+	vec4 ambientLightColor;
+	vec4 observerPosition;
 } ubo;
+
 
 layout(set = 0, binding = 1) uniform LatticeUbo {
 	vec3 Xp;
 	vec3 Xo;
-	mat4 L;
 } latticeUbo;
 
 layout(set = 0, binding = 2) uniform SRUbo {
-	mat4 L;
-	mat4 L_p2e;
+	mat4 L_o2p;
+	mat4 L_p2o;
 	mat4 Rotate;
 	vec4 dX;
 	vec4 xp;
@@ -44,11 +46,12 @@ layout(push_constant) uniform Push {
 
 void main() {
 
+
 	vec4 xi = srUbo.Rotate * vec4(position, 1.0);
 	xi.w = srUbo.xp.w - distance(srUbo.xp.xyz, xi.xyz);
-	xi = srUbo.dX + srUbo.L * xi;
+	xi = srUbo.dX + srUbo.L_o2p * xi;
 	xi.w = -length(xi.xyz);
-	vec4 tmp = srUbo.L_p2e * xi;
+	vec4 tmp = srUbo.L_p2o * xi;
 	ratio = xi.w / tmp.w;
 	xi.w = 1.0;
 
