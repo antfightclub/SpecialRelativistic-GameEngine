@@ -64,51 +64,55 @@ namespace mve {
 			pipelineConfig);
 	};
 
-	void PointLightSystem::update(FrameInfo& frameInfo, GlobalUbo &ubo) {
-		auto rotateLight = glm::rotate(glm::mat4(1.f), frameInfo.frameTime, { 0.f, -1.f, 0.f });
-		int lightIndex = 0;
-		for (auto& kv : frameInfo.gameObjects) {
-			auto& obj = kv.second;
-			if (obj.pointLight == nullptr) continue;
+	//void PointLightSystem::update(FrameInfo& frameInfo, PointLightUbo &ubo) {
+	//	//auto rotateLight = glm::rotate(glm::mat4(1.f), frameInfo.frameTime, { 0.f, -1.f, 0.f });
+	//	int lightIndex = 0;
+	//	for (auto& kv : frameInfo.gameObjects) {
+	//		auto& obj = kv.second;
+	//		if (obj.pointLight == nullptr) continue;
+	//
+	//		assert(lightIndex < MAX_LIGHTS && "Point lights exceed maximum specified!");
+	//
+	//		// update light position
+	//		//obj.transform.translation = glm::vec3(rotateLight * glm::vec4(obj.transform.translation, 1.f));
+	//
+	//		// copy light to ubo
+	//		ubo.pointLights[lightIndex].position = glm::vec4(obj.transform.translation, 1.f);
+	//		ubo.pointLights[lightIndex].color = glm::vec4(obj.color, obj.pointLight->lightIntensity);
+	//
+	//		lightIndex += 1;
+	//	}
+	//
+	//	ubo.numLights = lightIndex;
+	//}
 
-			assert(lightIndex < MAX_LIGHTS && "Point lights exceed maximum specified!");
-
-			// update light position
-			obj.transform.translation = glm::vec3(rotateLight * glm::vec4(obj.transform.translation, 1.f));
-
-			// copy light to ubo
-			ubo.pointLights[lightIndex].position = glm::vec4(obj.transform.translation, 1.f);
-			ubo.pointLights[lightIndex].color = glm::vec4(obj.color, obj.pointLight->lightIntensity);
-
-			lightIndex += 1;
-		}
-
-		ubo.numLights = lightIndex;
-	}
-
-	void PointLightSystem::render(FrameInfo& frameInfo) {
+	void PointLightSystem::render(FrameInfo& frameInfo, glm::vec3 observerPosition) {
+		//std::cout << "frameInfo.gameObjects.size() = " << frameInfo.gameObjects.size() << "\n";
 		// sort lights
 		std::map<float, MveGameObject::id_t> sorted;
 		for (auto& kv : frameInfo.gameObjects) {
 			auto& obj = kv.second;
-			if (obj.pointLight == nullptr) continue;
+			if (obj.pointLight == nullptr) {
+				
+				continue;
+			}
 
 			// calculate distance
-			auto offset = frameInfo.camera.getPosition() - obj.transform.translation;
+			auto offset = observerPosition - obj.transform.translation;
 			float disSquared = glm::dot(offset, offset);
 			sorted[disSquared] = obj.getId();
 		}
+		//std::cout << "the size of sorted is = " << sorted.size() << "\n";
 
-
-		mvePipeline->bind(frameInfo.commandBuffer);
+		mvePipeline->bind(frameInfo.frameCommandBuffers.mainCommandBuffer);
 
 		vkCmdBindDescriptorSets(
-			frameInfo.commandBuffer,
+			frameInfo.frameCommandBuffers.mainCommandBuffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,
 			pipelineLayout,
 			0,
 			1,
-			&frameInfo.globalDescriptorSet,
+			&frameInfo.descriptorSet,
 			0,
 			nullptr);
 		// iterate through sorted lights in reverse order
@@ -122,14 +126,14 @@ namespace mve {
 			push.radius = obj.transform.scale.x;
 
 			vkCmdPushConstants(
-				frameInfo.commandBuffer,
+				frameInfo.frameCommandBuffers.mainCommandBuffer,
 				pipelineLayout,
 				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 				0,
 				sizeof(PointLightPushConstants),
 				&push
 				);
-			vkCmdDraw(frameInfo.commandBuffer, 6, 1, 0, 0);
+			vkCmdDraw(frameInfo.frameCommandBuffers.mainCommandBuffer, 6, 1, 0, 0);
 		}
 	} 
 } // namespace mve

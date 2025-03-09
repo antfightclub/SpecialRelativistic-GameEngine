@@ -1,0 +1,79 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0" version="26.0.10">
+  <diagram name="Page-1" id="lcol-WkiYcubR6pMRZF9">
+    <mxGraphModel dx="1426" dy="1850" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--1" value="Hardware (PC)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d3d3d3;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="160" y="320" width="360" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--2" value="Drivers" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d3d3d3;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="160" y="280" width="360" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--3" value="OS" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d3d3d3;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="160" y="240" width="360" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--4" value="3rd party SDKs" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d3d3d3;strokeWidth=2;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="160" y="140" width="360" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--5" value="Vulkan" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="180" y="180" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--6" value="GLM" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="180" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--7" value="GLFW" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="180" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--8" value="Platform independence layer" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d3d3d3;strokeWidth=2;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="30" width="610" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--9" value="Primitive Data Types" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="160" y="20" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--10" value="Platform Detection" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--11" value="Collections and Iterators" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="280" y="20" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--13" value="&lt;div&gt;File System&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--14" value="&lt;div&gt;Networking&lt;br&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="20" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--15" value="Hi-res Timer" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--16" value="Threading library" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="160" y="80" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--17" value="Graphics Wrappers" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="280" y="80" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--18" value="Physics / Collision Wrapper" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="80" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--19" value="Core Systems" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#d3d3d3;strokeWidth=2;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="30" y="-180" width="610" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--20" value="Module Start-Up and Shut-Down" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="-160" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--21" value="Assertions" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="160" y="-160" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--22" value="Unit Testing" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="280" y="-160" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--23" value="Memory Allocation" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="400" y="-160" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="JfCtXC9ldwo3T6GE9R7--24" value="Math Library" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="-160" width="110" height="50" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
