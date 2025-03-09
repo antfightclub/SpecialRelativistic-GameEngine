@@ -16,7 +16,7 @@ A cube accelerating to reach velocities close to the speed of light undergoes [l
 
 ![Length Contraction](MonaEngine/misc/cube.gif)
 
-A field of time clocks each blinking at the same time. Each time clock starts blinking at `t=0` (when the program starts) and then switches its on/off state every two seconds. The ring-like pattern is due to light-delay - it takes light longer to travel to the observer in the edges of the field of time clocks than in the middle of the field. When The observer accelerates away from the time clocks, it seems as if the clocks blink slower - this is the effects of [Time dilation](https://en.wikipedia.org/wiki/Time_dilation). Additionally you can see the [relativistic doppler effect](https://en.wikipedia.org/wiki/Relativistic_Doppler_effect).
+A field of time clocks each blinking at the same time. Each time clock starts blinking at `t=0` (when the program starts) and then switches its on/off state every two seconds. The ring-like pattern is due to light-delay - it takes light longer to travel to the observer in the edges of the field of time clocks than in the middle of the field. When The observer accelerates away from the time clocks, it seems as if the clocks blink slower - this is the effects of [Time dilation](https://en.wikipedia.org/wiki/Time_dilation). Additionally you can see the [relativistic doppler effect](https://en.wikipedia.org/wiki/Relativistic_Doppler_effect) by the color of the time clocks.
 
 ![Field of Time Clocks](MonaEngine/misc/timeclocks.gif)
 
