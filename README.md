@@ -1,6 +1,6 @@
 # VkMona / Special Relativistic Game Engine
 
-This prototype game engine is the result of my desire of a game in which the speed of light matters. The distances involved in space travel makes light-delay an important factor, and this was the one thing I thought was missing from most space-simulators.
+This prototype game engine is the result of my desire of a game in which the speed of light matters. It is being developed as a learning project and also as a proof-of-concept. In its current state it is barely just that; a proof of concept. See below for a few gifs showcasing what it does. 
 
 This project was mainly motivated by the Expeditionary Force novels written by Craig Alanson. The inspiration for some of the code is based on [LSBattle](https://github.com/sogebu/LSBattle), an implementation from the paper [Relativity For Games](https://arxiv.org/abs/1703.07063)
 
