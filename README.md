@@ -1,5 +1,7 @@
 # VkMona / Special Relativistic Game Engine
-![showcase](MonaEngine/misc/cube_tiny.gif)
+<p align="center">
+  <img src="MonaEngine/misc/cube_tiny.gif" alt="animated" />
+</p>
 
 This prototype game engine is the result of my desire of a game in which the speed of light matters. It is being developed as a learning project and also as a proof-of-concept. In its current state it is barely just that; a proof of concept. See below for a few gifs showcasing what it does. 
 
