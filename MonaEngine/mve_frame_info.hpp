@@ -46,9 +46,9 @@ namespace mve {
 	};			   
 
 	struct SpecialRelativityUbo {
-		alignas(16) glm::mat4 Lorentz_o2p{ 0.f };
-		alignas(16) glm::mat4 Lorentz_p2o{ 0.f }; // transform from "player to object" frame
-		alignas(16) glm::mat4 Rotate{ 0.f };
+		alignas(16) glm::mat4 Lorentz_o2p{ 1.f };
+		alignas(16) glm::mat4 Lorentz_p2o{ 1.f }; // transform from "player to object" frame
+		alignas(16) glm::mat4 Rotate{ 1.f };
 		alignas(16) glm::vec4 dX{ 0.f };
 		alignas(16) glm::vec4 xp{ 0.f };
 	};
