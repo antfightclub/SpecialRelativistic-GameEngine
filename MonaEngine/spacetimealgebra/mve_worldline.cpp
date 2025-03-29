@@ -87,7 +87,7 @@ namespace mve {
 		double yy = X0.get_g2() * (1 - sigma) + X1.get_g2() * (sigma);
 		double zz = X0.get_g3() * (1 - sigma) + X1.get_g3() * (sigma);
 
-		m4sta::mv retur = tt * m4sta::g0 - xx * m4sta::g1 - yy * m4sta::g2 - zz * m4sta::g3;
+		m4sta::mv retur = tt * m4sta::g0 + xx * m4sta::g1 + yy * m4sta::g2 + zz * m4sta::g3;
 		//std::cout << "ret                     = " << retur.toString() << "\n";
 		//std::cout << "(X0 * (1 - sigma) + X1) = " << (X0 * (1 - sigma) + X1).toString() << "\n";
 		
