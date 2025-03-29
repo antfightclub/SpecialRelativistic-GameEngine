@@ -446,6 +446,8 @@ namespace mve {
 				m4sta::mv objPos = objDrawData.phaseSpace.position;
 				m4sta::mv objRap = objDrawData.phaseSpace.rapidity;
 				
+				//std::cout << "Cube position: " << objPos.toString() << std::endl;
+				//std::cout << "Cube rapidity: " << objRap.toString() << std::endl;
 				
 				glm::mat4 objL{1.0};
 				glm::mat4 objLL{1.0};
@@ -482,12 +484,11 @@ namespace mve {
 					+ diffPosition.get_g2() * diffPosition.get_g2()
 					+ diffPosition.get_g3() * diffPosition.get_g3()));
 				
-				
-				m4sta::mv x_p = transformWithLorentzMatrix(objL, (- diffPosition));
+				m4sta::mv x_p = transformWithLorentzMatrix(objL, (-diffPosition));
 				
  				frameAmount += 1;
 
-				m4sta::mv xp_playerframe = transformWithLorentzMatrix(playerL, diffPosition);
+				m4sta::mv xp_playerframe = transformWithLorentzMatrix(playerL, (diffPosition));
 				xp_playerframe.set_g0(0.0);
 
 				//xp_playerframe = xp_playerframe;
@@ -584,6 +585,11 @@ namespace mve {
 				frameGuiInfo.view_matrix = cameraView;
 				frameGuiInfo.player_lorentz_boost = LorentzMatrixFromRapidity(player.P.rapidity);
 				frameGuiInfo.PlayerPhaseSpace = player.P;
+				frameGuiInfo.ObjectPhaseSpace = objDrawData.phaseSpace;
+				frameGuiInfo.diffpos = diffPosition;
+				frameGuiInfo.x_p = x_p;
+				frameGuiInfo.xp_playerframe = xp_playerframe;
+
 				
 				renderGUI(frameGuiInfo);				
 
@@ -696,14 +702,27 @@ namespace mve {
 
 		if (ImGui::Begin("Debug UI", &guiInfo.debug_open)) {
 
+			// FPS, deltatime, total time since start
 			float framerate = ImGui::GetIO().Framerate; // Rolling average of last 60 frames
-
 			ImGui::Text("Total frame time = %.3f [s]", guiInfo.frame_time);
 			ImGui::Text("deltaTime = %.3f [ms]", guiInfo.dt * 1000);
 			ImGui::Text("FPS = %.0f", framerate);
+			ImGui::Text("Proper Time: %.3f [s]", guiInfo.frame_time);
+			ImGui::Text("World  Time: %.3f [s]", guiInfo.PlayerPhaseSpace.position.get_g0());
+
+			// Velocity 
+			double magRap = norm(guiInfo.PlayerPhaseSpace.rapidity);
+			// Lorentz 
+			double g = cosh(magRap); //player.P.U.getGamma(); // Lorentz Factor
+			double u = tanh(magRap);//std::sqrt(1.0 - (1.0 / (g * g))); // Fraction of c
+			double v = Math::c * u;
 
 			ImGui::NewLine();
-
+			ImGui::Text("speed: %f [m/s]", v);
+			ImGui::Text("c = %f", u);
+			ImGui::Text("Lorentz factor: %.3f", g);
+			ImGui::NewLine();
+			
 
 			/*
 			// Casting the desired values into a convenient format (as well as double->float)
@@ -747,32 +766,35 @@ namespace mve {
 			*/
 
 			ImGui::Text("Player Position:");
-			ImGui::Text(guiInfo.PlayerPhaseSpace.position.c_str());
-			ImGui::Text("Player relative position:");
-			ImGui::Text((guiInfo.PlayerPhaseSpace.position * g0).c_str());
+			GUITableFromMultivector(guiInfo.PlayerPhaseSpace.position, "PlayerPos");
+
+			ImGui::Text("Object position:");
+			GUITableFromMultivector(guiInfo.ObjectPhaseSpace.position, "ObjectPos");
+
+			ImGui::NewLine();
+
+			ImGui::Text("Diff position:");
+			GUITableFromMultivector(guiInfo.diffpos, "DiffPos");
+
+			ImGui::Text("x_p:");
+			GUITableFromMultivector(guiInfo.x_p, "x_p");
+
+			ImGui::Text("xp_playerframe:");
+			GUITableFromMultivector(guiInfo.xp_playerframe, "xp_playerframe");
+
+			ImGui::NewLine();
 			ImGui::Text("Player Rapidity:");
-			ImGui::Text(guiInfo.PlayerPhaseSpace.rapidity.c_str());
+			GUITableFromMultivector(guiInfo.PlayerPhaseSpace.rapidity, "PlayerRap");
+
 			ImGui::Text("Player Velocity:");
 			mv velocity = guiInfo.PlayerPhaseSpace.rapidity;
 			velocity = unit(velocity);
 			double magnitude = tanh(norm(guiInfo.PlayerPhaseSpace.rapidity));
 			velocity *= magnitude;
 			velocity.set_g0(cosh(norm(guiInfo.PlayerPhaseSpace.rapidity)));
-			ImGui::Text(velocity.c_str());
+			GUITableFromMultivector(velocity, "velocity");
 
-			double magRap = norm(guiInfo.PlayerPhaseSpace.rapidity);
-			// Lorentz 
-			double g = cosh(magRap); //player.P.U.getGamma(); // Lorentz Factor
-			double u = tanh(magRap);//std::sqrt(1.0 - (1.0 / (g * g))); // Fraction of c
-			double v = Math::c * u;
 
-			ImGui::NewLine();
-			ImGui::Text("speed: %f [m/s]", v);
-			ImGui::Text("c = %f", u);
-			ImGui::Text("Lorentz factor: %.3f", g);
-			ImGui::NewLine();
-			ImGui::Text("Proper Time: %.3f [s]", guiInfo.frame_time);
-			ImGui::Text("World  Time: %.3f [s]", guiInfo.PlayerPhaseSpace.position.get_g0());
 
 			ImGui::NewLine();
 			ImGui::Checkbox("show/hide lattice", guiInfo.render_lattice);
@@ -1030,6 +1052,34 @@ namespace mve {
 		ImGui::End();
 
 
+	}
+
+	void RelativityApp::GUITableFromMultivector(m4sta::mv& mv, const char* id) {
+		static ImGuiTableFlags flags = ImGuiTableFlags_SizingStretchSame;
+
+		ImGui::BeginTable(id, 8, flags);
+		//ImGui::TableSetupColumn("g0");
+		ImGui::TableNextColumn();
+		ImGui::Text("%+.2f", (float)mv.get_g0());
+		ImGui::TableNextColumn();
+		ImGui::Text("g0");
+
+		ImGui::TableNextColumn();
+		ImGui::Text("%+.2f", (float)mv.get_g1());
+		ImGui::TableNextColumn();
+		ImGui::Text("g1");
+
+		ImGui::TableNextColumn();
+		ImGui::Text("%+.2f", (float)mv.get_g2());
+		ImGui::TableNextColumn();
+		ImGui::Text("g2");
+
+		ImGui::TableNextColumn();
+		ImGui::Text("%+.2f", (float)mv.get_g3());
+		ImGui::TableNextColumn();
+		ImGui::Text("g3");
+
+		ImGui::EndTable();
 	}
 
 

@@ -79,6 +79,10 @@ namespace mve {
 		glm::mat4 view_matrix{ 1.f };
 		glm::mat4 player_lorentz_boost{ 1.f };
 		MvePhaseSpace PlayerPhaseSpace;
+		MvePhaseSpace ObjectPhaseSpace;
+		m4sta::mv diffpos;
+		m4sta::mv x_p;
+		m4sta::mv xp_playerframe;
 	};
 
 

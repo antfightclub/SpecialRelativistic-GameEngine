@@ -52,7 +52,7 @@ namespace mve {
 		m4sta::mv commutatorProduct(m4sta::mv& a, m4sta::mv& b);
 		m4sta::mv p3CrossProduct(m4sta::mv& A, m4sta::mv& B);
 		void renderGUI(GuiInfo guiInfo);
-		
+		void GUITableFromMultivector(m4sta::mv& mv, const char* id);
 
 		void setupDearImgui();
 		void loadGameObjects();
