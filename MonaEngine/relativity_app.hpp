@@ -6,8 +6,10 @@
 #include "mve_game_object.hpp"
 #include "mve_device.hpp"
 #include "mve_renderer.hpp"
-
+#include "mve_frame_info.hpp"
 #include "lattice.hpp"
+
+//#include "relativity/unit_conversions.hpp"
 
 // Spacetime Algebra
 #include "spacetimealgebra/m4sta.hpp"
@@ -49,6 +51,8 @@ namespace mve {
 		void m4sta_testing_stuffs(Math::Vector4D X, Math::Vector4D lastX, double deltaTime);
 		m4sta::mv commutatorProduct(m4sta::mv& a, m4sta::mv& b);
 		m4sta::mv p3CrossProduct(m4sta::mv& A, m4sta::mv& B);
+		void renderGUI(GuiInfo guiInfo);
+		
 
 		void setupDearImgui();
 		void loadGameObjects();

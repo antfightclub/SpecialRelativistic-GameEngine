@@ -46,10 +46,10 @@ namespace mve {
 			// https://en.wikipedia.org/wiki/Lorentz_transformation#Coordinate_transformation
 			// However it has been transposed to conform with the GLSL convention
 			return glm::mat4{
-				(g * x2 + y2 + z2) * r,						xy,						zx, -x,
-									xy, (x2 + g * y2 + z2) * r,						yz, -y,
-									zx,						yz, (x2 + y2 + g * z2) * r, -z,
-									-x,						-y,						-z,  g
+				(g * x2 + y2 + z2) * r,						xy,						zx, -x + 0.0,
+									xy, (x2 + g * y2 + z2) * r,						yz, -y + 0.0,
+									zx,						yz, (x2 + y2 + g * z2) * r, -z + 0.0,
+								-x+0.0,					-y+0.0,					-z+0.0,  g
 			};
 		}
 		else {
@@ -58,22 +58,28 @@ namespace mve {
 	}
 
 	m4sta::mv transformWithLorentzMatrix(glm::mat4 L, m4sta::mv proper) {
-		double t, x, y, z, tt, xx, yy, zz;
+		double t, x, y, z; //tt, xx, yy, zz;
 		t = proper.get_g0();
 		x = proper.get_g1();
 		y = proper.get_g2();
 		z = proper.get_g3();
+
+		glm::vec4 xyzt = glm::vec4{x, y, z, t};
 		
-		// This *should* be transposed correctly 
-		tt = L[0][3] * t + L[0][0] * x + L[0][1] * y + L[0][2] * z;
-		xx = L[1][3] * t + L[1][0] * x + L[1][1] * y + L[1][2] * z;
-		yy = L[2][3] * t + L[2][0] * x + L[2][1] * y + L[2][2] * z;
-		zz = L[3][3] * t + L[3][0] * x + L[3][1] * y + L[3][2] * z;
+		// This *should* be transposed correctly
+		// update: might not be...
+		// LOL. I forgot to make it fit the GLSL convention
+		//tt = L[3][3] * t + L[0][3] * x + L[1][3] * y + L[2][3] * z;
+		//xx = L[3][0] * t + L[0][0] * x + L[1][0] * y + L[2][0] * z;
+		//yy = L[3][1] * t + L[0][1] * x + L[1][1] * y + L[2][1] * z;
+		//zz = L[3][2] * t + L[0][2] * x + L[1][2] * y + L[2][2] * z;
+		glm::vec4 test = L * xyzt;
+
 		m4sta::mv ret{};
-		ret.set_g0(tt);
-		ret.set_g1(xx);
-		ret.set_g2(yy);
-		ret.set_g3(zz);
+		ret.set_g0(test.w + 0.0);
+		ret.set_g1(test.x + 0.0);
+		ret.set_g2(test.y + 0.0);
+		ret.set_g3(test.z + 0.0);
 		return ret;
 	}
 

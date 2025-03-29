@@ -48,7 +48,7 @@ namespace mve {
 		double time = 0.0;
 		MveWorldLine worldline;
 
-		void Action(GLFWwindow* window, double deltaTime, GravitationData g);
+		void Action(GLFWwindow* window, double deltaTime);
 
 		/// <summary>
 		/// Returns the EnemyDrawData struct which just contains the enemy's X, U in the background frame as well as a rotation matrix.

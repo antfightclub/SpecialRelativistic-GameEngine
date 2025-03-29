@@ -7,7 +7,7 @@ namespace mve {
 	}
 
 
-	void Player::Action(GLFWwindow* window, double deltaTime, GravitationData g) {
+	void Player::Action(GLFWwindow* window, double deltaTime) {
 		// Print keymap state
 		/*std::cout << "***** EVIL KEYMAP STATE *****\n"
 			<< "k_accel " << mveWindow.k_state.k_accel << '\n'

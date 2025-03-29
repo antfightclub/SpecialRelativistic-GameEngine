@@ -2,7 +2,7 @@
 
 #include "mve_camera.hpp"
 #include "mve_game_object.hpp"
-
+#include "spacetimealgebra/mve_phasespace.hpp"
 #include <vulkan/vulkan.h>
 #include <vector>
 
@@ -65,6 +65,20 @@ namespace mve {
 		MveCamera& camera;
 		VkDescriptorSet descriptorSet;
 		MveGameObject::Map& gameObjects;
+	};
+
+	struct GuiInfo {
+		bool debug_open{};
+		bool sta_open{};
+		bool *render_lattice;
+		bool *spawn_timeclocks;
+		float frame_time{};
+		float dt{};
+		size_t amount_timeclocks;
+
+		glm::mat4 view_matrix{ 1.f };
+		glm::mat4 player_lorentz_boost{ 1.f };
+		MvePhaseSpace PlayerPhaseSpace;
 	};
 
 

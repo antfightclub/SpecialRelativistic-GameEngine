@@ -11,6 +11,7 @@ namespace mve {
 		m4sta::mv position;
 		m4sta::mv rapidity;
 
+		MvePhaseSpace() : position{}, rapidity{} {}
 		MvePhaseSpace(m4sta::mv pos, m4sta::mv vel) : position{pos}, rapidity{vel} {}
 
 		void transform(m4sta::mv accel, double deltaSeconds);
