@@ -272,6 +272,9 @@
     <ClInclude Include="entity\object.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="relativity\unit_conversions.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\compile.bat">

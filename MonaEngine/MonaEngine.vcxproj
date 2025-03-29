@@ -167,6 +167,7 @@
     <ClCompile Include="relativity\math\Vector3.cpp" />
     <ClCompile Include="relativity\math\Vector4D.cpp" />
     <ClCompile Include="relativity\math\WorldLine.cpp" />
+    <ClInclude Include="relativity\unit_conversions.hpp" />
     <ClCompile Include="relativity_app.cpp" />
     <ClCompile Include="spacetimealgebra\m4sta.cpp" />
     <ClCompile Include="spacetimealgebra\m4sta_parse_mv.cpp" />
