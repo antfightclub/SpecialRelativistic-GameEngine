@@ -58,7 +58,7 @@ namespace mve {
 	}
 
 	m4sta::mv transformWithLorentzMatrix(glm::mat4 L, m4sta::mv proper) {
-		double t, x, y, z; //tt, xx, yy, zz;
+		/*double t, x, y, z; //tt, xx, yy, zz;
 		t = proper.get_g0();
 		x = proper.get_g1();
 		y = proper.get_g2();
@@ -80,6 +80,29 @@ namespace mve {
 		ret.set_g1(test.x + 0.0);
 		ret.set_g2(test.y + 0.0);
 		ret.set_g3(test.z + 0.0);
+		return ret;*/
+		double t, x, y, z, tt, xx, yy, zz;
+		t = proper.get_g0();
+		x = proper.get_g1();
+		y = proper.get_g2();
+		z = proper.get_g3();
+
+		//tt = L[0][3] * t + L[0][0] * x + L[0][1] * y + L[0][2] * z;
+		//xx = L[1][3] * t + L[1][0] * x + L[1][1] * y + L[1][2] * z;
+		//yy = L[2][3] * t + L[2][0] * x + L[2][1] * y + L[2][2] * z;
+		//zz = L[3][3] * t + L[3][0] * x + L[3][1] * y + L[3][2] * z;
+		
+		tt = L[3][3] * t + L[0][3] * x + L[1][3] * y + L[2][3] * z;
+		xx = L[3][0] * t + L[0][0] * x + L[1][0] * y + L[2][0] * z;
+		yy = L[3][1] * t + L[0][1] * x + L[1][1] * y + L[2][1] * z;
+		zz = L[3][2] * t + L[0][2] * x + L[1][2] * y + L[2][2] * z;
+
+
+		m4sta::mv ret{};
+		ret.set_g0(tt);
+		ret.set_g1(xx);
+		ret.set_g2(yy);
+		ret.set_g3(zz);
 		return ret;
 	}
 
