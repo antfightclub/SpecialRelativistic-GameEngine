@@ -49,11 +49,39 @@ namespace mve {
 				(g * x2 + y2 + z2) * r,						xy,						zx, -x + 0.0,
 									xy, (x2 + g * y2 + z2) * r,						yz, -y + 0.0,
 									zx,						yz, (x2 + y2 + g * z2) * r, -z + 0.0,
-								-x+0.0,					-y+0.0,					-z+0.0,  g
+								-x+0.0,					-y+00,					-z+0.0,  g
 			};
 		}
 		else {
 			return glm::mat4{ 1.0 };
+		}
+	}
+
+	glm::mat4 LorentzMatrixFromRapidity_2(m4sta::mv rapidity) {
+		double rapX = rapidity.get_g1();
+		double rapY = rapidity.get_g2(); 
+		double rapZ = rapidity.get_g3();
+
+		double rap = std::sqrt(rapX * rapX + rapY * rapY + rapZ * rapZ); // Magnitude of rapidity
+		m4sta::mv unitDir = m4sta::unit(rapidity);
+		
+		double n_x = unitDir.get_g1();
+		double n_y = unitDir.get_g2();
+		double n_z = unitDir.get_g3();
+
+		double cosh = std::cosh(rap);
+		double sinh = std::sinh(rap);
+
+		if (std::tanh(rap) > 0.00001) {
+			return glm::mat4{
+				1 + (cosh - 1) * n_x * n_x,		(cosh - 1) * n_x * n_y,		(cosh - 1) * n_x * n_z, -n_x * sinh,
+					(cosh - 1) * n_y * n_x, 1 + (cosh - 1) * n_y * n_y,		(cosh - 1) * n_y * n_z, -n_y * sinh,
+					(cosh - 1) * n_z * n_x,		(cosh - 1) * n_z * n_y, 1 + (cosh - 1) * n_z * n_z, -n_z * sinh,
+							   -n_x * sinh,				   -n_y * sinh,				   -n_z * sinh,			cosh
+			};
+		}
+		else {
+			return glm::mat4{ 1.f };
 		}
 	}
 
