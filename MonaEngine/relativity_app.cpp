@@ -320,7 +320,7 @@ namespace mve {
 				// ********** Update game **********
 
 				player.Action(mveWindow.getGLFWwindow(), dt);
-				//wtestObject.Action(mveWindow.getGLFWwindow(), dt);
+				testObject.Action(mveWindow.getGLFWwindow(), dt);
 				//enemy.Action(mveWindow.getGLFWwindow(), dt);
 				
 				// Timeclocks are passive when this is commented out, so they are essentially point sprites with no worldline.
