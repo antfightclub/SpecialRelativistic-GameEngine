@@ -320,7 +320,7 @@ namespace mve {
 				// ********** Update game **********
 
 				player.Action(mveWindow.getGLFWwindow(), dt);
-				testObject.Action(mveWindow.getGLFWwindow(), dt);
+				//wtestObject.Action(mveWindow.getGLFWwindow(), dt);
 				//enemy.Action(mveWindow.getGLFWwindow(), dt);
 				
 				// Timeclocks are passive when this is commented out, so they are essentially point sprites with no worldline.
@@ -357,7 +357,7 @@ namespace mve {
 				globalUbo.projection = camera.getProjection();
 				globalUbo.view = camera.getView();
 				globalUbo.inverseView = invView;
-				globalUbo.Lorentz = LorentzMatrixFromRapidity(player.P.rapidity);
+				globalUbo.Lorentz = LorentzMatrixFromRapidity_2(player.P.rapidity);
 				globalUbo.ambientLightColor = { 1.f, 1.f, 1.f, .02f };
 				globalUbo.observerPosition = { playerPos[0], playerPos[1], playerPos[2], 1.0};
 				globalUboBuffers[frameIndex]->writeToBuffer(&globalUbo);
@@ -452,11 +452,11 @@ namespace mve {
 				glm::mat4 objL{1.0};
 				glm::mat4 objLL{1.0};
 
-				objL = LorentzMatrixFromRapidity(objRap);				// Background frame to object frame
-				objLL = LorentzMatrixFromRapidity(( -objRap));				// Object frame     to background frame
+				objL = LorentzMatrixFromRapidity_2(objRap);				// Background frame to object frame
+				objLL = LorentzMatrixFromRapidity_2(( -objRap));				// Object frame     to background frame
 
-				glm::mat4 playerL = LorentzMatrixFromRapidity(player.P.rapidity);				// Background frame to player frame
-				glm::mat4 playerLL = LorentzMatrixFromRapidity(( - player.P.rapidity));				// Player frame     to background frame
+				glm::mat4 playerL = LorentzMatrixFromRapidity_2(player.P.rapidity);				// Background frame to player frame
+				glm::mat4 playerLL = LorentzMatrixFromRapidity_2(( - player.P.rapidity));				// Player frame     to background frame
 				
 				glm::mat4 L_o2p = (playerL * objLL);
 				glm::mat4 L_p2o = (objL * playerLL);
@@ -589,7 +589,6 @@ namespace mve {
 				frameGuiInfo.diffpos = diffPosition;
 				frameGuiInfo.x_p = x_p;
 				frameGuiInfo.xp_playerframe = xp_playerframe;
-
 				
 				renderGUI(frameGuiInfo);				
 
@@ -699,6 +698,11 @@ namespace mve {
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+
+		static double vel_x = 0.0;
+		static double vel_y = 0.0;
+		static double vel_z = 0.0;
+
 
 		if (ImGui::Begin("Debug UI", &guiInfo.debug_open)) {
 
@@ -851,109 +855,18 @@ namespace mve {
 		}
 		ImGui::End();
 
-		if (ImGui::Begin("Spacetime Algebra", &guiInfo.sta_open)) {
-			//ImGui::Text("Player position: ");
-			//ImGui::Text(playerPos.c_str_f());
-			//ImGui::Text("Player velocity: ");
-			//ImGui::Text(playerVel.c_str_f());
-			//ImGui::Text("Split of velocity: ");
-			//ImGui::Text(splitVel.c_str_f());
+		if (ImGui::Begin("Matrices", &guiInfo.sta_open)) {
 
-			static float theta;
-			static float phi;
+			ImGui::InputDouble("(vel_x)", &vel_x);
+			ImGui::InputDouble("(vel_y)", &vel_y);
+			ImGui::InputDouble("(vel_z)", &vel_z);
 
-			static float vvec[4]{};
-			static float mvec[4]{};
-			static float nvec[4]{};
-			ImGui::InputFloat("Theta", &theta);
-			ImGui::InputFloat("Phi", &phi);
+			mv mvec = vel_x * g1 + vel_y * g2 + vel_z * g3;
+			//mv mvec = std::tanh(vel_x)*g1 + std::tanh(vel_y)*g2 + std::tanh(vel_z)*g3;
 
-			ImGui::InputFloat4("v", vvec);
-			ImGui::InputFloat4("m", mvec);
-			ImGui::InputFloat4("n", nvec);
+			glm::mat4 mat = LorentzMatrixFromRapidity(mvec);
+			GUITableFromMatrix(mat, "mattest");
 
-			mv v = vvec[0] * g0 - vvec[1] * g1 - vvec[2] * g2 - vvec[3] * g3;
-			mv m = mvec[0] * g0 - mvec[1] * g1 - mvec[2] * g2 - mvec[3] * g3;
-			mv n = nvec[0] * g0 - nvec[1] * g1 - nvec[2] * g2 - nvec[3] * g3;
-
-			v = unit(v);
-			m = unit(m);
-			n = unit(n);
-
-			mv v_rel = g0 ^ v;
-			mv m_rel = g0 ^ m;
-			mv n_rel = g0 ^ n;
-			mv v_sqrd = v * v;
-			mv m_x_n = m ^ n;
-			// Unsure about this one
-			mv m_x_n_sqrd = -((mvec[0] * nvec[1] - mvec[1] * nvec[0]) * (mvec[0] * nvec[1] - mvec[1] * nvec[0])
-				+ (mvec[1] * nvec[2] + mvec[2] * nvec[1]) * (mvec[1] * nvec[2] + mvec[2] * nvec[1])
-				+ (mvec[2] * nvec[3] + mvec[3] * nvec[2]) * (mvec[2] * nvec[3] + mvec[3] * nvec[2]));
-
-			mv ev{};
-			if (v_sqrd.get_scalar() >= 0.00001) {
-				ev = div(v_rel, std::sqrt(v_sqrd.get_scalar()));
-			}
-			else if (v_sqrd.get_scalar() <= 0.00001) {
-				ev = div(v_rel, std::sqrt(-v_sqrd.get_scalar()));
-			}
-			else {
-
-			}
-
-			//mv ev = div(v_rel, std::sqrt(v_sqrd.get_scalar()));
-			mv I2 = div(m_x_n, std::sqrt(-m_x_n_sqrd.get_scalar()));
-
-
-			ImGui::Text("v         : "); ImGui::SameLine(); ImGui::Text(v.c_str());
-			ImGui::Text("v_rel     : "); ImGui::SameLine(); ImGui::Text(v_rel.c_str());
-			ImGui::Text("m         : "); ImGui::SameLine(); ImGui::Text(m.c_str());
-			ImGui::Text("m_rel     : "); ImGui::SameLine(); ImGui::Text(m_rel.c_str());
-			ImGui::Text("n         : "); ImGui::SameLine(); ImGui::Text(n.c_str());
-			ImGui::Text("n_rel     : "); ImGui::SameLine(); ImGui::Text(n_rel.c_str());
-			ImGui::NewLine();
-			ImGui::Text("m x n     : "); ImGui::SameLine(); ImGui::Text(m_x_n.c_str());
-			ImGui::Text("v_sqrd    : "); ImGui::SameLine(); ImGui::Text(v_sqrd.c_str());
-			ImGui::Text("(m x n)^2 : "); ImGui::SameLine(); ImGui::Text(m_x_n_sqrd.c_str());
-			ImGui::NewLine();
-			ImGui::Text("ev        : "); ImGui::SameLine(); ImGui::Text(ev.c_str());
-			ImGui::Text("I2        : "); ImGui::SameLine(); ImGui::Text(I2.c_str());
-			ImGui::Text("ev^2      : "); ImGui::SameLine(); ImGui::Text((ev * ev).c_str());
-			ImGui::Text("I2^2      : "); ImGui::SameLine(); ImGui::Text((I2 * I2).c_str());
-
-			mv exp_ev = exp((theta / 2) * ev);
-			mv exp_I2 = exp((phi / 2) * I2);
-
-			static float xvec[4]{};
-			static float yvec[4]{};
-			ImGui::InputFloat4("x", xvec);
-			ImGui::InputFloat4("y", yvec);
-			mv x = xvec[0] * g0 - xvec[1] * g1 - xvec[2] * g2 - xvec[3] * g3;
-			mv y = yvec[0] * g0 - yvec[1] * g1 - yvec[2] * g2 - yvec[3] * g3;
-
-			x = unit(x);
-			y = unit(y);
-
-			mv xprime = exp_ev * (x) * (~exp_ev);
-			mv yprime = exp_I2 * (y) * (~exp_I2);
-
-			ImGui::Text("x         : "); ImGui::SameLine(); ImGui::Text(x.c_str());
-			ImGui::Text("y         : "); ImGui::SameLine(); ImGui::Text(y.c_str());
-			ImGui::Text("x'        : "); ImGui::SameLine(); ImGui::Text(xprime.c_str());
-			ImGui::Text("y'        : "); ImGui::SameLine(); ImGui::Text(yprime.c_str());
-
-			mv numerator = x ^ xprime;
-			mv denominator = (x ^ xprime) * (x ^ xprime);
-			if (denominator.get_scalar() >= 0.00001) {
-				denominator = std::sqrt(denominator.get_scalar());
-			}
-			mv biv = div(numerator, denominator.get_scalar());
-			mv Lhat = exp(-(theta / 2.0) * biv);
-
-			ImGui::Text("Lhat     : "); ImGui::SameLine(); ImGui::Text(Lhat.c_str());
-
-			mv xprimetwo = (~Lhat) * x * Lhat;
-			ImGui::Text("~Lhat * x * Lhat : "); ImGui::SameLine(); ImGui::Text(xprimetwo.c_str());
 
 			/*static float magnitude_v = 0.0;
 			ImGui::InputFloat("v magnitude", &magnitude_v, -1.0f, 1.0f);
@@ -1082,6 +995,21 @@ namespace mve {
 		ImGui::EndTable();
 	}
 
+	void RelativityApp::GUITableFromMatrix(glm::mat4 mat, const char* id) {
+		static ImGuiTableFlags flags = ImGuiTableFlags_SizingStretchSame;
+
+		ImGui::BeginTable(id, 4, flags);
+		//ImGui::TableSetupColumn("g0");
+		for (int row = 0; row < 4; row++) {
+			ImGui::TableNextRow();
+			for (int col = 0; col < 4; col++) {
+				ImGui::TableSetColumnIndex(col);
+				ImGui::Text("%+.4f", mat[col][row]);
+			}
+		}
+
+		ImGui::EndTable();
+	}
 
 	void RelativityApp::m4sta_testing_stuffs(Math::Vector4D X, Math::Vector4D lastX, double dt) {
 		

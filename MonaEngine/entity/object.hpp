@@ -14,7 +14,8 @@ namespace mve {
 	public:
 		TestObject(MveWindow& mveWindow, MveGameObject& gameObject, m4sta::mv spacetimePosition);
 		m4sta::mv spacetimePosition;
-		
+		m4sta::mv accelDirection{};
+
 		void Action(GLFWwindow* window, double deltaTime);
 
 		ObjectDrawData getDrawData(m4sta::mv observerPosition);
@@ -25,8 +26,13 @@ namespace mve {
 		MveWindow& mveWindow;
 		MveGameObject::id_t id;
 		MveWorldLine worldline;
+		MvePhaseSpace P;
 
 		void init(mve::MveGameObject& gameObject) { this->id = gameObject.getId(); }
+
+		m4sta::mv getAcceleration(double deltaTime);
+		void changeDirection(double deltaTime);
+
 	};
 
 }

@@ -9,10 +9,22 @@ namespace mve {
 	}
 
 	void TestObject::Action(GLFWwindow* window, double deltaTime) {
+		changeDirection(deltaTime);
+		mv accel = getAcceleration(deltaTime);
 
-		spacetimePosition.set_g0(spacetimePosition.get_g0() + deltaTime);
+		this->P.transform(accel, deltaTime);
+		//spacetimePosition.set_g3(4.0);
+		worldline.add(this->P.position);
+	}
 
-		worldline.add(spacetimePosition);
+	m4sta::mv TestObject::getAcceleration(double deltaTime) {
+		m4sta::mv ret = accelDirection * 0.1;
+		return ret;
+	}
+
+	void TestObject::changeDirection(double deltaTime) {
+		accelDirection.set_g1(sin(spacetimePosition.get_g0()));
+		accelDirection.set_g2(cos(spacetimePosition.get_g0()));
 	}
 
 	ObjectDrawData TestObject::getDrawData(m4sta::mv observerPosition) {

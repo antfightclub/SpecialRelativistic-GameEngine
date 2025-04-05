@@ -75,7 +75,7 @@ namespace mve {
 		float frame_time{};
 		float dt{};
 		size_t amount_timeclocks;
-
+		
 		glm::mat4 view_matrix{ 1.f };
 		glm::mat4 player_lorentz_boost{ 1.f };
 		MvePhaseSpace PlayerPhaseSpace;
