@@ -357,7 +357,7 @@ namespace mve {
 				globalUbo.projection = camera.getProjection();
 				globalUbo.view = camera.getView();
 				globalUbo.inverseView = invView;
-				globalUbo.Lorentz = LorentzMatrixFromRapidity_2(player.P.rapidity);
+				globalUbo.Lorentz = LorentzMatrixFromRapidity_3(player.P.rapidity);
 				globalUbo.ambientLightColor = { 1.f, 1.f, 1.f, .02f };
 				globalUbo.observerPosition = { playerPos[0], playerPos[1], playerPos[2], 1.0};
 				globalUboBuffers[frameIndex]->writeToBuffer(&globalUbo);

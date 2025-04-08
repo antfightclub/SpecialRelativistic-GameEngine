@@ -84,6 +84,37 @@ namespace mve {
 			return glm::mat4{ 1.f };
 		}
 	}
+	glm::mat4 LorentzMatrixFromRapidity_3(m4sta::mv rapidity) {
+		double rapX = rapidity.get_g1();
+		double rapY = rapidity.get_g2();
+		double rapZ = rapidity.get_g3();
+
+		double rap = std::sqrt(rapX * rapX + rapY * rapY + rapZ * rapZ);
+		m4sta::mv unitDir = m4sta::unit(rapidity);
+		double beta_mag = std::tanh(rap);
+		m4sta::mv beta_dir = unitDir * beta_mag;
+
+		double betaX = beta_dir.get_g1();
+		double betaY = beta_dir.get_g2();
+		double betaZ = beta_dir.get_g3();
+
+		double betaX2 = betaX * betaX;
+		double betaY2 = betaY * betaY;
+		double betaZ2 = betaZ * betaZ;
+
+		double gamma = std::cosh(rap);
+		double gamma_expr = (gamma * gamma) / (1 + gamma);
+		if (beta_mag > 0.00001) {
+			//https://wikimedia.org/api/rest_v1/media/math/render/svg/54710e2fd8f0ae75277c2367f30a6d419c3cf825
+			return glm::mat4{
+				1 + gamma_expr * betaX2, gamma_expr * betaX * betaY, gamma_expr * betaX * betaZ, -gamma * betaX,
+			 gamma_expr * betaX * betaY, 1 + gamma_expr * betaY2, gamma_expr * betaY * betaZ, -gamma * betaY,
+			 gamma_expr * betaX * betaZ, gamma_expr * betaY * betaZ, 1 + gamma_expr * betaZ2, -gamma * betaZ,
+			 -gamma * betaX, -gamma * betaY, -gamma * betaZ, gamma
+			};
+		}
+		return glm::mat4{ 1.f };
+	}
 
 	m4sta::mv transformWithLorentzMatrix(glm::mat4 L, m4sta::mv proper) {
 		/*double t, x, y, z; //tt, xx, yy, zz;

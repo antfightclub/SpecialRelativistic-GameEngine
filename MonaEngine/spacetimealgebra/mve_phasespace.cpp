@@ -60,8 +60,8 @@ namespace mve {
 		double cosh = std::cosh(rap);
 		double sinh = std::sinh(rap);
 
-		std::cout << "cosh: " << cosh << std::endl;
-		std::cout << "sinh: " << sinh << std::endl;
+		//std::cout << "cosh: " << cosh << std::endl;
+		//std::cout << "sinh: " << sinh << std::endl;
 
 		glm::mat4 L{ 1.f };
 
